@@ -9,6 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import static org.mockito.Mockito.verify;
 
 public class ChatControllerTest {
@@ -25,10 +28,13 @@ public class ChatControllerTest {
     }
 
     @Test
-    public void testReceivePublicMessage() {
+    public void testReceivePublicMessage() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Message message = new Message(null, null, "Hello, public!", null, null);
 
-        chatController.receivePublicMessage(message);
+//        chatController.receivePublicMessage(message);
+        Method method = ChatController.class.getDeclaredMethod("receivePublicMessage", Message.class);
+        method.setAccessible(true);
+        Message result = (Message) method.invoke(chatController, message);
 
         verify(messagingTemplate).convertAndSend("/chatroom/public", message);
     }
