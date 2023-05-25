@@ -18,13 +18,13 @@ public class ChatController {
 
     @MessageMapping("/message") // "/app/message"로 오면 받는다.
     @SendTo("/chatroom/public")
-    private Message receivePublicMessage(@Payload Message message){
+    public Message receivePublicMessage(@Payload Message message){
         System.out.println(message);
         return  message;
     }
 
     @MessageMapping("/private-message")
-    private Message receivePrivateMessage(@Payload Message message){
+    public Message receivePrivateMessage(@Payload Message message){
 
         // 변환한 내용을 "/user/targetName/private"로 보낸다
         simpMessagingTemplate.convertAndSendToUser(message.getReceiver(),"/private",message);
