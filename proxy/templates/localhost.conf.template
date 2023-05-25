@@ -1,0 +1,34 @@
+upstream front {
+  server pong_front:3000;
+}
+
+upstream nestjs {
+  server pong_nestjs:3000;
+}
+
+server {
+  listen 80;
+  server_name ${SERVER_HOST};
+
+  location / {
+    proxy_pass http://front;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    client_max_body_size 4M;
+  }
+
+  location /api {
+    proxy_pass http://nestjs;
+    proxy_http_version 1.1;
+    client_max_body_size 4M;
+  }
+
+  location /socket.io {
+    proxy_buffering off;
+    proxy_pass http://nestjs/socket.io;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+  }
+}
