@@ -3,19 +3,21 @@ package com.jjeong.kiwi.controller;
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.service.UserServices;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/signup")
+@RequiredArgsConstructor
 public class SampleController {
 
         private final UserServices userService;
 
-        public SampleController(UserServices userService) {
-            this.userService = userService;
-        }
+//        public SampleController(UserServices userService) {
+//            this.userService = userService;
+//        }
 
         @PostMapping
         public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {

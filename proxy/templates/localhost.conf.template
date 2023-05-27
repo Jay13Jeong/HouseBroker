@@ -1,9 +1,9 @@
 upstream front {
-  server pong_front:3000;
+  server frontend:3000;
 }
 
-upstream nestjs {
-  server pong_nestjs:3000;
+upstream spring {
+  server backend:8080;
 }
 
 server {
@@ -19,14 +19,14 @@ server {
   }
 
   location /api {
-    proxy_pass http://nestjs;
+    proxy_pass http://spring;
     proxy_http_version 1.1;
     client_max_body_size 4M;
   }
 
   location /socket.io {
     proxy_buffering off;
-    proxy_pass http://nestjs/socket.io;
+    proxy_pass http://spring/socket.io;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "Upgrade";

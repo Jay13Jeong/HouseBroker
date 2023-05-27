@@ -21,7 +21,7 @@ class DummyClassTest {
 
     @Test
     void hello() {
-        assertThat(dummyClass.hello()).isEqualTo("hello");
+        assertThat(dummyClass.hello()).isEqualTo("helloo");
     }
 
     @Autowired
