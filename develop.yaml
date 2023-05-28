@@ -5,10 +5,10 @@ services:
     image: mariadb
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: mydb
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD:   ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: mydb
+      MARIADB_USER:  ${DB_USER}
+      MARIADB_PASSWORD:  ${DB_PASSWORD}
     ports:
       - 3306:3306
     volumes:

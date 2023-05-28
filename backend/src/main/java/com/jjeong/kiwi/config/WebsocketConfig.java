@@ -9,19 +9,19 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
 
-//@Configuration
-//@EnableWebSocketMessageBroker
-//public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
-//    @Override
-//    public void registerStompEndpoints(StompEndpointRegistry registry) {
-//        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
-//    }
-//
-//    @Override
-//    public void configureMessageBroker(MessageBrokerRegistry registry) {
-//        registry.setApplicationDestinationPrefixes("/app");
-//        registry.enableSimpleBroker("/chatroom","/user");
-//        registry.setUserDestinationPrefix("/user");
-//    }
-//}
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOriginPatterns("*").withSockJS();
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/chatroom","/user");
+        registry.setUserDestinationPrefix("/user");
+    }
+}
 

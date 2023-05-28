@@ -9,25 +9,25 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-//@Controller
-//@Setter
-//public class ChatController {
+@Controller
+@Setter
+public class ChatController {
 
-//    @Autowired
-//    private SimpMessagingTemplate simpMessagingTemplate;
-//
-//    @MessageMapping("/message") // "/app/message"로 오면 받는다.
-//    @SendTo("/chatroom/public")
-//    public Message receivePublicMessage(@Payload Message message){
-//        System.out.println(message);
-//        return  message;
-//    }
-//
-//    @MessageMapping("/private-message")
-//    public Message receivePrivateMessage(@Payload Message message){
-//
-//        // 변환한 내용을 "/user/targetName/private"로 보낸다
-//        simpMessagingTemplate.convertAndSendToUser(message.getReceiver(),"/private",message);
-//        return  message;
-//    }
-//}
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @MessageMapping("/message") // "/app/message"로 오면 받는다.
+    @SendTo("/chatroom/public")
+    public Message receivePublicMessage(@Payload Message message){
+        System.out.println(message);
+        return  message;
+    }
+
+    @MessageMapping("/private-message")
+    public Message receivePrivateMessage(@Payload Message message){
+
+        // 변환한 내용을 "/user/targetName/private"로 보낸다
+        simpMessagingTemplate.convertAndSendToUser(message.getReceiver(),"/private",message);
+        return  message;
+    }
+}

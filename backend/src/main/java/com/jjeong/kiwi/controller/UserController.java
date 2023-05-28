@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/signup")
 @RequiredArgsConstructor
-public class SampleController {
+public class UserController {
 
         private final UserServices userService;
 

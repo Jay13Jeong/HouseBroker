@@ -9,21 +9,10 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManagerFactory;
 
 @Service
-//@RequiredArgsConstructor
+@RequiredArgsConstructor
 public class UserServices {
     private final UserRepository userRepository;
-//    private final EntityManagerFactory entityManagerFactory;
-
-//    @Autowired
-//    public UserServices(UserRepository userRepository, EntityManagerFactory entityManagerFactory) {
-//        this.userRepository = userRepository;
-//        this.entityManagerFactory = entityManagerFactory;
-//    }
-
-    @Autowired
-    public UserServices(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final EntityManagerFactory entityManagerFactory;
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -38,7 +27,3 @@ public class UserServices {
         }
     }
 }
-
-
-
-
