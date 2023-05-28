@@ -15,10 +15,6 @@ public class UserController {
 
         private final UserServices userService;
 
-//        public SampleController(UserServices userService) {
-//            this.userService = userService;
-//        }
-
         @PostMapping
         public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {
             // 회원가입 로직 구현

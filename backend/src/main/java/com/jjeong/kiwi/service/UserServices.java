@@ -12,7 +12,6 @@ import javax.persistence.EntityManagerFactory;
 @RequiredArgsConstructor
 public class UserServices {
     private final UserRepository userRepository;
-    private final EntityManagerFactory entityManagerFactory;
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);

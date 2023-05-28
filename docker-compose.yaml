@@ -34,6 +34,7 @@ services:
       JWTKEY: ${ACCESS_SECRET}
     ports:
       - 8080:8080
+      - 5005:5005 #for develop debug
     volumes:
       - ./backend/src:/my_backend/src
     networks:
