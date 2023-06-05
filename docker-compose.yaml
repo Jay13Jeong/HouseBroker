@@ -31,10 +31,11 @@ services:
       GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID}
       GOOGLE_ACCESS_SECRET: ${GOOGLE_ACCESS_SECRET}
       GOOGLE_AUTH_CALLBACK_URL: ${GOOGLE_AUTH_CALLBACK_URL}
-      JWTKEY: ${ACCESS_SECRET}
+      JWTKEY: ${JWT_SECRET}
+      SERVER_HOST: ${SERVER_HOST}
     ports:
       - 8080:8080
-      - 5005:5005 #for develop debug
+      # - 5005:5005 #for develop debug
     volumes:
       - ./backend/src:/my_backend/src
     networks:

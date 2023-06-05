@@ -2,7 +2,7 @@ package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
-import com.jjeong.kiwi.service.UserServices;
+import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-        private final UserServices userService;
+        private final UserService userService;
 
         @PostMapping
         public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {

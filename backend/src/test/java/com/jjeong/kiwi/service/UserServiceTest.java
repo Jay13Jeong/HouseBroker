@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class UserServicesTest {
-    private UserServices userServices;
+class UserServiceTest {
+    private UserService userService;
 
     @Mock
     private UserRepository userRepository;
@@ -19,7 +19,7 @@ class UserServicesTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        userServices = new UserServices(userRepository);
+        userService = new UserService(userRepository);
     }
 
     @Test
@@ -27,7 +27,7 @@ class UserServicesTest {
         String email = "example@example.com";
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        boolean result = userServices.existsByEmail(email);
+        boolean result = userService.existsByEmail(email);
 
         assertTrue(result);
         verify(userRepository, times(1)).existsByEmail(email);
@@ -38,7 +38,7 @@ class UserServicesTest {
         String email = "example@example.com";
         when(userRepository.existsByEmail(email)).thenReturn(false);
 
-        boolean result = userServices.existsByEmail(email);
+        boolean result = userService.existsByEmail(email);
 
         assertFalse(result);
         verify(userRepository, times(1)).existsByEmail(email);
@@ -49,7 +49,7 @@ class UserServicesTest {
         User user = new User("username", "example@example.com", "password");
         when(userRepository.save(user)).thenReturn(user);
 
-        boolean result = userServices.createUser(user);
+        boolean result = userService.createUser(user);
 
         assertTrue(result);
         verify(userRepository, times(1)).save(user);
@@ -60,7 +60,7 @@ class UserServicesTest {
         User user = new User("username", "example@example.com", "password");
         when(userRepository.save(user)).thenThrow(new RuntimeException());
 
-        boolean result = userServices.createUser(user);
+        boolean result = userService.createUser(user);
 
         assertFalse(result);
         verify(userRepository, times(1)).save(user);

@@ -5,7 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
-import com.jjeong.kiwi.service.UserServices;
+import com.jjeong.kiwi.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -17,7 +17,7 @@ class UserControllerTest {
     private UserController userController;
 
     @Mock
-    private UserServices userService;
+    private UserService userService;
 
     @BeforeEach
     public void setup() {

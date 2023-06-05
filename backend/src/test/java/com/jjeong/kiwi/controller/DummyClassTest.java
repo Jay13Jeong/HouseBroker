@@ -2,7 +2,7 @@ package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.repository.UserRepository;
-import com.jjeong.kiwi.service.UserServices;
+import com.jjeong.kiwi.service.UserService;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,7 +25,7 @@ class DummyClassTest {
     }
 
     @Autowired
-    private UserServices userServices;
+    private UserService userService;
 
     @MockBean
     private UserRepository userRepository;
@@ -36,7 +36,7 @@ class DummyClassTest {
 
         when(userRepository.existsByEmail(email)).thenReturn(true);
 
-        boolean exists = userServices.existsByEmail(email);
+        boolean exists = userService.existsByEmail(email);
 
         assertThat(exists).isTrue();
     }
@@ -48,7 +48,7 @@ class DummyClassTest {
 
         when(userRepository.save(user)).thenReturn(user);
 
-        boolean created = userServices.createUser(user);
+        boolean created = userService.createUser(user);
 
         assertThat(created).isTrue();
     }
