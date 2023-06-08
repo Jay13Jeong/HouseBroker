@@ -1,22 +1,18 @@
 package com.jjeong.kiwi.domain;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString
+@Setter
+@Getter
 public class UserInfoResponse {
     private String email;
-    private String userId;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+    private String id;
+    private String name;
+    private String given_name;
+    private String family_name;
+    private String picture;
+    private String locale;
 }

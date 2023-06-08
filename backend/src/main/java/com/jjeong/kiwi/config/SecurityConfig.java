@@ -16,20 +16,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/api,/api/auth/google/login,/api/auth/google/callback,/api/oauth2/authorization/google").permitAll()
-                .antMatchers("/api/**,/api/,/").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/auth/google/login").permitAll()
+                .antMatchers("/auth/google/callback").permitAll()
+                .antMatchers("/oauth2/authorization/google").permitAll()
 //                .anyRequest().authenticated()
                 .and()
-//                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
                 .oauth2Login()
-//                .loginPage("/oauth2/authorization/google")
-                .defaultSuccessUrl("/api/auth/google/callback")
+                .defaultSuccessUrl("/")
                 .and()
                 .logout()
-                .logoutSuccessUrl("/api")
+                .logoutSuccessUrl("/")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID");
     }

@@ -19,6 +19,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,30 +49,31 @@ public class AuthController {
 
     @GetMapping("/google/callback")
     public ResponseEntity<String> googleAuthCallback(@RequestParam("code") String authorizationCode, HttpServletResponse response) {
-        System.out.println("callback start =======");
+//        System.out.println("callback start =======");
 
-        ArrayList<String> emailAndId = authService.getInfoByCode(authorizationCode);
-        String email = emailAndId.get(0);
-        String userId = emailAndId.get(1);
+        User userInfo = authService.getInfoByCode(authorizationCode);
+        String email = userInfo.getEmail();
+        String authId = userInfo.getAuthid();
 
-        System.out.println("callback part 1 =======");
+//        System.out.println("callback part 1 =======");
 
         // 사용자 객체를 데이터베이스에 저장합니다. (예시로 UserRepository를 사용)
         User user = userRepository.findByEmail(email);
         if (user == null) {
             user = new User();
             user.setEmail(email);
-            user.setAuthid(userId);
+            user.setAuthid(authId);
+            user.setUsername(userInfo.getUsername());
             userRepository.save(user);
         }
 
-        System.out.println("callback part 2 =======");
-        System.out.println(user.toString());
+//        System.out.println("callback part 2 =======");
+//        System.out.println(user.toString());
 
         // 요청에 사용자 객체를 추가합니다.
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         request.setAttribute("user", user);
-        System.out.println("callback end =======");
+//        System.out.println("callback end =======");
         return this.responseWithJWT(response, request);
     }
 
@@ -84,7 +86,16 @@ public class AuthController {
         System.out.println(token);
 //        System.out.println(authService.extractSubject(token));
         System.out.println("responseWithJWT end =======");
-        response.addHeader("Authorization", "Bearer " + token);
+
+        // Create a JWT cookie
+        Cookie jwtCookie = new Cookie("jwt", token);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(24 * 60 * 60); // Set the cookie's expiration time (e.g., 24 hours)
+        jwtCookie.setSecure(true); // Set whether the cookie should only be sent over HTTPS
+        jwtCookie.setHttpOnly(true); // Set whether the cookie should be accessible only through HTTP or HTTPS
+
+        // Add the JWT cookie to the response
+        response.addCookie(jwtCookie);
 
         // 리다이렉트 설정
         response.setStatus(HttpServletResponse.SC_FOUND);

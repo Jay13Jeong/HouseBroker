@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
+import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,10 +20,13 @@ class UserControllerTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private AuthService authService;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        userController = new UserController(userService);
+        userController = new UserController(userService,authService);
     }
 
     @Test

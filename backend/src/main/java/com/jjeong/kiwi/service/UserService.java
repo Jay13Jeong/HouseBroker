@@ -22,4 +22,20 @@ public class UserService {
             return false;
         }
     }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public User getUserByAuthId(String authId) {
+        return userRepository.findUserByAuthid(authId);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findUserById(id);
+    }
 }
