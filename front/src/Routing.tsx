@@ -1,5 +1,5 @@
 import {Routes, Route} from 'react-router-dom'
-import {MainLayout, LoginLayout} from "./components/layout";
+import {MainLayout, RootLayout} from "./components/layout";
 import { LobbyPage } from "./pages"
 import {LoginPage, FA2Page} from './pages/auth';
 import { ChatLobbyPage, ChatRoomPage } from './pages/chat';
@@ -12,10 +12,10 @@ import NotFound from './pages/NotFound';
 export default function Routing() {
     return (
         <Routes>
-            <Route path={RoutePath.root} element={<LoginLayout/>}>
-                <Route path="" element={<LoginPage/>}/>
+            <Route path={RoutePath.root} element={<RootLayout/>}>
+                {/* <Route path="" element={<LoginPage/>}/>
                 <Route path={RoutePath.fa2} element={<FA2Page/>}/>
-                <Route path={RoutePath.profile} element={<ProfileInitPage/>}/>
+                <Route path={RoutePath.profile} element={<ProfileInitPage/>}/> */}
             </Route>
             <Route path={RoutePath.root} element={<MainLayout/>}>
                 <Route path={RoutePath.lobby} element={<LobbyPage/>}/>

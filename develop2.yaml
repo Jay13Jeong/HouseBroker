@@ -9,8 +9,8 @@ services:
       MARIADB_DATABASE: mydb
       MARIADB_USER:  ${DB_USER}
       MARIADB_PASSWORD:  ${DB_PASSWORD}
-    expose:
-      - 3306
+    ports:
+      - 3306:3306
     volumes:
       - "${HOME}/kiwi_data/DB:/var/lib/mysql"
     networks:

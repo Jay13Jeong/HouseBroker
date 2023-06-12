@@ -11,6 +11,9 @@ clean :
 mariadb :
 	docker-compose -f develop.yaml up --build 
 
+develop :
+	docker-compose -f develop2.yaml up --build 
+
 fclean : clean
 	docker rmi -f $(shell docker images -a -q)
 	docker system prune -f

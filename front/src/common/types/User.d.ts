@@ -31,3 +31,11 @@ export interface Friend {
     // userStatus: boolean;
     userStatus: string;
 }
+
+export interface RealEstate {
+    id: number;
+    title: string;
+    description: string;
+    price: number;
+    image: string;
+  }
