@@ -1,23 +1,30 @@
 import {Routes, Route} from 'react-router-dom'
 import {MainLayout, RootLayout} from "./components/layout";
 import { LobbyPage } from "./pages"
-import {LoginPage, FA2Page} from './pages/auth';
+// import {LoginTestPage} from './pages/auth';
 import { ChatLobbyPage, ChatRoomPage } from './pages/chat';
 import { GameLobbyPage, GameMatchPage, GameWatchPage, GamePlayRoomPage, GameWatchRoomPage } from './pages/game';
+import { PostREPage,PatchREPage,DeleteREPage } from './pages/realestate';
 import DmPage from './pages/dm/DmPage';
-import ProfileInitPage from './pages/profile/ProfileInitPage';
 import {RoutePath} from "./common/configData";
 import NotFound from './pages/NotFound';
 
 export default function Routing() {
     return (
         <Routes>
-            <Route path={RoutePath.root} element={<RootLayout/>}>
+            
                 {/* <Route path="" element={<LoginPage/>}/>
                 <Route path={RoutePath.fa2} element={<FA2Page/>}/>
                 <Route path={RoutePath.profile} element={<ProfileInitPage/>}/> */}
-            </Route>
+            {/* </Route> */}
             <Route path={RoutePath.root} element={<MainLayout/>}>
+                <Route path={RoutePath.root} element={<RootLayout/>}/>
+                <Route path={RoutePath.postRE} element={<PostREPage/>}/>
+                <Route path={RoutePath.patchRE} element={<PatchREPage/>}/>
+                <Route path={RoutePath.delRE} element={<DeleteREPage/>}/>
+                {/* <Route path={RoutePath.loginTest} element={<LoginTestPage/>}/> */}
+                
+                {/*  */}
                 <Route path={RoutePath.lobby} element={<LobbyPage/>}/>
                 <Route path={RoutePath.chat} element={<ChatLobbyPage/>}/>
                 <Route path={`${RoutePath.chat}/room/:id`} element={<ChatRoomPage/>}/>

@@ -1,6 +1,11 @@
 export const { REACT_APP_HOST } = process.env;
 export const RoutePath = {
     root: "/",
+    postRE: "/realestate/post",
+    patchRE: "/realestate/patch",
+    delRE: "/realestate/delete",
+    loginTest: "/api/auth/google/login",
+
     lobby: "/lobby",
     fa2: "/auth/fa2",
     profile: "/profile/init",

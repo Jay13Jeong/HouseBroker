@@ -4,7 +4,6 @@ import { REACT_APP_HOST } from "../../common/configData";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User"
 import CustomToastContainer from "../util/CustomToastContainer";
-import { RootLayoutContainer, Header, Main, Section, RealEstateList, RealEstateCard, Pagination, Footer } from "./RootLayout.style";
 
 function RootLayout() {
     const [realEstates, setRealEstates] = useState<types.RealEstate[]>([
@@ -42,7 +41,8 @@ function RootLayout() {
     async function getRealEstate() {
         try{
             // const res = await axios.get('http://' + REACT_APP_HOST + '/api/realestate', {otherID : userInfo.id}, {withCredentials: true})
-            const res = await axios.get<types.RealEstate[]>('http://' + REACT_APP_HOST + '/api/realestate', {withCredentials: true});
+            const res = await axios.get<types.RealEstate[]>('/api/realestate/', {withCredentials: true});
+            console.log(res.data);
             setRealEstates(res.data);
             setSearchResults(res.data); // 처음에는 모든 매물을 보여줌
             toast.success('정보 불러오기 성공');
@@ -81,9 +81,6 @@ function RootLayout() {
     return (
         <>
       {/* <CustomToastContainer/> */}
-      <header>
-        <h1>부동산 거래 사이트</h1>
-      </header>
       <main>
         <section>
           <h2>인기 매물</h2>
@@ -123,9 +120,6 @@ function RootLayout() {
           </form>
         </section>
       </main>
-      <footer>
-        <p>부동산 거래 사이트에 오신 것을 환영합니다.</p>
-      </footer>
     </>
     );
 }

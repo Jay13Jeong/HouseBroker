@@ -17,15 +17,16 @@ import java.util.List;
 public class RealEstateController {
     private final RealEstateService realEstateService;
 
-    @GetMapping("/api/realestate")
-    public String getRealEstates(Model model) {
+    @GetMapping("/")
+    public List<RealEstate> getRealEstates(Model model) {
         List<RealEstate> realEstates = realEstateService.getAllRealEstates();
         model.addAttribute("realEstates", realEstates);
-        return "realestate";
+        return realEstates;
     }
 
-    @PostMapping("/api/realestate")
+    @PostMapping("/")
     public ResponseEntity<String> createRealEstate(@RequestBody RealEstateDto realEstateDto) {
+        System.out.println("createRealEstate");
         try {
             realEstateService.createRealEstate(realEstateDto);
             return ResponseEntity.ok("Real estate created successfully.");
@@ -34,13 +35,13 @@ public class RealEstateController {
         }
     }
 
-    @DeleteMapping("/api/realestate/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteRealEstate(@PathVariable Long id) {
         realEstateService.deleteRealEstate(id);
         return ResponseEntity.ok("부동산이 삭제되었습니다.");
     }
 
-    @PatchMapping("/api/realestate/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @RequestBody RealEstateDto realEstateDto) {
         // DTO에서 필요한 정보 가져오기
         Long realEstateId = id;

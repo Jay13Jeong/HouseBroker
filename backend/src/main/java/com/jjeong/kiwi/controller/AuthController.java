@@ -48,7 +48,7 @@ public class AuthController {
     }
 
     @GetMapping("/google/callback")
-    public ResponseEntity<String> googleAuthCallback(@RequestParam("code") String authorizationCode, HttpServletResponse response) {
+    public RedirectView googleAuthCallback(@RequestParam("code") String authorizationCode, HttpServletResponse response) {
 //        System.out.println("callback start =======");
 
         User userInfo = authService.getInfoByCode(authorizationCode);
@@ -77,7 +77,7 @@ public class AuthController {
         return this.responseWithJWT(response, request);
     }
 
-    private ResponseEntity<String> responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
+    private RedirectView responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
 
         // JWT 생성 및 설정
         String token = authService.generateToken( (User) request.getAttribute("user") );
@@ -101,12 +101,12 @@ public class AuthController {
         response.setStatus(HttpServletResponse.SC_FOUND);
         response.setHeader("Location", "http://" + System.getenv("SERVER_HOST") + "/");
 
-        return ResponseEntity.ok("Google authentication successful.");
+        return new RedirectView("/");
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response) {
+    public RedirectView logout(HttpServletResponse response) {
         response.setHeader("Set-Cookie", "jwt=; Path=/; Max-Age=0; HttpOnly"); // JWT 쿠키 삭제
-        return ResponseEntity.ok("Logout successful.");
+        return new RedirectView("/");
     }
 }
