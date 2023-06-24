@@ -5,22 +5,31 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import * as S from './Modal.style'
 
-function ModalBase (props: { children: React.ReactNode, z_index?: number, reset?:Resetter, closeButton?: boolean, open: boolean}) {
+export interface ModalBaseProps {
+  children: React.ReactNode;
+  z_index?: number;
+  reset?: Resetter;
+  closeButton?: boolean;
+  open: boolean;
+  onClose?: () => void;
+}
 
+function ModalBase(props: ModalBaseProps) {
   return (
-    <Modal open={props.open}>
+    <Modal open={props.open} onClose={props.onClose}>
       <Box sx={S.modalSx}>
-        {
-          props.closeButton && props.reset ? 
-          <IconButton sx={S.closeButtonSx} onClick={() => props.reset?.()} >
+        {props.closeButton && props.reset ? (
+          <IconButton
+            sx={S.closeButtonSx}
+            onClick={() => props.reset?.()}
+          >
             <CloseIcon />
           </IconButton>
-          : null
-        }
-        {props.children}  
+        ) : null}
+        {props.children}
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default ModalBase;

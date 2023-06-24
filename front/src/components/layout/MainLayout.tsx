@@ -5,6 +5,10 @@ import CustomToastContainer from "../util/CustomToastContainer";
 import { ProfileModal } from "../lobby/modal";
 import OtherProfileModal from "../lobby/modal/OtherProfileModal";
 
+import RealestateModal from "../lobby/modal/RealestateModal";
+import RealestateEditModal from "../lobby/modal/RealestateEditModal";
+import RealestatePostModal from "../lobby/modal/RealestatePostModal";
+
 function MainLayout() {
     return (
         <>
@@ -14,6 +18,9 @@ function MainLayout() {
             <Outlet/>
             <ProfileModal/>
             <OtherProfileModal/>
+            <RealestateModal/>
+            <RealestateEditModal/>
+            <RealestatePostModal/>
         </MainLayoutWrapper>
         <footer></footer>
         </>

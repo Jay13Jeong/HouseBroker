@@ -4,6 +4,8 @@ import { REACT_APP_HOST } from "../../common/configData";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
 import CustomToastContainer from "../util/CustomToastContainer";
+import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil"
+import { realestateModalState } from "../../common/states/recoilModalState";
 
 function RootLayout() {
   const [realEstates, setRealEstates] = useState<types.RealEstate[]>([
@@ -33,6 +35,8 @@ function RootLayout() {
   const [searchResults, setSearchResults] = useState<types.RealEstate[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
+  const showModal = useRecoilValue(realestateModalState);
+  const setModalState = useSetRecoilState(realestateModalState);
 
   useEffect(() => {
     getRealEstate();
@@ -69,6 +73,12 @@ function RootLayout() {
     setCurrentPage(pageNumber);
   }
 
+  function handleClick(realEstateId: number) {
+    // console.log("remonn")
+    // console.log(realEstateId)
+    setModalState({ realestateId: realEstateId, show: true });
+  }
+
   function getCurrentPageResults(): types.RealEstate[] {
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
@@ -94,7 +104,18 @@ function RootLayout() {
     <>
       <main>
         <section>
-          <h2>인기 매물</h2>
+          <form onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="매물 검색"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit">검색</button>
+          </form>
+        </section>
+        <br/>
+        <section>
           <table className="real-estate-table">
             <tbody>
               {Array.from(
@@ -104,7 +125,11 @@ function RootLayout() {
                     {getCurrentPageResults()
                       .slice(index * 6, index * 6 + 6)
                       .map((realEstate) => (
-                        <td key={realEstate.id} className="real-estate-card">
+                        <td 
+                            key={realEstate.id}
+                            className="real-estate-card"
+                            onClick={() => handleClick(realEstate.id)}
+                        >
                           <img src={realEstate.image} alt={realEstate.title} />
                           <h3>{truncateTitle(realEstate.title, 20)}</h3>
                           <p>{truncateTitle(realEstate.description, 20)}</p>
@@ -131,12 +156,12 @@ function RootLayout() {
             )}
           </div>
         </section>
+        <br/>
         <section>
-          부동산 검색
           <form onSubmit={handleSearch}>
             <input
               type="text"
-              placeholder="검색어를 입력하세요"
+              placeholder="매물 검색"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

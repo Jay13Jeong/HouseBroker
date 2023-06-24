@@ -76,3 +76,29 @@ export const gameInviteModalState = atom<boolean>({
     key: "gameInviteModalState",
     default: false
 })
+
+/////////////////////// /////////////// ////////////
+
+export const realestateModalState = atom<{ realestateId: number, show: boolean }>({
+    key: "realestateModalState",
+    default: {
+        realestateId: 0,
+        show: false
+    }
+})
+
+export const realestateEditModalState = atom<{ realestateId: number, show: boolean }>({
+    key: "realestateEditModalState",
+    default: {
+        realestateId: 0,
+        show: false
+    }
+})
+
+export const realestatePostModalState = atom<{ realestateId: number, show: boolean }>({
+    key: "realestatePostModalState",
+    default: {
+        realestateId: 0,
+        show: false
+    }
+})

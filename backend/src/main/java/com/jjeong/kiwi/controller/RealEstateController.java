@@ -8,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,13 +26,21 @@ public class RealEstateController {
         return realEstates;
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<RealEstate> getRealEstateById(@PathVariable Long id) {
+        RealEstate realEstate = realEstateService.getRealEstates(id);
+
+        return new ResponseEntity<>(realEstate, HttpStatus.OK);
+    }
+
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@RequestBody RealEstateDto realEstateDto) {
-        System.out.println("createRealEstate");
+    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
         try {
+//            System.out.println("createRealEstate");
             realEstateService.createRealEstate(realEstateDto);
             return ResponseEntity.ok("Real estate created successfully.");
         } catch (Exception e) {
+//            System.out.println("not createRealEstate");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
         }
     }
@@ -42,13 +52,13 @@ public class RealEstateController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @RequestBody RealEstateDto realEstateDto) {
+    public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @RequestBody RealEstateDto realEstateDto) throws IOException {
         // DTO에서 필요한 정보 가져오기
         Long realEstateId = id;
         String title = realEstateDto.getTitle();
         String description = realEstateDto.getDescription();
         int price = realEstateDto.getPrice();
-        String image = realEstateDto.getImage();
+        MultipartFile image = realEstateDto.getImage();
 
         // 해당 ID를 가진 부동산 가져오기
         RealEstate realEstate = realEstateService.getRealEstateById(realEstateId);
@@ -60,7 +70,7 @@ public class RealEstateController {
         realEstate.setTitle(title);
         realEstate.setDescription(description);
         realEstate.setPrice(price);
-        realEstate.setImage(image);
+        realEstate.setImage(realEstateService.uploadImage(image));
         realEstateService.saveRealEstate(realEstate);
         return ResponseEntity.ok("부동산이 수정되었습니다.");
     }

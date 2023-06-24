@@ -10,25 +10,13 @@ export default function Header() {
             <Link to={RoutePath.lobby} style={{ textDecoration: "none" }}>
                 <span className="navi-title">
                     <img src={logo} alt="logo" />
-                    <span>부동산 사이트</span>
+                    <span>메인으로</span>
                 </span>
             </Link>
             <Link to={RoutePath.postRE} style={{ textDecoration: "none" }}>
                 <span className="navi-title">
                     <img src={logo} alt="logo" />
                     <span>매물 올리기</span>
-                </span>
-            </Link>
-            <Link to={RoutePath.patchRE} style={{ textDecoration: "none" }}>
-                <span className="navi-title">
-                    <img src={logo} alt="logo" />
-                    <span>매물 수정</span>
-                </span>
-            </Link>
-            <Link to={RoutePath.delRE} style={{ textDecoration: "none" }}>
-                <span className="navi-title">
-                    <img src={logo} alt="logo" />
-                    <span>매물 내리기</span>
                 </span>
             </Link>
             <span onClick={()=>{window.location.href = "http://" + REACT_APP_HOST + "/api/auth/google/login"}} style={{ textDecoration: "none" }}>

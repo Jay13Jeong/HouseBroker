@@ -8,23 +8,31 @@ function PostREPage() {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post<types.RealEstate>('/api/realestate/', {
-        title : title,
-        description : description,
-        price : price,
-        image : 'dummy',
-      }, {withCredentials: true});
+    const response = await axios.post('/api/realestate/', {
+        title: title,
+        description: description,
+        price: price,
+        image: imageFile,
+    }, { withCredentials: true });
 
-      toast.success("올리기 성공"); // 매물 등록 성공 시 서버 응답 출력
+      toast.success("올리기 성공");
       // 성공 메시지 또는 리다이렉트 등의 추가 작업 수행
     } catch (error: any) {
-      toast.error(error.response.data.message); // 매물 등록 실패 시 에러 메시지 출력
+      toast.error(error.response.data.message);
       // 실패 메시지 또는 오류 처리 등의 추가 작업 수행
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      setImageFile(selectedFile);
     }
   };
 
@@ -59,6 +67,15 @@ function PostREPage() {
             value={price}
             onChange={(e) => setPrice(Number(e.target.value))}
             required
+          />
+        </div>
+        <div>
+          <label htmlFor="image">사진</label>
+          <input
+            type="file"
+            id="image"
+            accept="image/*"
+            onChange={handleImageChange}
           />
         </div>
         <button type="submit">등록</button>
