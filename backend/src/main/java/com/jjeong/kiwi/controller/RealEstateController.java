@@ -34,9 +34,10 @@ public class RealEstateController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
+    public ResponseEntity<String> createRealEstate(@RequestBody RealEstateDto realEstateDto) {
         try {
 //            System.out.println("createRealEstate");
+//            System.out.println(realEstateDto);
             realEstateService.createRealEstate(realEstateDto);
             return ResponseEntity.ok("Real estate created successfully.");
         } catch (Exception e) {
