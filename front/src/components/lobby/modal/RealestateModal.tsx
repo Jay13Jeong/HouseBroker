@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
-import { realestateModalState, realestateEditModalState } from "../../../common/states/recoilModalState";
+import { realestateModalState, realestateEditModalState, mainUpdateChecker } from "../../../common/states/recoilModalState";
 import * as types from "../../../common/types/User";
 import ModalBase from "../../modal/ModalBase";
 import axios from "axios";
@@ -17,6 +17,8 @@ const RealestateModal: React.FC = () => {
   const setModalState = useSetRecoilState(realestateModalState);
   const resetState = useResetRecoilState(realestateModalState);
   const setEditModalState = useSetRecoilState(realestateEditModalState);
+  const updateChecker = useRecoilValue(mainUpdateChecker);
+  const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
 
   useEffect(() => {
@@ -48,6 +50,14 @@ const RealestateModal: React.FC = () => {
     resetState();
   };
 
+  const pageUpdateChecker = () => {
+    if (updateChecker.updateCount >= 9999){
+        setMainUpdateChecker({updateCount:0});
+        return;
+    }
+    setMainUpdateChecker({updateCount:(updateChecker.updateCount + 1)});
+  }
+
   const handleDeleteSubmit = () => {
     confirmAlert({
       customUI: ({ onClose }) => {
@@ -62,6 +72,7 @@ const RealestateModal: React.FC = () => {
                   onClick={() => {
                     onClose();
                     deleteRealEstate();
+                    pageUpdateChecker();
                   }}
                 >
                   예

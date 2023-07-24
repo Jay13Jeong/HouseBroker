@@ -16,8 +16,8 @@ function App() {
       <ThemeProvider theme={theme}>
         <RecoilRoot>
           <SocketContext.Provider value={socket}>
-            <GlobalStyle />
-            <Cursor/>
+            {/* <GlobalStyle />
+            <Cursor/> */}
             <Routing />
           </SocketContext.Provider>
         </RecoilRoot>

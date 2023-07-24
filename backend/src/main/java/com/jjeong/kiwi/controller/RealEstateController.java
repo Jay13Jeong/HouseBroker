@@ -34,14 +34,49 @@ public class RealEstateController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@RequestBody RealEstateDto realEstateDto) {
+    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
         try {
+            System.out.println("createRealEstate");
+            System.out.println(realEstateDto);
+            Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
+            return ResponseEntity.ok(realEstateId.toString());
+        } catch (Exception e) {
+            System.out.println("not createRealEstate");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
+        }
+    }
+
+//    @PostMapping("/")
+//    public ResponseEntity<String> createRealEstate(@RequestBody RealEstateDto realEstateDto) {
+//        try {
 //            System.out.println("createRealEstate");
 //            System.out.println(realEstateDto);
+//            Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
+//            return ResponseEntity.ok(realEstateId.toString());
+//        } catch (Exception e) {
+//            System.out.println("not createRealEstate");
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
+//        }
+//    }
+
+//    @PostMapping("/image")
+//    public ResponseEntity<String> createRealEstateImage(@RequestParam("image") MultipartFile image) {
+//        // 이미지만 업로드하는 로직으로
+//        try {
+//            realEstateService.createRealEstate(realEstateDto);
+//            return ResponseEntity.ok("Real estate created successfully.");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
+//        }
+//    }
+
+    @PatchMapping("/image")
+    public ResponseEntity<String> ModifyRealEstateImage(@RequestBody RealEstateDto realEstateDto) {
+        // 이미지 수정하는 로직으로
+        try {
             realEstateService.createRealEstate(realEstateDto);
             return ResponseEntity.ok("Real estate created successfully.");
         } catch (Exception e) {
-//            System.out.println("not createRealEstate");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
         }
     }

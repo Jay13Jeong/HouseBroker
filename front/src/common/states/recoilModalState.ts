@@ -102,3 +102,11 @@ export const realestatePostModalState = atom<{ realestateId: number, show: boole
         show: false
     }
 })
+
+export const mainUpdateChecker = atom<{ updateCount: number }>({
+    key: "mainUpdateChecker",
+    default: {
+        updateCount: 0,
+    }
+})
+

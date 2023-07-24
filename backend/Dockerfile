@@ -1,5 +1,6 @@
 FROM maven:3.8.3-openjdk-8
 
+RUN mkdir /uploadImgaes
 RUN mkdir my_backend
 WORKDIR /my_backend
 

@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
 import CustomToastContainer from "../util/CustomToastContainer";
 import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil"
-import { realestateModalState } from "../../common/states/recoilModalState";
+import { realestateModalState, mainUpdateChecker } from "../../common/states/recoilModalState";
+import { Avatar } from '@mui/material';
 
 function RootLayout() {
   const [realEstates, setRealEstates] = useState<types.RealEstate[]>([
@@ -34,13 +35,14 @@ function RootLayout() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<types.RealEstate[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(8);
   const showModal = useRecoilValue(realestateModalState);
   const setModalState = useSetRecoilState(realestateModalState);
+  const updateChecker = useRecoilValue(mainUpdateChecker);
 
   useEffect(() => {
     getRealEstate();
-  }, []);
+  }, [updateChecker]);
 
   async function getRealEstate() {
     try {
@@ -50,6 +52,7 @@ function RootLayout() {
       setSearchResults(res.data);
       toast.success('정보 불러오기 성공');
     } catch (err: any) {
+      toast.success('정보 불러오기 실패');
       toast.error(err.response.data.message);
     }
   };
@@ -100,6 +103,15 @@ function RootLayout() {
     return price.toLocaleString();
   }
 
+  const getAvatarData = async (id : any) => {
+    try{
+        const avatarDataRes = await axios.get('http://' + REACT_APP_HOST + '/api/user/avatar/' + id, {withCredentials: true, responseType: 'blob'}) //blob : 파일전송용 큰 객체타입.
+        return URL.createObjectURL(avatarDataRes.data);
+    }catch{
+        //no avatar data...
+    }
+}
+
   return (
     <>
       <main>
@@ -119,18 +131,19 @@ function RootLayout() {
           <table className="real-estate-table">
             <tbody>
               {Array.from(
-                { length: Math.ceil(searchResults.length / 6) },
+                { length: Math.ceil(searchResults.length / 4) },
                 (_, index) => (
                   <tr key={index}>
                     {getCurrentPageResults()
-                      .slice(index * 6, index * 6 + 6)
+                      .slice(index * 4, index * 4 + 4)
                       .map((realEstate) => (
                         <td 
                             key={realEstate.id}
                             className="real-estate-card"
                             onClick={() => handleClick(realEstate.id)}
                         >
-                          <img src={realEstate.image} alt={realEstate.title} />
+                          {/* <img src={realEstate.image} alt={realEstate.title} /> */}
+                          <Avatar src={require("../../assets/sampleroom.png")} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
                           <h3>{truncateTitle(realEstate.title, 20)}</h3>
                           <p>{truncateTitle(realEstate.description, 20)}</p>
                           <p>가격: {formatPrice(realEstate.price)}</p>

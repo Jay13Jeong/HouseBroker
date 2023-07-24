@@ -1,38 +1,80 @@
-import React, { useState } from 'react';
+import React, {useRef, useState } from 'react';
 import axios from 'axios';
 import * as types from "../../common/types/User";
 import { toast } from "react-toastify";
 import { REACT_APP_HOST } from "../../common/configData";
+import { Avatar } from '@mui/material';
 
 function PostREPage() {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFile, setImageFile] = useState('');
+  const inputRef = useRef<HTMLInputElement | null> (null);
+  const [uploadedId, setUploadedId] = useState<string>('');
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
+  const handleImageSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!(inputRef.current && inputRef.current.value))
+        return;
     try {
-    const response = await axios.post('/api/realestate/', {
-        title: title,
-        description: description,
-        price: price,
-        image: imageFile,
-    }, { withCredentials: true });
-
-      toast.success("올리기 성공");
-      // 성공 메시지 또는 리다이렉트 등의 추가 작업 수행
+        const response = await axios.post('/api/realestate/image', {
+            id: uploadedId,
+            image: inputRef.current.files![0]
+        }, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+        toast.success("이미지 올리기 성공");
     } catch (error: any) {
-      toast.error(error.response.data.message);
-      // 실패 메시지 또는 오류 처리 등의 추가 작업 수행
+        toast.error("이미지 올리기 실패");
+        toast.error(error.response.data.message);
+    }
+  };
+
+//   const handleFormSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     try {
+//         const response = await axios.post('/api/realestate/', {
+//             title: title,
+//             description: description,
+//             price: price,
+//             image: null,
+//         }, { withCredentials: true });
+//         toast.success("올리기 성공");
+//         setUploadedId(response.data.message);
+//         console.log("uplooo")
+//         console.log(response);
+//         handleImageSubmit(e);
+//     } catch (error: any) {
+//         toast.error("올리기 실패");
+//         toast.error(error.response.data.message);
+//     }
+//   };
+
+const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    let imageData = null;
+    if (inputRef.current && inputRef.current.value)
+        imageData = inputRef.current.files![0]
+    try {
+        const response = await axios.post('/api/realestate/', {
+            title: title,
+            description: description,
+            price: price,
+            image: imageData,
+        }, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
+        toast.success("매물 올리기 성공");
+    } catch (error: any) {
+        toast.error("매물 올리기 실패");
+        toast.error(error.response.data.message);
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      setImageFile(selectedFile);
+      if (selectedFile.size >= ((1 << 20) * 4))
+          throw("4MB미만 업로드 가능.");
+      setImageFile(URL.createObjectURL(selectedFile));
     }
   };
 
@@ -69,6 +111,7 @@ function PostREPage() {
             required
           />
         </div>
+        <Avatar src={imageFile} alt="real-estate image" variant="rounded" sx={{ width: 300, height: 250 }} />
         <div>
           <label htmlFor="image">사진</label>
           <input
@@ -76,9 +119,11 @@ function PostREPage() {
             id="image"
             accept="image/*"
             onChange={handleImageChange}
+            ref={inputRef}
           />
         </div>
-        <button type="submit">등록</button>
+        <hr></hr>
+        <button type="submit">매물 등록</button>
       </form>
     </div>
   );

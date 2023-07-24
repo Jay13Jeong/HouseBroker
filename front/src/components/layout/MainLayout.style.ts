@@ -14,7 +14,7 @@ const backgroundImg = backgrounds[randomNum()];
 const MainLayoutWrapper = styled.div`
    position: fixed;
    top: 50px; 
-   background-image: url(${backgroundImg});
+  //  background-image: url(${backgroundImg});
    margin:0px;
    width:100vw;
    background-size: cover;

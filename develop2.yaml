@@ -39,6 +39,7 @@ services:
       - 8080
     volumes:
       - ./backend/src:/my_backend/src
+      - "${HOME}/kiwi_data/upload_imgaes:/uploadImgaes"
     networks:
       - jg
 
