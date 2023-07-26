@@ -33,13 +33,14 @@ services:
       GOOGLE_AUTH_CALLBACK_URL: ${GOOGLE_AUTH_CALLBACK_URL}
       JWTKEY: ${JWT_SECRET}
       SERVER_HOST: ${SERVER_HOST}
+      UPLOAD_DIR: "/uploadImages/" #volumes랑 의존됨.
     # ports:
     #   - 8080:8080
     expose:
       - 8080
     volumes:
       - ./backend/src:/my_backend/src
-      - "${HOME}/kiwi_data/upload_imgaes:/uploadImgaes"
+      - "${HOME}/kiwi_data/upload_images:/uploadImages"
     networks:
       - jg
 

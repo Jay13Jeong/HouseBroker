@@ -39,10 +39,51 @@ function RootLayout() {
   const showModal = useRecoilValue(realestateModalState);
   const setModalState = useSetRecoilState(realestateModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
+  const [estateImgs, setEstateImgs] = useState<string[]>([]);
 
   useEffect(() => {
-    getRealEstate();
+    const reloadPage = async () => {
+      try {
+        await getRealEstate();
+      } catch (error) {
+      }
+    }
+    reloadPage();
   }, [updateChecker]);
+
+  useEffect(() => {
+    get8Imgs();
+  }, [searchResults,currentPage]);
+
+  const fetchSampleImgs = () => {
+    setEstateImgs([]);
+    for (let i = 0; i < 8; i++){
+      setEstateImgs((imgs) => [
+        ...imgs,
+        require("../../assets/sampleroom.png")
+      ])
+    }
+  }
+
+  const get8Imgs = async () => {
+    fetchSampleImgs();
+    // console.log("re")
+    // console.log(getCurrentPageResults())
+    try{
+      let new8Imgs : string[] = [];
+      let imgData = "";
+      for (const realEstate of getCurrentPageResults()) {
+        imgData = await getImageData(realEstate.id);
+        new8Imgs = [...new8Imgs, imgData];
+      }
+      setEstateImgs((prevImgs) => ([...new8Imgs, ...prevImgs]))
+      // console.log(88888)
+      // console.log(estateImgs)
+    } catch (errer) {
+      toast.error("이미지 불러오기 실패");
+    }
+    
+  }
 
   async function getRealEstate() {
     try {
@@ -77,8 +118,6 @@ function RootLayout() {
   }
 
   function handleClick(realEstateId: number) {
-    // console.log("remonn")
-    // console.log(realEstateId)
     setModalState({ realestateId: realEstateId, show: true });
   }
 
@@ -103,14 +142,21 @@ function RootLayout() {
     return price.toLocaleString();
   }
 
-  const getAvatarData = async (id : any) => {
-    try{
-        const avatarDataRes = await axios.get('http://' + REACT_APP_HOST + '/api/user/avatar/' + id, {withCredentials: true, responseType: 'blob'}) //blob : 파일전송용 큰 객체타입.
-        return URL.createObjectURL(avatarDataRes.data);
-    }catch{
-        //no avatar data...
+  const getImageData = async (id: number) => {
+    try {
+      // console.log("getImageData---0")
+      const imgDataRes = await axios.get('/api/realestate/image/' + id, {
+        withCredentials: true,
+        responseType: 'blob'
+      });
+      // console.log(imgDataRes)
+      // console.log("getImageData---1")
+      return URL.createObjectURL(imgDataRes.data);
+    } catch (error) {
+      // toast.error(id + "번 사진 불러오기 실패")
+      return require("../../assets/sampleroom.png");
     }
-}
+  };
 
   return (
     <>
@@ -136,14 +182,13 @@ function RootLayout() {
                   <tr key={index}>
                     {getCurrentPageResults()
                       .slice(index * 4, index * 4 + 4)
-                      .map((realEstate) => (
+                      .map((realEstate, i) => (
                         <td 
                             key={realEstate.id}
                             className="real-estate-card"
                             onClick={() => handleClick(realEstate.id)}
                         >
-                          {/* <img src={realEstate.image} alt={realEstate.title} /> */}
-                          <Avatar src={require("../../assets/sampleroom.png")} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
+                          <Avatar src={estateImgs[index * 4 + i]} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
                           <h3>{truncateTitle(realEstate.title, 20)}</h3>
                           <p>{truncateTitle(realEstate.description, 20)}</p>
                           <p>가격: {formatPrice(realEstate.price)}</p>
