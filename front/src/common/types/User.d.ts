@@ -38,4 +38,5 @@ export interface RealEstate {
     description: string;
     price: number;
     image: string;
+    soldout: boolean;
   }

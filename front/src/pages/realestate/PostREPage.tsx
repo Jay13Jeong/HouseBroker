@@ -10,6 +10,7 @@ function PostREPage() {
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
   const [imageFile, setImageFile] = useState('');
+  const [soldout, setSoldout] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null> (null);
   const [uploadedId, setUploadedId] = useState<string>('');
 
@@ -61,6 +62,7 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             description: description,
             price: price,
             image: imageData,
+            soldout : soldout,
         }, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
         toast.success("매물 올리기 성공");
     } catch (error: any) {
@@ -121,6 +123,15 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             onChange={handleImageChange}
             ref={inputRef}
           />
+        </div>
+        <div>
+          <label htmlFor="price">거래완료 여부</label>
+          <label>
+              <input type="radio" name="is_sell" id="is_sell" value={"거래 중"} onChange={(e) => setSoldout(false)} /> 거래 중
+          </label>
+          <label>
+              <input type="radio" name="is_sell" id="is_sell" value={"거래 완료"} onChange={(e) => setSoldout(true)} /> 거래 완료
+          </label>
         </div>
         <hr></hr>
         <button type="submit">매물 등록</button>

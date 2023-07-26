@@ -13,23 +13,10 @@ function RootLayout() {
     {
       id: 1,
       title: '아파트 A',
-      description: '아파트 A의 설명',
+      description: '아파트 A의 설명. sample data입니다.',
       price: 100000,
       image: '아파트 A의 이미지 URL',
-    },
-    {
-      id: 2,
-      title: '주택 B',
-      description: '주택 B의 설명',
-      price: 200000,
-      image: '주택 B의 이미지 URL',
-    },
-    {
-      id: 3,
-      title: '상가 C',
-      description: '상가 C의 설명',
-      price: 300000,
-      image: '상가 C의 이미지 URL',
+      soldout: true,
     },
   ]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -67,18 +54,16 @@ function RootLayout() {
 
   const get8Imgs = async () => {
     fetchSampleImgs();
-    // console.log("re")
-    // console.log(getCurrentPageResults())
     try{
       let new8Imgs : string[] = [];
       let imgData = "";
       for (const realEstate of getCurrentPageResults()) {
         imgData = await getImageData(realEstate.id);
+        if (realEstate.soldout === true)
+          imgData = await composeImages(imgData, require("../../assets/SOLD_OUT.png"))
         new8Imgs = [...new8Imgs, imgData];
       }
       setEstateImgs((prevImgs) => ([...new8Imgs, ...prevImgs]))
-      // console.log(88888)
-      // console.log(estateImgs)
     } catch (errer) {
       toast.error("이미지 불러오기 실패");
     }
@@ -155,6 +140,53 @@ function RootLayout() {
     } catch (error) {
       // toast.error(id + "번 사진 불러오기 실패")
       return require("../../assets/sampleroom.png");
+    }
+  };
+
+  const composeImages = async (baseImgUrl: string, overlayImgUrl: string): Promise<string> => {
+    const baseImgPromise = new Promise<HTMLImageElement>((resolve, reject) => {
+      const baseImg = new Image();
+      baseImg.crossOrigin = 'Anonymous';
+      baseImg.onload = function () {
+        resolve(baseImg);
+      };
+      baseImg.onerror = function () {
+        reject();
+      };
+      baseImg.src = baseImgUrl;
+    });
+  
+    const overlayImgPromise = new Promise<HTMLImageElement>((resolve, reject) => {
+      const overlayImg = new Image();
+      overlayImg.crossOrigin = 'Anonymous';
+      overlayImg.onload = function () {
+        resolve(overlayImg);
+      };
+      overlayImg.onerror = function () {
+        reject();
+      };
+      overlayImg.src = overlayImgUrl;
+    });
+  
+    try {
+      const [baseImg, overlayImg] = await Promise.all([baseImgPromise, overlayImgPromise]);
+  
+      const canvas = document.createElement('canvas');
+      canvas.width = baseImg.width;
+      canvas.height = baseImg.height;
+  
+      const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
+      if (context === null) {
+        return overlayImgUrl;
+      }
+  
+      context.drawImage(baseImg, 0, 0);
+      context.drawImage(overlayImg, 0, 0, baseImg.width, baseImg.height);
+  
+      const composedImgUrl = canvas.toDataURL();
+      return composedImgUrl;
+    } catch (error) {
+      return overlayImgUrl;
     }
   };
 

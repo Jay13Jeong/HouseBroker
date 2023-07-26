@@ -39,6 +39,7 @@ public class RealEstateService {
         realEstate.setTitle(realEstateDto.getTitle());
         realEstate.setDescription(realEstateDto.getDescription());
         realEstate.setPrice(realEstateDto.getPrice());
+        realEstate.setSoldout(realEstateDto.isSoldout());
 //        System.out.println("createRealEstate-1");
 //        System.out.println(realEstateDto.getImage());
         if (realEstateDto.getImage() != null)

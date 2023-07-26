@@ -24,4 +24,5 @@ public class RealEstate {
     private String description;
     private int price;
     private String image;
+    private boolean soldout;
 }

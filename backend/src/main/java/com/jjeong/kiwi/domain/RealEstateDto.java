@@ -15,4 +15,5 @@ public class RealEstateDto {
     private String description;
     private int price;
     private MultipartFile image;
+    private boolean soldout;
 }

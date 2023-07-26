@@ -167,6 +167,14 @@ const RealestatePostModal: React.FC = () => {
     setRealEstateInfo(newInfo);
   };
 
+  const handleModifyRealEstateSoldout = (newSoldout: boolean) => {
+    let newInfo = realEstateInfo;
+    if (newInfo === null)
+      return;
+    newInfo.soldout = newSoldout;
+    setRealEstateInfo(newInfo);
+  };
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <Stack justifyContent="center" alignItems="center">
