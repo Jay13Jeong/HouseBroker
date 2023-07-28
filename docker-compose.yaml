@@ -46,6 +46,7 @@ services:
     container_name: frontend
     restart: always
     environment:
+      - REACT_APP_NAME=${APP_NAME}
       - REACT_APP_HOST=${SERVER_HOST}
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
