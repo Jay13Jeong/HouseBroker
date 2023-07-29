@@ -9,16 +9,7 @@ import { realestateModalState, mainUpdateChecker } from "../../common/states/rec
 import { Avatar } from '@mui/material';
 
 function RootLayout() {
-  const [realEstates, setRealEstates] = useState<types.RealEstate[]>([
-    {
-      id: 1,
-      title: '아파트 A',
-      description: '아파트 A의 설명. sample data입니다.',
-      price: 100000,
-      image: '아파트 A의 이미지 URL',
-      soldout: true,
-    },
-  ]);
+  const [realEstates, setRealEstates] = useState<types.RealEstate[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<types.RealEstate[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -67,13 +58,12 @@ function RootLayout() {
     } catch (errer) {
       toast.error("이미지 불러오기 실패");
     }
-    
   }
 
   async function getRealEstate() {
     try {
       const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
-      console.log(res.data);
+      // console.log(res.data);
       setRealEstates(res.data);
       setSearchResults(res.data);
       toast.success('정보 불러오기 성공');
@@ -129,16 +119,12 @@ function RootLayout() {
 
   const getImageData = async (id: number) => {
     try {
-      // console.log("getImageData---0")
       const imgDataRes = await axios.get('/api/realestate/image/' + id, {
         withCredentials: true,
         responseType: 'blob'
       });
-      // console.log(imgDataRes)
-      // console.log("getImageData---1")
       return URL.createObjectURL(imgDataRes.data);
     } catch (error) {
-      // toast.error(id + "번 사진 불러오기 실패")
       return require("../../assets/sampleroom.png");
     }
   };

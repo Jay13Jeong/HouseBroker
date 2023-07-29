@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./../../../assets/confirm-alert.css";
-
+import { Avatar } from '@mui/material';
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
 
@@ -20,6 +20,7 @@ const RealestateModal: React.FC = () => {
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
+  const [images, setImages] = useState<any[]>([require("../../../assets/sampleroom.png"),]);
 
   useEffect(() => {
     if (showModal.show) {
@@ -36,6 +37,7 @@ const RealestateModal: React.FC = () => {
         { withCredentials: true }
       );
       setRealEstateInfo(res.data);
+      setImages([await getImageData(res.data.id)])
     } catch (err: any) {
       toast.error(err.response.data.message);
     }
@@ -97,33 +99,29 @@ const RealestateModal: React.FC = () => {
     }
   };
 
+  const getImageData = async (id: number) => {
+    try {
+      const imgDataRes = await axios.get('/api/realestate/image/' + id, {
+        withCredentials: true,
+        responseType: 'blob'
+      });
+      return URL.createObjectURL(imgDataRes.data);
+    } catch (error) {
+      return require("../../../assets/sampleroom.png");
+    }
+  };
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <Stack justifyContent="center" alignItems="center">
-        <Typography variant="h2" gutterBottom>
-          👥 상세정보 👥
-        </Typography>
         {realEstateInfo && (
           <Grid container columns={4} columnSpacing={2}>
-            <Grid>
-              <DefaultButton
-                onClick={handleModifyModal}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
-              >
-                수정
-              </DefaultButton>
-            </Grid>
-            <Grid>
-              <DefaultButton
-                onClick={handleDeleteSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
-              >
-                삭제
-              </DefaultButton>
-            </Grid>
+            
             <Grid item xs={12}>
-              <Typography variant="h4" gutterBottom>
-                매물 정보:
+              <Typography variant="body1" gutterBottom>
+                <center>
+                <Avatar src={images[0]} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
+                </center>
               </Typography>
               <Typography variant="body1" gutterBottom>
                 ID: {realEstateInfo.id}
@@ -138,9 +136,52 @@ const RealestateModal: React.FC = () => {
                 가격: {realEstateInfo.price}
               </Typography>
               <Typography variant="body1" gutterBottom>
-                이미지: {realEstateInfo.image}
+              중계대상물종류: {realEstateInfo.relay_object_type}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              소재지: {realEstateInfo.location}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              면적: {realEstateInfo.area}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              거래형태: {realEstateInfo.transaction_type}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              입주가능일: {realEstateInfo.residence_availability_date}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              행정기관승인날짜: {realEstateInfo.administrative_agency_approval_date}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              주차대수: {realEstateInfo.number_of_cars_parked}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              방향: {realEstateInfo.direction}
+              </Typography>
+              <Typography variant="body1" gutterBottom>
+              관리비: {realEstateInfo.administration_cost}
               </Typography>
             </Grid>
+
+            <Grid>
+              <DefaultButton
+                onClick={handleModifyModal}
+                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              >
+                수정
+              </DefaultButton>
+            </Grid>
+            
+            <Grid>
+              <DefaultButton
+                onClick={handleDeleteSubmit}
+                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              >
+                삭제
+              </DefaultButton>
+            </Grid>
+
           </Grid>
         )}
       </Stack>

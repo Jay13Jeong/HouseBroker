@@ -26,7 +26,7 @@ function PatchREPage() {
       setDescription(description);
       setPrice(price);
     } catch (error: any) {
-      console.error(error.response.data); // 에러 처리 로직 추가
+
     }
   };
 
@@ -39,12 +39,8 @@ function PatchREPage() {
         description,
         price,
       });
-
-      console.log(response.data); // 매물 수정 성공 시 서버 응답 출력
-      // 성공 메시지 또는 리다이렉트 등의 추가 작업 수행
     } catch (error: any) {
-      console.error(error.response.data); // 매물 수정 실패 시 에러 메시지 출력
-      // 실패 메시지 또는 오류 처리 등의 추가 작업 수행
+      
     }
   };
 

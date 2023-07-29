@@ -8,6 +8,7 @@ import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,10 +67,6 @@ public class RealEstateService {
                 .orElseThrow(() -> new RuntimeException("부동산을 찾을 수 없습니다."));
     }
 
-    public RealEstate saveRealEstate(RealEstate realEstate) {
-        return realEstateRepository.save(realEstate);
-    }
-
     public RealEstate getRealEstates(Long id) {
         return realEstateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("부동산을 찾을 수 없습니다."));
@@ -111,5 +108,32 @@ public class RealEstateService {
 
     public void ModifyRealEstateImage(Long id, MultipartFile img) {
         //이미지 수정하는 서비스 로직.
+    }
+
+    public void modifyRealEstate(Long id, RealEstateDto realEstateDto) throws IOException {
+        // 해당 ID를 가진 부동산 가져오기
+        RealEstate realEstate = this.getRealEstateById(id);
+        if (realEstate == null) {
+            throw new IOException("게시글 id로 찾기 실패");
+        }
+        // 부동산 정보 업데이트
+        if (!(realEstateDto.getImage() == null || realEstateDto.getImage().isEmpty() || realEstateDto.getImage().getSize() == 0)) {
+            //기존 이미지 삭제 및 새로운 이미지 저장.
+            File file = new File(uploadPath + realEstate.getImage());
+            if (file.exists()) {
+                file.delete();
+            }
+            realEstate.setImage(uploadImage(realEstateDto.getImage()));
+        }
+        if (!(realEstateDto.getTitle() == null || realEstateDto.getTitle().isEmpty() || realEstateDto.getTitle().equals(""))) {
+            realEstate.setTitle(realEstateDto.getTitle());
+        }
+        if (!(realEstateDto.getDescription() == null || realEstateDto.getDescription().isEmpty() || realEstateDto.getDescription().equals(""))) {
+            realEstate.setDescription(realEstateDto.getDescription());
+        }
+        if (!(realEstateDto.getPrice() == null || realEstateDto.getPrice() == 0)) {
+            realEstate.setPrice(realEstateDto.getPrice());
+        }
+        realEstateRepository.save(realEstate);
     }
 }

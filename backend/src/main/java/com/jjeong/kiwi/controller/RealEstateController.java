@@ -79,26 +79,12 @@ public class RealEstateController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @RequestBody RealEstateDto realEstateDto) throws IOException {
-        // DTO에서 필요한 정보 가져오기
-        Long realEstateId = id;
-        String title = realEstateDto.getTitle();
-        String description = realEstateDto.getDescription();
-        int price = realEstateDto.getPrice();
-        MultipartFile image = realEstateDto.getImage();
-
-        // 해당 ID를 가진 부동산 가져오기
-        RealEstate realEstate = realEstateService.getRealEstateById(realEstateId);
-        if (realEstate == null) {
-            return ResponseEntity.badRequest().body("해당하는 부동산이 존재하지 않습니다.");
+    public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @ModelAttribute RealEstateDto realEstateDto){
+        try {
+            this.realEstateService.modifyRealEstate(id, realEstateDto);
+            return ResponseEntity.ok("부동산이 수정되었습니다.");
+        } catch ( Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
         }
-
-        // 부동산 정보 업데이트
-        realEstate.setTitle(title);
-        realEstate.setDescription(description);
-        realEstate.setPrice(price);
-        realEstate.setImage(realEstateService.uploadImage(image));
-        realEstateService.saveRealEstate(realEstate);
-        return ResponseEntity.ok("부동산이 수정되었습니다.");
     }
 }

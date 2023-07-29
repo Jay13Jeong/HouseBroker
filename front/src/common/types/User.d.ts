@@ -39,4 +39,13 @@ export interface RealEstate {
     price: number;
     image: string;
     soldout: boolean;
+    relay_object_type : string; //중계대상물종류
+    location : string; //소재지
+    area: number; //면적(제곱미터)
+    transaction_type : string; //거래형태
+    residence_availability_date : string; //입주가능일
+    administrative_agency_approval_date : string; //행정기관승인날짜
+    number_of_cars_parked: number; //주차대수
+    direction : string; //방향
+    administration_cost : number; //관리비
   }
