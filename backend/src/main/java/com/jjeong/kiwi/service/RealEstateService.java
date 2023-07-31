@@ -41,6 +41,15 @@ public class RealEstateService {
         realEstate.setDescription(realEstateDto.getDescription());
         realEstate.setPrice(realEstateDto.getPrice());
         realEstate.setSoldout(realEstateDto.isSoldout());
+        realEstate.setArea(realEstateDto.getArea());
+        realEstate.setAdministration_cost(realEstate.getAdministration_cost());
+        realEstate.setDirection(realEstate.getDirection());
+        realEstate.setLocation(realEstate.getLocation());
+        realEstate.setNumber_of_cars_parked(realEstate.getNumber_of_cars_parked());
+        realEstate.setRelay_object_type(realEstate.getRelay_object_type());
+        realEstate.setTransaction_type(realEstate.getTransaction_type());
+        realEstate.setResidence_availability_date(realEstate.getResidence_availability_date());
+        realEstate.setAdministrative_agency_approval_date(realEstate.getAdministrative_agency_approval_date());
 //        System.out.println("createRealEstate-1");
 //        System.out.println(realEstateDto.getImage());
         if (realEstateDto.getImage() != null)

@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./../../../assets/confirm-alert.css";
+import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style";
 
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
@@ -157,6 +158,7 @@ const RealestateEditModal: React.FC = () => {
 
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
+      <ModalScrollableWrapper>
       <Stack justifyContent="center" alignItems="center">
         <Typography variant="h2" gutterBottom>
           👥 수정페이지 👥
@@ -281,6 +283,7 @@ const RealestateEditModal: React.FC = () => {
           </Grid>
         )}
       </Stack>
+      </ModalScrollableWrapper>
     </ModalBase>
   );
 };

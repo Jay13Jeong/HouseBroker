@@ -4,7 +4,7 @@ import { REACT_APP_HOST } from "../../common/configData";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
 import CustomToastContainer from "../util/CustomToastContainer";
-import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil"
+import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil";
 import { realestateModalState, mainUpdateChecker } from "../../common/states/recoilModalState";
 import { Avatar } from '@mui/material';
 
@@ -66,9 +66,9 @@ function RootLayout() {
       // console.log(res.data);
       setRealEstates(res.data);
       setSearchResults(res.data);
-      toast.success('정보 불러오기 성공');
+      toast.success('환영합니다!');
     } catch (err: any) {
-      toast.success('정보 불러오기 실패');
+      toast.error('정보 불러오기 실패');
       toast.error(err.response.data.message);
     }
   };

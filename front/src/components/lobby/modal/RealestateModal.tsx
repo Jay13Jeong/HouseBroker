@@ -11,6 +11,7 @@ import "./../../../assets/confirm-alert.css";
 import { Avatar } from '@mui/material';
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
+import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style";
 
 const RealestateModal: React.FC = () => {
   const showModal = useRecoilValue(realestateModalState);
@@ -113,14 +114,33 @@ const RealestateModal: React.FC = () => {
 
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
+      <ModalScrollableWrapper>
       <Stack justifyContent="center" alignItems="center">
         {realEstateInfo && (
-          <Grid container columns={4} columnSpacing={2}>
-            
-            <Grid item xs={12}>
+          <Grid container columns={2} columnSpacing={2}>
+            {/* 수정버튼 */}
+            <Grid item xs={1}>
+              <DefaultButton
+                onClick={handleModifyModal}
+                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              >
+                수정
+              </DefaultButton>
+            </Grid>
+            {/* 삭제버튼 */}
+            <Grid item xs={1}>
+              <DefaultButton
+                onClick={handleDeleteSubmit}
+                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              >
+                삭제
+              </DefaultButton>
+            </Grid>
+            {/* 매물정보 */}
+            <Grid item xs={2}>
               <Typography variant="body1" gutterBottom>
                 <center>
-                <Avatar src={images[0]} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
+                <Avatar src={images[0]} alt="estate_image" variant="rounded" sx={{ width: 500, height: 350 }} />
                 </center>
               </Typography>
               <Typography variant="body1" gutterBottom>
@@ -164,27 +184,11 @@ const RealestateModal: React.FC = () => {
               </Typography>
             </Grid>
 
-            <Grid>
-              <DefaultButton
-                onClick={handleModifyModal}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
-              >
-                수정
-              </DefaultButton>
-            </Grid>
-            
-            <Grid>
-              <DefaultButton
-                onClick={handleDeleteSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
-              >
-                삭제
-              </DefaultButton>
-            </Grid>
-
           </Grid>
         )}
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
       </Stack>
+      </ModalScrollableWrapper>
     </ModalBase>
   );
 };

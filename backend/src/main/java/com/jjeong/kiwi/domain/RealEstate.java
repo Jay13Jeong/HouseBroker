@@ -6,10 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 @ToString
@@ -22,7 +19,10 @@ public class RealEstate{
     private Long id;
     private String image;
     private String title;
+    
+    @Column(length=1000)
     private String description;
+
     private Long price;
     private boolean soldout; //판매여부
     private String relay_object_type; //중계대상물종류

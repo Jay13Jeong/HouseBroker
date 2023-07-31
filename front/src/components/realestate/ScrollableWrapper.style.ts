@@ -6,3 +6,8 @@ export const ScrollableWrapper = styled.div`
   overflow: auto;
   max-height: 90%; /* 최대 높이 설정 (스크롤이 생길 높이) */
 `;
+
+export const ModalScrollableWrapper = styled.div`
+  max-height: 900px; /* 높이 조정 */
+  overflow-y: auto;
+`;
