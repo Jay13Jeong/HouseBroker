@@ -134,15 +134,51 @@ public class RealEstateService {
             }
             realEstate.setImage(uploadImage(realEstateDto.getImage()));
         }
-        if (!(realEstateDto.getTitle() == null || realEstateDto.getTitle().isEmpty() || realEstateDto.getTitle().equals(""))) {
+        if (!(realEstateDto.getTitle() == null || realEstateDto.getTitle().isEmpty())) {
             realEstate.setTitle(realEstateDto.getTitle());
         }
-        if (!(realEstateDto.getDescription() == null || realEstateDto.getDescription().isEmpty() || realEstateDto.getDescription().equals(""))) {
+        if (!(realEstateDto.getDescription() == null || realEstateDto.getDescription().isEmpty())) {
             realEstate.setDescription(realEstateDto.getDescription());
         }
         if (!(realEstateDto.getPrice() == null || realEstateDto.getPrice() == 0)) {
             realEstate.setPrice(realEstateDto.getPrice());
         }
+        if (!(realEstateDto.getRelay_object_type() == null || realEstateDto.getRelay_object_type().isEmpty())) {
+            realEstate.setRelay_object_type(realEstateDto.getRelay_object_type());
+        }
+        if (!(realEstateDto.getLocation() == null || realEstateDto.getLocation().isEmpty())) {
+            realEstate.setLocation(realEstateDto.getLocation());
+        }
+        if (!(realEstateDto.getArea() == null || realEstateDto.getArea() == 0)) {
+            realEstate.setArea(realEstateDto.getArea());
+        }
+        if (!(realEstateDto.getTransaction_type() == null || realEstateDto.getTransaction_type().isEmpty())) {
+            realEstate.setTransaction_type(realEstateDto.getTransaction_type());
+        }
+        if (!(realEstateDto.getResidence_availability_date() == null || realEstateDto.getResidence_availability_date().isEmpty())) {
+            realEstate.setResidence_availability_date(realEstateDto.getResidence_availability_date());
+        }
+        if (!(realEstateDto.getAdministrative_agency_approval_date() == null || realEstateDto.getAdministrative_agency_approval_date().isEmpty())) {
+            realEstate.setAdministrative_agency_approval_date(realEstateDto.getAdministrative_agency_approval_date());
+        }
+        if (!(realEstateDto.getNumber_of_cars_parked() == null || realEstateDto.getNumber_of_cars_parked() == 0)) {
+            realEstate.setNumber_of_cars_parked(realEstateDto.getNumber_of_cars_parked());
+        }
+        if (!(realEstateDto.getDirection() == null || realEstateDto.getDirection().isEmpty())) {
+            realEstate.setDirection(realEstateDto.getDirection());
+        }
+        if (!(realEstateDto.getAdministration_cost() == null || realEstateDto.getAdministration_cost() == 0)) {
+            realEstate.setAdministration_cost(realEstateDto.getAdministration_cost());
+        }
+        realEstateRepository.save(realEstate);
+    }
+
+    public void modifyRealEstateIsSoldOut(Long id, boolean soldout) throws IOException {
+        RealEstate realEstate = this.getRealEstateById(id);
+        if (realEstate == null) {
+            throw new IOException("게시글 id로 찾기 실패");
+        }
+        realEstate.setSoldout(soldout);
         realEstateRepository.save(realEstate);
     }
 }

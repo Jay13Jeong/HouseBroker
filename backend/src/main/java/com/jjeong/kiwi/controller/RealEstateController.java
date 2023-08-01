@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/realestate")
@@ -83,6 +84,17 @@ public class RealEstateController {
         try {
             this.realEstateService.modifyRealEstate(id, realEstateDto);
             return ResponseEntity.ok("부동산이 수정되었습니다.");
+        } catch ( Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
+        }
+    }
+
+    @PatchMapping("/soldout/{id}")
+    public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id, @RequestBody Map<String, Boolean> requestBody){
+        try {
+            boolean soldout = requestBody.get("soldout");
+            this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
+            return ResponseEntity.ok("거래여부가 수정되었습니다.");
         } catch ( Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
         }
