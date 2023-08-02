@@ -48,6 +48,8 @@ services:
     container_name: frontend
     restart: always
     environment:
+      - REACT_APP_PHONE_NUMBER=${APP_PHONE_NUMBER}
+      - REACT_APP_LOCATION=${APP_LOCATION}
       - REACT_APP_NAME=${APP_NAME}
       - REACT_APP_HOST=${SERVER_HOST}
       - NODE_ENV=development

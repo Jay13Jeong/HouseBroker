@@ -1,5 +1,7 @@
 export const { REACT_APP_HOST } = process.env;
 export const { REACT_APP_NAME } = process.env;
+export const { REACT_APP_LOCATION } = process.env;
+export const { REACT_APP_PHONE_NUMBER } = process.env;
 export const RoutePath = {
     root: "/",
     postRE: "/realestate/post",

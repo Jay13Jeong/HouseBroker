@@ -95,9 +95,3 @@ export const Pagination = styled.div`
     color: #fff;
   }
 `;
-
-export const Footer = styled.footer`
-  background-color: #f2f2f2;
-  padding: 20px;
-  text-align: center;
-`;

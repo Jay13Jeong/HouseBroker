@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { REACT_APP_HOST } from "../../common/configData";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
-import CustomToastContainer from "../util/CustomToastContainer";
 import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil";
 import { realestateModalState, mainUpdateChecker } from "../../common/states/recoilModalState";
 import { Avatar } from '@mui/material';
@@ -245,6 +243,7 @@ function RootLayout() {
           </form>
         </section>
       </main>
+      
     </>
   );
 }
