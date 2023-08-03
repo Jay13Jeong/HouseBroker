@@ -13,6 +13,7 @@ export const HeaderWrapper = styled.header`
     height: 50px;
     padding: 5px;
     width: 100%;
+    z-index: 999;
 
     .navi-title {
         display: flex;

@@ -12,6 +12,7 @@ import {
     BottomCellMiddle,
   } from "./MainLayout.style";
 import Footer from "./Footer";
+import LeftSide from "./LeftSide";
 import CustomToastContainer from "../util/CustomToastContainer";
 import { ProfileModal } from "../lobby/modal";
 import OtherProfileModal from "../lobby/modal/OtherProfileModal";
@@ -27,17 +28,9 @@ function MainLayout() {
         <CustomToastContainer />
         <TableWrapper>
         <TableRow>
-          <LeftDiv>아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/></LeftDiv>
+          <LeftDiv>
+            <LeftSide/>
+          </LeftDiv>
               <MainLayoutWrapper>
                 <Outlet />
                 <ProfileModal />

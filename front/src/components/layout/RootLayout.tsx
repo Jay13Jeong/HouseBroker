@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
-import { useSetRecoilState , useResetRecoilState, useRecoilValue } from "recoil";
-import { realestateModalState, mainUpdateChecker } from "../../common/states/recoilModalState";
+import { useSetRecoilState , useRecoilValue, } from "recoil";
+import { realestateModalState, mainUpdateChecker, realestateFilterState, } from "../../common/states/recoilModalState";
 import { Avatar } from '@mui/material';
 
 function RootLayout() {
@@ -12,7 +12,7 @@ function RootLayout() {
   const [searchResults, setSearchResults] = useState<types.RealEstate[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(8);
-  const showModal = useRecoilValue(realestateModalState);
+  const filterState = useRecoilValue(realestateFilterState);
   const setModalState = useSetRecoilState(realestateModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const [estateImgs, setEstateImgs] = useState<string[]>([]);
@@ -22,6 +22,7 @@ function RootLayout() {
       try {
         await getRealEstate();
       } catch (error) {
+      
       }
     }
     reloadPage();
@@ -30,6 +31,10 @@ function RootLayout() {
   useEffect(() => {
     get8Imgs();
   }, [searchResults,currentPage]);
+
+  useEffect(() => {
+    rearrangeByFilter();
+  }, [filterState]);
 
   const fetchSampleImgs = () => {
     setEstateImgs([]);
@@ -173,6 +178,22 @@ function RootLayout() {
       return overlayImgUrl;
     }
   };
+
+  const rearrangeByFilter = () => {
+    if (filterState.filter === "default"){
+      setSearchResults(realEstates);  
+    } else {
+      const results = realEstates.filter(
+        (realEstate) => {
+          if (realEstate.relay_object_type === null)
+            return false;
+          return realEstate.relay_object_type.includes(filterState.filter)
+        }
+      );
+      setSearchResults(results);
+    }
+    setCurrentPage(1);
+  }
 
   return (
     <>

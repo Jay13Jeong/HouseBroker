@@ -112,6 +112,25 @@ const RealestateModal: React.FC = () => {
     }
   };
 
+  const getRelayObjectType = () => {
+    if (realEstateInfo === null)
+      return "";
+    switch (realEstateInfo.relay_object_type) {
+      case 'office':
+        return "아파트 / 오피스텔";
+      case 'house':
+        return "주택";
+      case 'room':
+        return "원룸 / 투룸";
+      case 'mall':
+        return "상가";
+      case 'land':
+        return "토지";
+      default:
+        return realEstateInfo.relay_object_type;
+    }
+  }
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <ModalScrollableWrapper>
@@ -156,7 +175,7 @@ const RealestateModal: React.FC = () => {
                 가격: {realEstateInfo.price}
               </Typography>
               <Typography variant="body1" gutterBottom>
-              중계대상물종류: {realEstateInfo.relay_object_type}
+              중계대상물종류: {getRelayObjectType()}
               </Typography>
               <Typography variant="body1" gutterBottom>
               소재지: {realEstateInfo.location}

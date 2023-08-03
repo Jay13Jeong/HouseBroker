@@ -41,6 +41,7 @@ const RealestateEditModal: React.FC = () => {
   const [number_of_cars_parked, setNumber_of_cars_parked] = useState<number>(0);
   const [direction, setDirection] = useState<string>('');
   const [administration_cost, setAdministration_cost] = useState<number>(0);
+  const [isTextareaDisabled, setIsTextareaDisabled] = useState(true);
 
   useEffect(() => {
     if (showModal.show) {
@@ -208,6 +209,24 @@ const RealestateEditModal: React.FC = () => {
     }
   };
 
+  const handleTextareaDisable = (value : string) => {
+    setIsTextareaDisabled(true);
+    if (value === "office")
+      setRelay_object_type("office")
+    else if (value === "house")
+      setRelay_object_type("house")
+    else if (value === "room")
+      setRelay_object_type("room")
+    else if (value === "mall")
+      setRelay_object_type("mall")
+    else if (value === "land")
+      setRelay_object_type("land")
+    else{
+      setIsTextareaDisabled(false);
+      setRelay_object_type("");
+    }
+  };
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <ModalScrollableWrapper>
@@ -254,13 +273,12 @@ const RealestateEditModal: React.FC = () => {
               justifyContent="center"
               alignItems="center"
             >
-              <label htmlFor="soldout"><h3>거래완료 여부</h3>
-                <label>
-                    <input type="radio" name="soldout" id="soldout" defaultChecked={!soldout} value="true" onChange={(e) => setSoldout(false)} /> 거래 중
-                </label>
-                <label>
-                    <input type="radio" name="soldout" id="soldout" defaultChecked={soldout} value="false" onChange={(e) => setSoldout(true)} /> 거래 완료
-                </label>
+              <h3>거래완료 여부&nbsp;</h3>
+              <label>
+                  <input type="radio" name="soldout" id="soldout" defaultChecked={!soldout} value="true" onChange={(e) => setSoldout(false)} /> 거래 중
+              </label>
+              <label>
+                  <input type="radio" name="soldout" id="soldout" defaultChecked={soldout} value="false" onChange={(e) => setSoldout(true)} /> 거래 완료
               </label>
             </Grid>
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
@@ -376,16 +394,37 @@ const RealestateEditModal: React.FC = () => {
               justifyContent="center"
               alignItems="center"
             >
+              <h3>중계대상물종류</h3>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("office")} /> 아파트 / 오피스텔
+              </label>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("house")} /> 주택
+              </label>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("room")} /> 원룸 / 투룸
+              </label>
+              <br></br>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("mall")} /> 상가
+              </label>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("land")} /> 토지
+              </label>
+              <label>
+                  <input type="radio" name="relay_object_type" id="relay_object_type" onChange={() => handleTextareaDisable("")} /> 직접입력&nbsp;
+              </label>
               <TextField
-                fullWidth
+                sx={{width : "40%"}}
                 id="relay_object_type"
-                label="중계대상물"
+                label="중계대상물 종류"
                 variant="outlined"
                 size="small"
                 onChange={(event) =>
                   setRelay_object_type(event.target.value)
                 }
                 onKeyDown={handleModifyKey}
+                disabled={isTextareaDisabled}
               />
             </Grid>
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">

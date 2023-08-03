@@ -23,6 +23,7 @@ function PostREPage() {
   const [number_of_cars_parked, setNumber_of_cars_parked] = useState<number>(0);
   const [direction, setDirection] = useState<string>('');
   const [administration_cost, setAdministration_cost] = useState<number>(0);
+  const [isTextareaDisabled, setIsTextareaDisabled] = useState(true);
 
   const handleImageSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +76,24 @@ const handleFormSubmit = async (e: React.FormEvent) => {
       if (selectedFile.size >= ((1 << 20) * 4))
           throw("4MB미만 업로드 가능.");
       setImageFile(URL.createObjectURL(selectedFile));
+    }
+  };
+
+  const handleTextareaDisable = (value : string) => {
+    setIsTextareaDisabled(true);
+    if (value === "office")
+      setRelay_object_type("office")
+    else if (value === "house")
+      setRelay_object_type("house")
+    else if (value === "room")
+      setRelay_object_type("room")
+    else if (value === "mall")
+      setRelay_object_type("mall")
+    else if (value === "land")
+      setRelay_object_type("land")
+    else{
+      setIsTextareaDisabled(false);
+      setRelay_object_type("");
     }
   };
 
@@ -143,11 +162,30 @@ const handleFormSubmit = async (e: React.FormEvent) => {
         </div>
         <div>
           <label htmlFor="relay_object_type"><h3>중계대상물종류</h3></label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("office")} /> 아파트/오피스텔
+          </label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("house")} /> 주택
+          </label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("room")} /> 원룸/투룸
+          </label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("mall")} /> 상가
+          </label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={(e) => handleTextareaDisable("land")} /> 토지
+          </label>
+          <label>
+              <input type="radio" name="relay_object_type" id="relay_object_type" onChange={() => handleTextareaDisable("")} /> 직접 입력
+          </label>
           <textarea
             id="relay_object_type"
-            value={relay_object_type}
+            // value={relay_object_type}
             onChange={(e) => setRelay_object_type(e.target.value)}
             required
+            disabled={isTextareaDisabled}
           ></textarea>
           <br/>단독주택,공동주택,제1종근린생활등
           <hr/>

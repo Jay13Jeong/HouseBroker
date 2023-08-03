@@ -110,3 +110,16 @@ export const mainUpdateChecker = atom<{ updateCount: number }>({
     }
 })
 
+export const myPathModalState = atom<{ show: boolean }>({
+    key: "myPathModalState",
+    default: {
+        show: false,
+    }
+})
+
+export const realestateFilterState = atom<{ filter: string }>({
+    key: "realestateFilterState",
+    default: {
+        filter: "default",
+    }
+})
