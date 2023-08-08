@@ -4,6 +4,7 @@ import { DefaultButton, DefaultButton2 } from "../common";
 import { Avatar } from '@mui/material';
 import { useSetRecoilState, } from "recoil";
 import { myPathModalState, realestateFilterState } from "../../common/states/recoilModalState";
+import { REACT_APP_PHONE_NUMBER } from '../../common/configData';
 
 export default function LeftSide() {
     const setModalState = useSetRecoilState(myPathModalState);
@@ -39,6 +40,11 @@ export default function LeftSide() {
 
     const handleMyPathModal = () => {
         setModalState({ show : true })
+    }
+
+    const handlePhoneClick = () => {
+        //전화 걸기.
+        window.location.href = 'tel:' + REACT_APP_PHONE_NUMBER;
     }
 
     return (
@@ -101,6 +107,16 @@ export default function LeftSide() {
               >
                 오시는 길
             </DefaultButton2>
+            <center onClick={handlePhoneClick}>
+            <Avatar
+                className="ImgPhoneSection"
+                src={require("../../assets/phone.jpg")}
+                alt="map_img"
+                variant="rounded"
+                sx={{ height: 150, marginTop: 8,marginBottom: 1 }}
+            />
+            <h3>지금 전화걸기</h3>
+            </center>
         </LeftSideWrapper>
     );
 }

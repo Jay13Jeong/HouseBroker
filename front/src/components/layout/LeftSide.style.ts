@@ -7,6 +7,10 @@ margin-top: 45px;
     width: 100%;
 }
 
+.ImgPhoneSection {
+    width: 70%;
+}
+
 .LeftSideButton {
     border: 1px solid lightyellow;
     margin-left: 0;

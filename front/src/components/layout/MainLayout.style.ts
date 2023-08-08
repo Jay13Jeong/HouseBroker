@@ -52,12 +52,12 @@ padding: 10px; /* 내용과 화면 경계 간의 여백 */
 
 export const LeftDiv = styled(TableCell)`
   width: 13%; /* 왼쪽 분할의 너비 조정 */
-  background-color: lightblue;
+  // background-color: lightblue;
 `;
 
 export const RightDiv = styled(TableCell)`
   width: 13%; /* 오른쪽 분할의 너비 조정 */
-  background-color: lightgreen;
+  // background-color: lightgreen;
 `;
 
 export const BottomRow = styled(TableRow)`

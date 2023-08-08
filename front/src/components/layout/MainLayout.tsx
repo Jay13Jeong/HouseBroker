@@ -14,12 +14,13 @@ import {
 import Footer from "./Footer";
 import LeftSide from "./LeftSide";
 import CustomToastContainer from "../util/CustomToastContainer";
-import { ProfileModal } from "../lobby/modal";
+import { MyPathModal, ProfileModal } from "../lobby/modal";
 import OtherProfileModal from "../lobby/modal/OtherProfileModal";
 
 import RealestateModal from "../lobby/modal/RealestateModal";
 import RealestateEditModal from "../lobby/modal/RealestateEditModal";
 import RealestatePostModal from "../lobby/modal/RealestatePostModal";
+import RightSide from "./RightSide";
 
 function MainLayout() {
     return (
@@ -38,18 +39,9 @@ function MainLayout() {
                 <RealestateModal />
                 <RealestateEditModal />
                 <RealestatePostModal />
+                <MyPathModal />
               </MainLayoutWrapper>
-            <RightDiv>아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/></RightDiv>
+          <RightDiv><RightSide/></RightDiv>
 
         </TableRow>
         <BottomRow>
