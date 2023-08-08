@@ -41,6 +41,10 @@ const RealestateEditModal: React.FC = () => {
   const [number_of_cars_parked, setNumber_of_cars_parked] = useState<number>(0);
   const [direction, setDirection] = useState<string>('');
   const [administration_cost, setAdministration_cost] = useState<number>(0);
+  const [administration_cost2, setAdministration_cost2] = useState<number>(0);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [clickedPosition, setClickedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isTextareaDisabled, setIsTextareaDisabled] = useState(true);
 
   useEffect(() => {
@@ -149,6 +153,11 @@ const RealestateEditModal: React.FC = () => {
   const handleModifyAdministration_costSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     ModifyDataSubmit("administration_cost", administration_cost);
+  };
+
+  const handleModifyAdministration_cost2Submit = (event: React.FormEvent) => {
+    event.preventDefault();
+    ModifyDataSubmit("administration_cost2", administration_cost2);
   };
 
   const handleModifySoldOutSubmit = async (event: React.FormEvent) => {
@@ -639,6 +648,35 @@ const RealestateEditModal: React.FC = () => {
               </DefaultButton>
             </Grid>
             {/* 관리비 수정 */}
+            <Grid
+              item
+              xs={4}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <TextField
+                fullWidth
+                id="administration_cost"
+                label="관리비"
+                variant="outlined"
+                size="small"
+                // placeholder={realEstatePreInfo? realEstatePreInfo.description : ""}
+                onChange={(event) =>
+                  setAdministration_cost(Number(event.target.value))
+                }
+                onKeyDown={handleModifyKey}
+              />
+            </Grid>
+            <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
+              <DefaultButton
+                onClick={handleModifyAdministration_costSubmit}
+                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              >
+                수정하기
+              </DefaultButton>
+            </Grid>
+            {/* 사용료 수정 */}
             <Grid
               item
               xs={4}

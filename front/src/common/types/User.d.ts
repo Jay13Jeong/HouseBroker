@@ -48,4 +48,7 @@ export interface RealEstate {
     number_of_cars_parked: number; //주차대수
     direction : string; //방향
     administration_cost : number; //관리비
+    administration_cost2 : number; //사용료
+    latitude : number; //위도
+    longitude : number; //경도
   }

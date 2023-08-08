@@ -21,6 +21,8 @@ const MyPathModal: React.FC = () => {
     resetState();
   };
 
+
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <ModalScrollableWrapper>
@@ -35,7 +37,7 @@ const MyPathModal: React.FC = () => {
               <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
                 <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
               </MapMarker>
-            </Map>
+        </Map>
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
       </Stack>
       </ModalScrollableWrapper>

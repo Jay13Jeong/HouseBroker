@@ -25,4 +25,7 @@ public class RealEstateDto{
     private Long number_of_cars_parked; //주차대수
     private String direction; //방향
     private Long administration_cost; //관리비
+    private Long administration_cost2; //관리비
+    private Double latitude; //위도
+    private Double longitude; //경도
 }

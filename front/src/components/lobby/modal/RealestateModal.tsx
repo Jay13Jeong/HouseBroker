@@ -201,6 +201,9 @@ const RealestateModal: React.FC = () => {
               <Typography variant="body1" gutterBottom>
               관리비: {realEstateInfo.administration_cost}
               </Typography>
+              <Typography variant="body1" gutterBottom>
+              사용료: {realEstateInfo.administration_cost2}
+              </Typography>
             </Grid>
 
           </Grid>

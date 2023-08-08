@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import { REACT_APP_HOST } from "../../common/configData";
 import { Avatar } from '@mui/material';
 import { ScrollableWrapper } from '../../components/realestate/ScrollableWrapper.style'
+import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
 
 function PostREPage() {
   const [title, setTitle] = useState<string>('');
@@ -23,7 +25,11 @@ function PostREPage() {
   const [number_of_cars_parked, setNumber_of_cars_parked] = useState<number>(0);
   const [direction, setDirection] = useState<string>('');
   const [administration_cost, setAdministration_cost] = useState<number>(0);
+  const [administration_cost2, setAdministration_cost2] = useState<number>(0);
   const [isTextareaDisabled, setIsTextareaDisabled] = useState(true);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [clickedPosition, setClickedPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleImageSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +68,9 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             number_of_cars_parked: number_of_cars_parked, //주차대수
             direction : direction, //방향
             administration_cost : administration_cost, //관리비
+            administration_cost2 : administration_cost2, //사용료
+            latitude : latitude, //위도
+            longitude : longitude, //경도
         }, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
         toast.success("매물 올리기 성공");
     } catch (error: any) {
@@ -94,6 +103,24 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     else{
       setIsTextareaDisabled(false);
       setRelay_object_type("");
+    }
+  };
+
+  const handleMapClick = (mouseEvent: any, coords: any) => {
+    const lat = coords.latLng.getLat(); // 클릭한 위치의 위도
+    const lng = coords.latLng.getLng(); // 클릭한 위치의 경도
+    setClickedPosition({ lat, lng });
+  };
+
+  const handleMapSelect = () => {
+    if (!clickedPosition)
+      return;
+    try{
+      setLatitude(clickedPosition.lat);
+      setLongitude(clickedPosition.lng);
+      toast.success("위치 지정 성공");
+    }catch(err:any){
+      toast.error("위치지정 실패");
     }
   };
 
@@ -134,6 +161,33 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             onChange={handleImageChange}
             ref={inputRef}
           />
+          <hr/>
+        </div>
+        <div>
+          <label htmlFor="number_of_cars_parked"><h3>매물 위치</h3></label>
+          <Map
+                className="myMap"
+                style={{ width: "500px", height: "500px" }}
+                center={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}
+                level={3}
+                onClick={handleMapClick}
+              >
+                <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
+                  <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
+                </MapMarker>
+                {clickedPosition && (
+                  <MapMarker position={{ lat: clickedPosition.lat, lng: clickedPosition.lng }}>
+                    <div
+                      style={{ textAlign: "center", width: "15.6vh", backgroundColor: "skyblue",}}
+                      onClick={handleMapSelect}
+                    >선택
+                    </div>
+                  </MapMarker>
+                )}
+          </Map>
+          {latitude && longitude && (
+            <p>위도 : {latitude}, 경도 : {longitude}</p>
+          )}
           <hr/>
         </div>
         <div>
@@ -261,6 +315,18 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             id="administration_cost"
             value={administration_cost}
             onChange={(e) => setAdministration_cost(Number(e.target.value))}
+            required
+          />
+          <br/>관리비와 사용료를 명확히 구분하여 표시해야 함
+          <hr/>
+        </div>
+        <div>
+          <label htmlFor="administration_cost2"><h3>사용료</h3></label>
+          <input
+            type="number"
+            id="administration_cost2"
+            value={administration_cost2}
+            onChange={(e) => setAdministration_cost2(Number(e.target.value))}
             required
           />
           <br/>관리비와 사용료를 명확히 구분하여 표시해야 함

@@ -50,6 +50,9 @@ public class RealEstateService {
         realEstate.setTransaction_type(realEstateDto.getTransaction_type());
         realEstate.setResidence_availability_date(realEstateDto.getResidence_availability_date());
         realEstate.setAdministrative_agency_approval_date(realEstateDto.getAdministrative_agency_approval_date());
+        realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
+        realEstate.setLatitude(realEstateDto.getLatitude());
+        realEstate.setLongitude(realEstateDto.getLongitude());
 //        System.out.println("createRealEstate-1");
 //        System.out.println(realEstateDto.getImage());
         if (realEstateDto.getImage() != null)
@@ -169,6 +172,15 @@ public class RealEstateService {
         }
         if (!(realEstateDto.getAdministration_cost() == null || realEstateDto.getAdministration_cost() == 0)) {
             realEstate.setAdministration_cost(realEstateDto.getAdministration_cost());
+        }
+        if (!(realEstateDto.getAdministration_cost2() == null || realEstateDto.getAdministration_cost2() == 0)) {
+            realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
+        }
+        if (!(realEstateDto.getLatitude() == null || realEstateDto.getLatitude() == 0)) {
+            realEstate.setLatitude(realEstateDto.getLatitude());
+        }
+        if (!(realEstateDto.getLongitude() == null || realEstateDto.getLongitude() == 0)) {
+            realEstate.setLongitude(realEstateDto.getLongitude());
         }
         realEstateRepository.save(realEstate);
     }
