@@ -69,7 +69,6 @@ function RootLayout() {
       // console.log(res.data);
       setRealEstates(res.data);
       setSearchResults(res.data);
-      toast.success('환영합니다!');
     } catch (err: any) {
       toast.error('정보 불러오기 실패');
       toast.error(err.response.data.message);

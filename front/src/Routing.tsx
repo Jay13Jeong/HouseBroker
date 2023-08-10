@@ -4,7 +4,7 @@ import { LobbyPage } from "./pages"
 // import {LoginTestPage} from './pages/auth';
 import { ChatLobbyPage, ChatRoomPage } from './pages/chat';
 import { GameLobbyPage, GameMatchPage, GameWatchPage, GamePlayRoomPage, GameWatchRoomPage } from './pages/game';
-import { PostREPage,PatchREPage,DeleteREPage } from './pages/realestate';
+import { PostREPage, MapPage } from './pages/realestate';
 import DmPage from './pages/dm/DmPage';
 import {RoutePath} from "./common/configData";
 import NotFound from './pages/NotFound';
@@ -19,9 +19,11 @@ export default function Routing() {
             {/* </Route> */}
             <Route path={RoutePath.root} element={<MainLayout/>}>
                 <Route path={RoutePath.root} element={<RootLayout/>}/>
+                <Route path={RoutePath.map} element={<MapPage/>}/>
                 <Route path={RoutePath.postRE} element={<PostREPage/>}/>
-                <Route path={RoutePath.patchRE} element={<PatchREPage/>}/>
-                <Route path={RoutePath.delRE} element={<DeleteREPage/>}/>
+                {/* <Route path={RoutePath.patchRE} element={<PatchREPage/>}/>
+                <Route path={RoutePath.delRE} element={<DeleteREPage/>}/> */}
+
                 {/* <Route path={RoutePath.loginTest} element={<LoginTestPage/>}/> */}
                 
                 {/*  */}

@@ -18,15 +18,24 @@ function ModalBase(props: ModalBaseProps) {
   return (
     <Modal open={props.open} onClose={props.onClose}>
       <Box sx={S.modalSx}>
+        
         {props.closeButton && props.reset ? (
           <IconButton
             sx={S.closeButtonSx}
-            onClick={() => props.reset?.()}
+            onClick={() => {
+              props.reset?.();
+              props.onClose?.();
+              }}
           >
             <CloseIcon />
           </IconButton>
+          
         ) : null}
+        <S.CustomCloseBtn onClick={props.onClose} >
+              닫기
+        </S.CustomCloseBtn>
         {props.children}
+        
       </Box>
     </Modal>
   );

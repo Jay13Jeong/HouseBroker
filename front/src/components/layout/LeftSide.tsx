@@ -1,17 +1,19 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LeftSideWrapper } from "./LeftSide.style"
 import { DefaultButton, DefaultButton2 } from "../common";
 import { Avatar } from '@mui/material';
 import { useSetRecoilState, } from "recoil";
 import { myPathModalState, realestateFilterState } from "../../common/states/recoilModalState";
 import { REACT_APP_PHONE_NUMBER } from '../../common/configData';
+import { RoutePath } from "../../common/configData";
 
 export default function LeftSide() {
+    const navigate = useNavigate();
     const setModalState = useSetRecoilState(myPathModalState);
     const setFilterState = useSetRecoilState(realestateFilterState);
 
     const handleMapClick = () => {
-        //지도페이지로 넘어가기.
+        navigate(RoutePath.map);
     }
 
     const handleFilterOffice = () => {

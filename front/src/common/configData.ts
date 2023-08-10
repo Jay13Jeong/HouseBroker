@@ -8,6 +8,7 @@ export const { REACT_APP_MY_LOCATE_X } = process.env;
 export const { REACT_APP_MY_LOCATE_Y } = process.env;
 export const RoutePath = {
     root: "/",
+    map: "/map",
     postRE: "/realestate/post",
     patchRE: "/realestate/patch",
     delRE: "/realestate/delete",
