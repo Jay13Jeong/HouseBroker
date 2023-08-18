@@ -1,12 +1,12 @@
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-
-import {SocketContext, socket} from './common/states/contextSocket';
+import {SocketContext as Sc, socket as s} from './common/states/contextSocket';
 import GlobalStyle from './common/styles/GlobalStyle';
 import { theme } from './common/styles/Theme.style';
 import { ThemeProvider } from '@mui/material';
 import Cursor from './components/util/Cursor';
 import Routing from './Routing';
+import { SocketProvider } from './common/states/socketContext';
 
 function App() {
 
@@ -15,11 +15,11 @@ function App() {
       <BrowserRouter>
       <ThemeProvider theme={theme}>
         <RecoilRoot>
-          <SocketContext.Provider value={socket}>
-            {/* <GlobalStyle />
-            <Cursor/> */}
+          <SocketProvider>
+          <Sc.Provider value={s}>
             <Routing />
-          </SocketContext.Provider>
+          </Sc.Provider>
+          </SocketProvider>
         </RecoilRoot>
       </ThemeProvider>
       </BrowserRouter>

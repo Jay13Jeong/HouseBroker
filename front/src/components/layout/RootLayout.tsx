@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext, } from 'react';
 import axios from "axios";
 import { toast } from "react-toastify";
 import * as types from "../../common/types/User";
 import { useSetRecoilState , useRecoilValue, } from "recoil";
-import { realestateModalState, mainUpdateChecker, realestateFilterState, } from "../../common/states/recoilModalState";
+import { 
+  realestateModalState, 
+  mainUpdateChecker, 
+  realestateFilterState,
+  socketConnectState,
+} from "../../common/states/recoilModalState";
 import { Avatar } from '@mui/material';
+import { useSocket } from '../../common/states/socketContext';
 
 function RootLayout() {
   const [realEstates, setRealEstates] = useState<types.RealEstate[]>([]);
@@ -16,7 +22,9 @@ function RootLayout() {
   const setModalState = useSetRecoilState(realestateModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const [estateImgs, setEstateImgs] = useState<string[]>([]);
-
+  const socketState = useRecoilValue(socketConnectState);
+  const socket = useSocket();
+ 
   useEffect(() => {
     const reloadPage = async () => {
       try {
@@ -27,6 +35,17 @@ function RootLayout() {
     }
     reloadPage();
   }, [updateChecker]);
+
+  useEffect(() => {
+    if (!socket.stomp.connected)
+      return;
+    toast.info("socket server accessed");
+    socket.addSubscribe('/topic/hi', (message) => {
+    toast.success("recv socket : " +  message.body);
+    socket.unsubscribe('/topic/hi');
+    });
+    socket.sendMessage('/app/hello', 'Hello client?');
+  }, [socketState]);
 
   useEffect(() => {
     get8Imgs();

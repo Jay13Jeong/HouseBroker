@@ -123,3 +123,10 @@ export const realestateFilterState = atom<{ filter: string }>({
         filter: "default",
     }
 })
+
+export const socketConnectState = atom<{ connected: boolean }>({
+    key: "socketConnectState",
+    default: {
+        connected: false,
+    }
+})
