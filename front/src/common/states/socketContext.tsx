@@ -35,11 +35,12 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {
-  const Urll = 'http://localhost/api/ws';
+  const Urll = '/api/ws';
   const socketjs = new SockJS(Urll);
   const stomp = Stomp.over(socketjs);
   const setSocketState = useSetRecoilState(socketConnectState);
   const subscriptionMap = new Map<string, Stomp.Subscription>();
+  stomp.debug = () => {}; // debug log off.
 
   useEffect(() => {
     stomp.connect({}, () => {
