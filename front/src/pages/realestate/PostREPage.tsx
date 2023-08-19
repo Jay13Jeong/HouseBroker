@@ -1,9 +1,9 @@
-import React, {useRef, useState } from 'react';
+import React, {useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import * as types from "../../common/types/User";
 import { toast } from "react-toastify";
 import { REACT_APP_HOST } from "../../common/configData";
-import { Avatar } from '@mui/material';
+import { Avatar, Button } from '@mui/material';
 import { ScrollableWrapper } from '../../components/realestate/ScrollableWrapper.style'
 import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
@@ -30,6 +30,44 @@ function PostREPage() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [clickedPosition, setClickedPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [hoverdPosition, setHoverdPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [mapAddressString, setMapAddressString] = useState<string>('');
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) });
+  const [markers, setMarkers] = useState([{
+    position: {
+      lat: Number(REACT_APP_MY_LOCATE_Y),
+      lng: Number(REACT_APP_MY_LOCATE_X),
+    },
+    content: REACT_APP_NAME,
+  }]);
+  const [mapViewLevel, setMapViewLevel] = useState<number>(4);
+
+  useEffect(() => {
+    if (mapAddressString === '') return;
+    const ps = new kakao.maps.services.Places();
+    ps.keywordSearch(mapAddressString, (data, status, _pagination) => {
+      if (status === kakao.maps.services.Status.OK) {
+        const bounds = new kakao.maps.LatLngBounds();
+        let markers = [];
+
+        for (var i = 0; i < data.length; i++) {
+          markers.push({
+            position: {
+              lat: Number(data[i].y),
+              lng: Number(data[i].x),
+            },
+            content: data[i].place_name,
+          })
+          bounds.extend(new kakao.maps.LatLng(Number(data[i].y), Number(data[i].x)));
+        }
+        setMarkers(markers);
+
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+        // setMapCenter({lat:bounds.getNorthEast().getLat(), lng: bounds.getNorthEast().getLng()});
+        setMapCenter({lat:markers[0].position.lat, lng: markers[0].position.lng});
+      }
+    })
+  }, [mapAddressString])
 
   const handleImageSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
@@ -124,12 +162,77 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     }
   };
 
+  const handleMapHoverdSelect = () => {
+    if (!hoverdPosition)
+      return;
+    try{
+      setLatitude(hoverdPosition.lat);
+      setLongitude(hoverdPosition.lng);
+      toast.success("위치 지정 성공");
+    }catch(err:any){
+      toast.error("위치지정 실패");
+    }
+  };
+
+  const hoverStyles = {
+    backgroundColor: 'skyblue',
+    transition: 'background-color 0.3s ease',
+  };
+
   return (
     
     <ScrollableWrapper>
-    <div>
     <h2>부동산 매물 등록</h2>
       <form onSubmit={handleFormSubmit}>
+      <div>
+          {/* <label htmlFor="number_of_cars_parked"><h3>매물 위치</h3></label> */}
+          <Map
+                className="myMap"
+                style={{ width: "100%", height: "500px" }}
+                center={mapCenter}
+                level={mapViewLevel}
+                onClick={handleMapClick}
+          >
+            {markers
+            .map((realEstate, i) => (
+              realEstate && realEstate.position && realEstate.content &&
+              <MapMarker
+                position={{ lat: realEstate.position.lat, lng: realEstate.position.lng }}
+              >
+                <div
+                  className='mapMarkers'
+                  onMouseEnter={() => setHoverdPosition({ lat: realEstate.position.lat, lng: realEstate.position.lng })}
+                  onClick={handleMapHoverdSelect}
+                >
+                  {realEstate.content}
+                </div>
+              </MapMarker>
+            ))}
+            {clickedPosition && (
+              <MapMarker position={{ lat: clickedPosition.lat, lng: clickedPosition.lng }}>
+                <div
+                  className='mapMarkers'
+                  onClick={handleMapSelect}
+                >직접 선택
+                </div>
+              </MapMarker>
+            )}
+            <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
+              <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
+            </MapMarker>
+          </Map>
+          {latitude && longitude && (
+            <p>위도 : {latitude}, 경도 : {longitude}</p>
+          )}
+          <h4>주소검색</h4>
+          <textarea
+            onChange={(e) => setMapAddressString(e.target.value)}
+          ></textarea>
+          <Button onClick={() => setMapViewLevel((level) => (level > 1 ? level - 1 : level))}>확대</Button>
+          <Button onClick={() => setMapViewLevel((level) => (level < 14 ? level + 1 : level))}>축소</Button>
+          (확대레벨 {mapViewLevel})
+          <hr/>
+        </div>
         <div>
           <label htmlFor="title"><h3>제목</h3></label>
           <textarea
@@ -153,41 +256,17 @@ const handleFormSubmit = async (e: React.FormEvent) => {
         </div>
         <Avatar src={imageFile} alt="real-estate image" variant="rounded" sx={{ width: 300, height: 250 }} />
         <div>
-          <label htmlFor="image"><h3>사진</h3></label>
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
-            onChange={handleImageChange}
-            ref={inputRef}
-          />
-          <hr/>
-        </div>
-        <div>
-          <label htmlFor="number_of_cars_parked"><h3>매물 위치</h3></label>
-          <Map
-                className="myMap"
-                style={{ width: "500px", height: "500px" }}
-                center={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}
-                level={3}
-                onClick={handleMapClick}
-              >
-                <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
-                  <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
-                </MapMarker>
-                {clickedPosition && (
-                  <MapMarker position={{ lat: clickedPosition.lat, lng: clickedPosition.lng }}>
-                    <div
-                      style={{ textAlign: "center", width: "15.6vh", backgroundColor: "skyblue",}}
-                      onClick={handleMapSelect}
-                    >선택
-                    </div>
-                  </MapMarker>
-                )}
-          </Map>
-          {latitude && longitude && (
-            <p>위도 : {latitude}, 경도 : {longitude}</p>
-          )}
+          <Button variant="contained" component="label">
+            사진 선택
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              ref={inputRef}
+              hidden
+            />
+          </Button>
           <hr/>
         </div>
         <div>
@@ -354,9 +433,11 @@ const handleFormSubmit = async (e: React.FormEvent) => {
           </label>
           <hr/>
         </div>
-        <button type="submit"><h3>매물 등록</h3></button>
+        <Button variant="contained" component="label">
+        매물 등록
+        <button type="submit" hidden></button>
+        </Button>
       </form>
-    </div>
     </ScrollableWrapper>
   );
 }

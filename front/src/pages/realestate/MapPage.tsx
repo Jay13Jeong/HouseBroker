@@ -77,7 +77,7 @@ function MapPage() {
 
   return (
     <main style={{ width: "100%", height: "100%", }}>
-    <section>
+    <section style={{ width: "100%", }}>
       <form onSubmit={handleSearch} style={{ width: "100%", }}>
         <input
           type="text"
@@ -88,12 +88,12 @@ function MapPage() {
         <button type="submit">검색</button>
       </form>
     </section>
-    <section>
+    <section style={{ width: "100%", height: "90vh" }}>
     <Map
       className="myMap"
-      style={{ width: "100%", height: "90vh", }}
+      style={{ width: "100%", height: "100%", }}
       center={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}
-      level={3}
+      level={6}
     >
     <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
       <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
