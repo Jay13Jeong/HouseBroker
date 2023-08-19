@@ -115,7 +115,7 @@ export default function LeftSide() {
                 src={require("../../assets/phone.jpg")}
                 alt="map_img"
                 variant="rounded"
-                sx={{ height: 150, marginTop: 8,marginBottom: 1 }}
+                sx={{ marginTop: 8,marginBottom: 1 }}
             />
             <h3>지금 전화걸기</h3>
             </center>

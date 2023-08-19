@@ -9,6 +9,7 @@ margin-top: 45px;
 
 .ImgPhoneSection {
     width: 70%;
+    height: auto;
 }
 
 .LeftSideButton {

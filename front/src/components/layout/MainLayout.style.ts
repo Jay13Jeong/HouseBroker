@@ -12,18 +12,34 @@ const backgrounds = [pingu1, pingu2, pingu3, pingu4, pingu5, pingu6, pingu7, pin
 const backgroundImg = backgrounds[randomNum()];
 
 const calculateHeight = () => {
-  const screenHeight = window.innerHeight; // 현재 화면의 높이
+  const absSize = 900;
+  const absMinSize = 900;
+  let screenHeight = window.innerHeight > absSize ? absSize : window.innerHeight; // 현재 화면의 높이
+  if (screenHeight > absSize)
+    screenHeight = absSize;
+  else if (screenHeight < absMinSize)
+    screenHeight = absMinSize
   const additionalHeight = screenHeight * 0.2;
-
   return `${screenHeight + additionalHeight}px`;
 };
 
+const calculateWidth = () => {
+  const screenWidth = window.innerWidth;
+  const absSize = 2560;
+  if (screenWidth > absSize)
+    return `${absSize}px`;
+  return `${screenWidth}px`;
+};
+
+const middleTopPx = '55px'; 
+
 export const TableWrapper = styled.div`
   display: table;
-  width: 100%;
+  width: ${calculateWidth()};
   table-layout: fixed; /* 너비를 동일하게 유지 */
   height: ${calculateHeight()};
   overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 export const TableRow = styled.div`
@@ -37,7 +53,7 @@ export const TableCell = styled.div`
 
 export const MainLayoutWrapper = styled(TableCell)`
 position: relative;
-top: 55px; 
+top: ${middleTopPx};
 // background-image: url(${backgroundImg});
 margin: 0 auto;
 width: 100%;
@@ -46,7 +62,6 @@ background-repeat: no-repeat;
 display: flex;
 justify-content: center;
 align-items: center;
-overflow-y: auto; /* 스크롤 스타일 적용 */
 padding: 10px; /* 내용과 화면 경계 간의 여백 */
 `;
 
@@ -66,24 +81,17 @@ export const BottomRow = styled(TableRow)`
 
 export const BottomCellLeft = styled(TableCell)`
   display: table-cell;
-  vertical-align: middle; /* 수직 가운데 정렬 */
-  text-align: center; /* 수평 가운데 정렬 */
-  font-weight: bold;
-  background-color: lightyellow;
+  // background-color: lightyellow;
 `;
 
 export const BottomCellMiddle = styled(TableCell)`
+  position: relative;
+  top: ${middleTopPx};
   display: table-cell;
-  vertical-align: middle; /* 수직 가운데 정렬 */
-  text-align: center; /* 수평 가운데 정렬 */
-  font-weight: bold;
-  background-color: lightpink;
+  // background-color: lightpink;
 `;
 
 export const BottomCellRight = styled(TableCell)`
   display: table-cell;
-  vertical-align: middle; /* 수직 가운데 정렬 */
-  text-align: center; /* 수평 가운데 정렬 */
-  font-weight: bold;
-  background-color: lightseagreen;
+  // background-color: lightseagreen;
 `;

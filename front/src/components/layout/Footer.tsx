@@ -7,6 +7,7 @@ import { REACT_APP_LOCATION, REACT_APP_PHONE_INFO } from '../../common/configDat
 export default function Footer() {
     return (
         <FooterWrapper>
+            <hr/>
             {REACT_APP_LOCATION}
             <br/>
             {REACT_APP_PHONE_INFO}

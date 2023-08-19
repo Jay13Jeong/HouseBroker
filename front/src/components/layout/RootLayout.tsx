@@ -11,6 +11,8 @@ import {
 } from "../../common/states/recoilModalState";
 import { Avatar } from '@mui/material';
 import { useSocket } from '../../common/states/socketContext';
+import { CardSection, Main, SearchSection } from './RootLayout.style';
+
 
 function RootLayout() {
   const [realEstates, setRealEstates] = useState<types.RealEstate[]>([]);
@@ -214,9 +216,8 @@ function RootLayout() {
   }
 
   return (
-    <>
-      <main>
-        <section>
+      <Main>
+        <SearchSection>
           <form onSubmit={handleSearch}>
             <input
               type="text"
@@ -226,9 +227,9 @@ function RootLayout() {
             />
             <button type="submit">검색</button>
           </form>
-        </section>
+        </SearchSection>
         <br/>
-        <section>
+        <CardSection>
           <table className="real-estate-table">
             <tbody>
               {Array.from(
@@ -243,7 +244,7 @@ function RootLayout() {
                             className="real-estate-card"
                             onClick={() => handleClick(realEstate.id)}
                         >
-                          <Avatar src={estateImgs[index * 4 + i]} alt="estate_image" variant="rounded" sx={{ width: 300, height: 250 }} />
+                          <Avatar src={estateImgs[index * 4 + i]} alt="estate_image" variant="rounded" sx={{ width: "100%", height: 250 }} />
                           <h3>{truncateTitle(realEstate.title, 20)}</h3>
                           <p>{truncateTitle(realEstate.description, 20)}</p>
                           <p>가격: {formatPrice(realEstate.price)}</p>
@@ -268,9 +269,9 @@ function RootLayout() {
               )
             )}
           </div>
-        </section>
+        </CardSection>
         <br/>
-        <section>
+        <SearchSection>
           <form onSubmit={handleSearch}>
             <input
               type="text"
@@ -280,10 +281,8 @@ function RootLayout() {
             />
             <button type="submit">검색</button>
           </form>
-        </section>
-      </main>
-      
-    </>
+        </SearchSection>
+      </Main>
   );
 }
 

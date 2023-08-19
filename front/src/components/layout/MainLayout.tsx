@@ -29,9 +29,7 @@ function MainLayout() {
         <CustomToastContainer />
         <TableWrapper>
         <TableRow>
-          <LeftDiv>
-            <LeftSide/>
-          </LeftDiv>
+          <LeftDiv><LeftSide/></LeftDiv>
               <MainLayoutWrapper>
                 <Outlet />
                 <ProfileModal />
@@ -42,20 +40,13 @@ function MainLayout() {
                 <MyPathModal />
               </MainLayoutWrapper>
           <RightDiv><RightSide/></RightDiv>
-
         </TableRow>
         <BottomRow>
-          <BottomCellLeft>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            </BottomCellLeft>
-            <BottomCellMiddle>
+          <BottomCellLeft></BottomCellLeft>
+          <BottomCellMiddle>
             <Footer/>
-            </BottomCellMiddle>
-            <BottomCellRight>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역/아래 영역<br/>
-            </BottomCellRight>
+          </BottomCellMiddle>
+          <BottomCellRight></BottomCellRight>
         </BottomRow>
       </TableWrapper>
               
