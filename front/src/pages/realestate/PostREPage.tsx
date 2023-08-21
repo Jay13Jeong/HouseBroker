@@ -2,11 +2,12 @@ import React, {useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import * as types from "../../common/types/User";
 import { toast } from "react-toastify";
-import { REACT_APP_HOST } from "../../common/configData";
 import { Avatar, Button } from '@mui/material';
 import { ScrollableWrapper } from '../../components/realestate/ScrollableWrapper.style'
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
+import "./../../assets/mapStyle.css";
+
 
 function PostREPage() {
   const [title, setTitle] = useState<string>('');
@@ -41,6 +42,7 @@ function PostREPage() {
     content: REACT_APP_NAME,
   }]);
   const [mapViewLevel, setMapViewLevel] = useState<number>(4);
+  const [zoomable, setZoomable] = useState<boolean>(false);
 
   useEffect(() => {
     if (mapAddressString === '') return;
@@ -145,6 +147,7 @@ const handleFormSubmit = async (e: React.FormEvent) => {
   };
 
   const handleMapClick = (mouseEvent: any, coords: any) => {
+    if (zoomable === false) return;
     const lat = coords.latLng.getLat(); // 클릭한 위치의 위도
     const lng = coords.latLng.getLng(); // 클릭한 위치의 경도
     setClickedPosition({ lat, lng });
@@ -174,11 +177,6 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     }
   };
 
-  const hoverStyles = {
-    backgroundColor: 'skyblue',
-    transition: 'background-color 0.3s ease',
-  };
-
   return (
     
     <ScrollableWrapper>
@@ -191,8 +189,12 @@ const handleFormSubmit = async (e: React.FormEvent) => {
                 style={{ width: "100%", height: "500px" }}
                 center={mapCenter}
                 level={mapViewLevel}
-                onClick={handleMapClick}
+                onClick={(mouseEvent: any, coords: any) => {
+                  handleMapClick(mouseEvent, coords);setZoomable(true);
+                }}
+                zoomable={zoomable}
           >
+            <ZoomControl />
             {markers
             .map((realEstate, i) => (
               realEstate && realEstate.position && realEstate.content &&

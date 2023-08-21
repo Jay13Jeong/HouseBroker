@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import * as types from "../../common/types/User";
 import { toast } from "react-toastify";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
 import { useSetRecoilState , useRecoilValue, } from "recoil";
 import { realestateModalState, mainUpdateChecker, realestateFilterState, } from "../../common/states/recoilModalState";
@@ -95,6 +95,7 @@ function MapPage() {
       center={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}
       level={6}
     >
+      <ZoomControl />
     <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
       <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
     </MapMarker>

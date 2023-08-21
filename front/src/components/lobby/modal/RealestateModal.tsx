@@ -12,7 +12,7 @@ import { Avatar } from '@mui/material';
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
 import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style";
-import { Map, MapMarker } from "react-kakao-maps-sdk";
+import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../../common/configData';
 import { CustomGrid, CustomTextWrapper } from "../../modal/Modal.style";
 
@@ -25,6 +25,7 @@ const RealestateModal: React.FC = () => {
   const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
   const [images, setImages] = useState<any[]>([require("../../../assets/sampleroom.png"),]);
+  const [zoomable, setZoomable] = useState<boolean>(false);
 
   useEffect(() => {
     if (showModal.show) {
@@ -32,6 +33,7 @@ const RealestateModal: React.FC = () => {
     } else {
       setRealEstateInfo(null);
     }
+    setZoomable(false);
   }, [showModal]);
 
   const fetchRealEstateInfo = async () => {
@@ -70,8 +72,7 @@ const RealestateModal: React.FC = () => {
         return (
           <div className="react-confirm-alert-overlay">
             <div className="react-confirm-alert">
-              <h1>게시물 삭제</h1>
-              <p>게시물을 삭제하시겠습니까?</p>
+              <h1>게시물을 삭제하시겠습니까?</h1>
               <div className="react-confirm-alert-button-group">
                 <button onClick={onClose}>아니오</button>
                 <button
@@ -204,7 +205,10 @@ const RealestateModal: React.FC = () => {
               style={{ width: "100%", height: "40vh", }}
               center={{ lat: realEstateInfo.latitude, lng: realEstateInfo.longitude }}
               level={3}
+              onClick={() => setZoomable(true)}
+              zoomable={zoomable}
             >
+            <ZoomControl />
             <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
               <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
             </MapMarker>
@@ -227,7 +231,7 @@ const RealestateModal: React.FC = () => {
           <Grid item xs={1}>
             <DefaultButton
               onClick={handleModifyModal}
-              sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              sx={{ width: "100%" }}
             >
               수정
             </DefaultButton>
@@ -236,7 +240,7 @@ const RealestateModal: React.FC = () => {
           <Grid item xs={1}>
             <DefaultButton
               onClick={handleDeleteSubmit}
-              sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+              sx={{ width: "100%" }}
             >
               삭제
             </DefaultButton>

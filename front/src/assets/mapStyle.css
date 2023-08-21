@@ -1,0 +1,11 @@
+.mapMarkers {
+text-align: center;
+width: 15.6vh;
+}
+
+.mapMarkers:hover {
+text-align: center;
+width: 15.6vh;
+background-color: skyblue;
+}
+

@@ -206,7 +206,7 @@ const RealestatePostModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyTitleSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -235,7 +235,7 @@ const RealestatePostModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyDescriptionSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -264,7 +264,7 @@ const RealestatePostModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyPriceSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -293,7 +293,7 @@ const RealestatePostModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyImageSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>

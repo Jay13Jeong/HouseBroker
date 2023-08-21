@@ -1,26 +1,25 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
 import { realestateEditModalState, mainUpdateChecker } from "../../../common/states/recoilModalState";
-import UserCardButtonList from "../../card/user/UserCardButtonList";
 import * as types from "../../../common/types/User";
 import ModalBase from "../../modal/ModalBase";
 import axios from "axios";
-import { REACT_APP_HOST } from "../../../common/configData";
-import useGetData from "../../../util/useGetData";
+import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../../common/configData';
 import { toast } from "react-toastify";
-import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./../../../assets/confirm-alert.css";
 import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style";
-import { Avatar } from '@mui/material';
-
+import { Avatar, Button } from '@mui/material';
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
+import { MapMarker, Map, ZoomControl } from "react-kakao-maps-sdk";
+import "./../../../assets/mapStyle.css";
+import { confirmAlert } from "react-confirm-alert";
+
+const defaultLocate = { lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }
 
 const RealestateEditModal: React.FC = () => {
-  const [isChange, setIsChange] = useState<number>(0);
   const showModal = useRecoilValue(realestateEditModalState);
-  const setModalState = useSetRecoilState(realestateEditModalState);
   const resetState = useResetRecoilState(realestateEditModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
@@ -46,8 +45,73 @@ const RealestateEditModal: React.FC = () => {
   const [longitude, setLongitude] = useState<number | null>(null);
   const [clickedPosition, setClickedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isTextareaDisabled, setIsTextareaDisabled] = useState(true);
+  const [hoverdPosition, setHoverdPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [mapAddressString, setMapAddressString] = useState<string>('');
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(defaultLocate);
+  const [markers, setMarkers] = useState([{
+    position: defaultLocate,
+    content: REACT_APP_NAME,
+  }]);
+  const [mapViewLevel, setMapViewLevel] = useState<number>(4);
+  const [zoomable, setZoomable] = useState<boolean>(false);
 
   useEffect(() => {
+    if (mapAddressString === '') return;
+    const ps = new kakao.maps.services.Places();
+    ps.keywordSearch(mapAddressString, (data, status, _pagination) => {
+      if (status === kakao.maps.services.Status.OK) {
+        const bounds = new kakao.maps.LatLngBounds();
+        let markers = [];
+
+        for (var i = 0; i < data.length; i++) {
+          markers.push({
+            position: {
+              lat: Number(data[i].y),
+              lng: Number(data[i].x),
+            },
+            content: data[i].place_name,
+          })
+          bounds.extend(new kakao.maps.LatLng(Number(data[i].y), Number(data[i].x)));
+        }
+        setMarkers(markers);
+
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+        setMapCenter({lat:markers[0].position.lat, lng: markers[0].position.lng});
+      }
+    })
+  }, [mapAddressString])
+
+  useEffect(() => {
+    setRealEstateInfo(null);
+    setTitle('');
+    setDescription('');
+    setPrice(0);
+    setImageFile('');
+    setSoldout(false);
+    setUploadedId('');
+    setRelay_object_type('');
+    setLocation('');
+    setArea(0);
+    setTransaction_type('');
+    setResidence_availability_date('');
+    setAdministrative_agency_approval_date('');
+    setNumber_of_cars_parked(0);
+    setDirection('');
+    setAdministration_cost(0);
+    setAdministration_cost2(0);
+    setLatitude(null);
+    setLongitude(null);
+    setClickedPosition(null);
+    setIsTextareaDisabled(true);
+    setHoverdPosition(null);
+    setMapAddressString('');
+    setMapCenter(defaultLocate);
+    setMarkers([{
+      position: defaultLocate,
+      content: REACT_APP_NAME,
+    }]);
+    setMapViewLevel(4);
+    setZoomable(false);
     if (showModal.show) {
       fetchRealEstateInfo();
     } else {
@@ -64,6 +128,9 @@ const RealestateEditModal: React.FC = () => {
       setRealEstateInfo(res.data);
       setSoldout(res.data.soldout);
       setImageFile(await getImageData(res.data.id));
+      if (res.data.latitude && res.data.longitude) {
+        setMapCenter({ lat: res.data.latitude, lng: res.data.longitude });
+      }
     } catch (err: any) {
       toast.error(err.response.data.message);
     }
@@ -77,8 +144,31 @@ const RealestateEditModal: React.FC = () => {
     setMainUpdateChecker({updateCount:(updateChecker.updateCount + 1)});
   }
 
+  const ModifyData = async (target: string, newData : any) => {
+    try {
+      const response = await axios.patch<types.RealEstate>(
+        `/api/realestate/${showModal.realestateId}`,
+        {
+          [target]: newData,
+        },
+        { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      toast.success("변경 성공");
+      pageUpdateChecker();
+    } catch (err: any) {
+      toast.error("변경 실패");
+      toast.error(err.response.data.message);
+    }
+  };
+
   const ModifyDataSubmit = async (target: string, newData : any) => {
     if (realEstateInfo === null) return;
+    if (newData === '' || newData === null || newData === 0){
+      if (await handleEmptySubmit() === false) return;
+    }
+    else {
+      if (await handleConfirmSubmit(newData) === false) return;
+    }
     try {
       const response = await axios.patch<types.RealEstate>(
         `/api/realestate/${showModal.realestateId}`,
@@ -160,6 +250,19 @@ const RealestateEditModal: React.FC = () => {
     ModifyDataSubmit("administration_cost2", administration_cost2);
   };
 
+  const handleModifyMapSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const modifyLatLong = async () => {
+      try{
+        await ModifyDataSubmit("latitude", latitude);
+        await ModifyDataSubmit("longitude", longitude);
+      } catch (err : any) {
+        toast.error("위치 수정 실패");
+      } 
+    }
+    modifyLatLong();
+  };
+
   const handleModifySoldOutSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (realEstateInfo === null) return;
@@ -236,6 +339,93 @@ const RealestateEditModal: React.FC = () => {
     }
   };
 
+  const handleMapClick = (mouseEvent: any, coords: any) => {
+    if (zoomable === false) return;
+    const lat = coords.latLng.getLat(); // 클릭한 위치의 위도
+    const lng = coords.latLng.getLng(); // 클릭한 위치의 경도
+    setClickedPosition({ lat, lng });
+  };
+
+  const handleMapSelect = () => {
+    if (!clickedPosition)
+      return;
+    try{
+      setLatitude(clickedPosition.lat);
+      setLongitude(clickedPosition.lng);
+      toast.success("위치 지정 성공");
+    }catch(err:any){
+      toast.error("위치지정 실패");
+    }
+  };
+
+  const handleMapHoverdSelect = () => {
+    if (!hoverdPosition)
+      return;
+    try{
+      setLatitude(hoverdPosition.lat);
+      setLongitude(hoverdPosition.lng);
+      toast.success("위치 지정 성공");
+    }catch(err:any){
+      toast.error("위치지정 실패");
+    }
+  };
+
+  const handleConfirmSubmit = async (newData: any): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
+      confirmAlert({
+        customUI: ({ onClose }) => {
+          return (
+            <div className="react-confirm-alert-overlay">
+              <div className="react-confirm-alert">
+                <h1>{newData}</h1>
+                <h3>수정하시겠습니까?</h3>
+                <div className="react-confirm-alert-button-group">
+                  <button onClick={onClose}>아니오</button>
+                  <button
+                    onClick={async () => {
+                      onClose();
+                      resolve(true);
+                    }}
+                  >
+                    예
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      });
+    });
+  };
+
+
+  const handleEmptySubmit = async () => {
+    return new Promise(async (resolve) => {
+      confirmAlert({
+        customUI: ({ onClose }) => {
+          return (
+            <div className="react-confirm-alert-overlay">
+              <div className="react-confirm-alert">
+                <h1>빈값으로 수정하시겠습니까?</h1>
+                <div className="react-confirm-alert-button-group">
+                  <button onClick={onClose}>아니오</button>
+                  <button
+                    onClick={async () => {
+                      onClose();
+                      resolve(true);
+                    }}
+                  >
+                    예
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        },
+      });
+    });
+  };
+
   return (
     <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
       <ModalScrollableWrapper>
@@ -254,18 +444,25 @@ const RealestateEditModal: React.FC = () => {
                     <Avatar src={imageFile} alt="real-estate image" variant="rounded" sx={{ width: 500, height: 350 }} />
                   </Grid>
                   <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <DefaultButton
+                      sx={{ width: "100%" }}
+                    >
+                      사진선택
                     <input
                       type="file"
                       id="image"
                       accept="image/*"
                       onChange={handleImageChange}
                       ref={inputRef}
+                      hidden
                     />
+                    </DefaultButton>
+                    
                   </Grid>
                   <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
                     <DefaultButton
                       onClick={handleModifyImageSubmit}
-                      sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                      sx={{ width: "100%" }}
                     >
                       수정하기
                     </DefaultButton>
@@ -293,7 +490,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifySoldOutSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -332,7 +529,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyTitleSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -361,7 +558,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyDescriptionSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -390,7 +587,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyPriceSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -439,7 +636,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyRelay_object_typeSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -468,7 +665,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyLocationSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -497,7 +694,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyAreaSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -526,7 +723,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyTransaction_typeSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -555,7 +752,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyResidence_availability_dateSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -584,7 +781,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyAdministrative_agency_approval_dateSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -613,7 +810,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyNumber_of_cars_parkedSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -642,7 +839,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyDirectionSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -671,7 +868,7 @@ const RealestateEditModal: React.FC = () => {
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
                 onClick={handleModifyAdministration_costSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
@@ -686,29 +883,105 @@ const RealestateEditModal: React.FC = () => {
             >
               <TextField
                 fullWidth
-                id="administration_cost"
-                label="관리비"
+                id="administration_cost2"
+                label="사용료"
                 variant="outlined"
                 size="small"
-                // placeholder={realEstatePreInfo? realEstatePreInfo.description : ""}
                 onChange={(event) =>
-                  setAdministration_cost(Number(event.target.value))
+                  setAdministration_cost2(Number(event.target.value))
                 }
                 onKeyDown={handleModifyKey}
               />
             </Grid>
             <Grid item xs={1} display="flex" justifyContent="center" alignItems="center">
               <DefaultButton
-                onClick={handleModifyAdministration_costSubmit}
-                sx={{ marginLeft: 0, marginRight: 0, width: "100%" }}
+                onClick={handleModifyAdministration_cost2Submit}
+                sx={{ width: "100%" }}
               >
                 수정하기
               </DefaultButton>
+            </Grid>
+            {/* 지도수정 */}
+            <Grid container columns={23} columnSpacing={2}>
+              <Grid item xs={1}/>
+              <Grid item xs={21} sx={{ border: '1px solid black', borderRadius: '5px' }}>
+                <Grid container columns={5} columnSpacing={2} onClick={() => setZoomable(true)}>
+                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <Map
+                      className="myMap"
+                      style={{ width: "100%", height: "500px" }}
+                      center={mapCenter}
+                      level={mapViewLevel}
+                      onClick={(mouseEvent: any, coords: any) => {
+                        handleMapClick(mouseEvent, coords);
+                      }}
+                      zoomable={zoomable}
+                    >
+                      <ZoomControl />
+                      {markers
+                      .map((realEstate, i) => (
+                        realEstate && realEstate.position && realEstate.content &&
+                        <MapMarker
+                          position={{ lat: realEstate.position.lat, lng: realEstate.position.lng }}
+                        >
+                          <div
+                            className='mapMarkers'
+                            onMouseEnter={() => setHoverdPosition({ lat: realEstate.position.lat, lng: realEstate.position.lng })}
+                            onClick={handleMapHoverdSelect}
+                          >
+                            {realEstate.content}
+                          </div>
+                        </MapMarker>
+                      ))}
+                      {clickedPosition && (
+                        <MapMarker position={{ lat: clickedPosition.lat, lng: clickedPosition.lng }}>
+                          <div
+                            className='mapMarkers'
+                            onClick={handleMapSelect}
+                          >직접 선택
+                          </div>
+                        </MapMarker>
+                      )}
+                      {realEstateInfo.latitude && realEstateInfo.longitude &&
+                        <MapMarker position={{ lat: realEstateInfo.latitude, lng: realEstateInfo.longitude }}>
+                          <div style={{textAlign:"center", width:"15vh"}}>기존위치</div>
+                        </MapMarker>
+                      }
+                    </Map>
+                  </Grid>
+                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <h3>주소로 검색&nbsp;</h3>
+                    <textarea
+                      style={{width : "50%"}}
+                      onChange={(e) => setMapAddressString(e.target.value)}
+                    ></textarea>
+                    {/* <Button onClick={() => setMapViewLevel((level) => (level > 1 ? level - 1 : level))}>확대</Button>
+                    <Button onClick={() => setMapViewLevel((level) => (level < 14 ? level + 1 : level))}>축소</Button>
+                    (확대레벨 {mapViewLevel}) */}
+                  </Grid>
+                  {latitude && longitude && 
+                    <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <h3>선택된 위도&nbsp;</h3>{latitude}&nbsp;
+                    <h3>경도&nbsp;</h3>{longitude}&nbsp;
+                    </Grid>
+                  }
+                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <DefaultButton
+                      onClick={handleModifyMapSubmit}
+                      sx={{ width: "100%" }}
+                    >
+                      수정하기
+                    </DefaultButton>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={1}/>
             </Grid>
             {/* end */}
           </Grid>
         )}
       </Stack>
+      <br/><br/><br/><br/>
       </ModalScrollableWrapper>
     </ModalBase>
   );

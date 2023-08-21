@@ -128,7 +128,7 @@ function FriendModal() {
                         justifyContent="center"
                         alignItems="center"
                     >
-                        <DefaultButton onClick={handleAddFriendSubmit} sx={{marginLeft: 0, marginRight: 0, width: "100%"}}>친구 추가하기</DefaultButton>
+                        <DefaultButton onClick={handleAddFriendSubmit} sx={{width: "100%"}}>친구 추가하기</DefaultButton>
                     </Grid>
                 </Grid>
                 <UserCardButtonList friends={friendList}/>

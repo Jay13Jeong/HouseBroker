@@ -10,17 +10,6 @@ export const ScrollableWrapper = styled.div`
   form {
     width: 100%;
   }
-
-  .mapMarkers {
-    text-align: center;
-    width: 15.6vh;
-  }
-
-  .mapMarkers:hover {
-    text-align: center;
-    width: 15.6vh;
-    background-color: skyblue;
-  }
 `;
 
 export const ModalScrollableWrapper = styled.div`
