@@ -12,6 +12,15 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class RealEstateDto{
     private MultipartFile image;
+    private MultipartFile image2;
+    private MultipartFile image3;
+    private MultipartFile image4;
+    private MultipartFile image5;
+    private MultipartFile image6;
+    private MultipartFile image7;
+    private MultipartFile image8;
+    private MultipartFile image9;
+    private MultipartFile image10;
     private String title;
     private String description;
     private Long price;

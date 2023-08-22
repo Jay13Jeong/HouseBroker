@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.lang.reflect.Method;
 
 @Entity
 @ToString
@@ -18,6 +19,15 @@ public class RealEstate{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String image;
+    private String image2;
+    private String image3;
+    private String image4;
+    private String image5;
+    private String image6;
+    private String image7;
+    private String image8;
+    private String image9;
+    private String image10;
     private String title;
 
     @Column(length=5000)

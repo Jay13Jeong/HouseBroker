@@ -224,15 +224,12 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             </MapMarker>
           </Map>
           {latitude && longitude && (
-            <p>위도 : {latitude}, 경도 : {longitude}</p>
+            <p>선택된 위도 : {latitude}, 경도 : {longitude}</p>
           )}
-          <h4>주소검색</h4>
+          <h4>주소입력으로 검색</h4>
           <textarea
             onChange={(e) => setMapAddressString(e.target.value)}
           ></textarea>
-          <Button onClick={() => setMapViewLevel((level) => (level > 1 ? level - 1 : level))}>확대</Button>
-          <Button onClick={() => setMapViewLevel((level) => (level < 14 ? level + 1 : level))}>축소</Button>
-          (확대레벨 {mapViewLevel})
           <hr/>
         </div>
         <div>

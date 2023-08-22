@@ -38,6 +38,15 @@ export interface RealEstate {
     description: string;
     price: number;
     image: string;
+    image2: string;
+    image3: string;
+    image4: string;
+    image5: string;
+    image6: string;
+    image7: string;
+    image8: string;
+    image9: string;
+    image10: string;
     soldout: boolean;
     relay_object_type : string; //중계대상물종류
     location : string; //소재지

@@ -37,10 +37,10 @@ public class RealEstateController {
         return new ResponseEntity<>(realEstate, HttpStatus.OK);
     }
 
-    @GetMapping("/image/{id}")
-    public ResponseEntity<Resource> getRealEstateImage(@PathVariable Long id) {
+    @GetMapping("/image/{id}/{index}")
+    public ResponseEntity<Resource> getRealEstateImage(@PathVariable Long id, @PathVariable Long index) {
         try {
-            Resource resource = realEstateService.getImageResource(id);
+            Resource resource = realEstateService.getImageResource(id, index);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_PNG);
@@ -62,15 +62,10 @@ public class RealEstateController {
         }
     }
 
-    @PatchMapping("/image/{id}")
-    public ResponseEntity<String> ModifyRealEstateImage(@PathVariable Long id, @RequestParam("image") MultipartFile img) {
-        // 이미지 수정하는 로직으로
-        try {
-            realEstateService.ModifyRealEstateImage(id, img);
-            return ResponseEntity.ok("");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
-        }
+    @DeleteMapping("/image/{id}/{index}")
+    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index) {
+        realEstateService.deleteImage(id, index);
+        return ResponseEntity.ok("부동산 이미지가 삭제되었습니다.");
     }
 
     @DeleteMapping("/{id}")

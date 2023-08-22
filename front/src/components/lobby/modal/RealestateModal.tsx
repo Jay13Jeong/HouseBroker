@@ -24,7 +24,7 @@ const RealestateModal: React.FC = () => {
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
-  const [images, setImages] = useState<any[]>([require("../../../assets/sampleroom.png"),]);
+  const [images, setImageFile] = useState<any[]>([require("../../../assets/sampleroom.png"),]);
   const [zoomable, setZoomable] = useState<boolean>(false);
 
   useEffect(() => {
@@ -43,7 +43,11 @@ const RealestateModal: React.FC = () => {
         { withCredentials: true }
       );
       setRealEstateInfo(res.data);
-      setImages([await getImageData(res.data.id)])
+      setImageFile([]);
+      for (let i= 1; i <= 10; i++){
+        const imgData = await getImageData(res.data.id, i)
+        setImageFile((prevState) => [...prevState, imgData]);
+      }
     } catch (err: any) {
       toast.error(err.response.data.message);
     }
@@ -104,9 +108,9 @@ const RealestateModal: React.FC = () => {
     }
   };
 
-  const getImageData = async (id: number) => {
+  const getImageData = async (id: number, index: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/image/' + id, {
+      const imgDataRes = await axios.get('/api/realestate/image/' + id + '/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });

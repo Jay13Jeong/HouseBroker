@@ -27,7 +27,7 @@ const RealestateEditModal: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
-  const [imageFile, setImageFile] = useState('');
+  const [imageFile, setImageFile] = useState<any[]>([]);
   const [soldout, setSoldout] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null> (null);
   const [uploadedId, setUploadedId] = useState<string>('');
@@ -86,7 +86,7 @@ const RealestateEditModal: React.FC = () => {
     setTitle('');
     setDescription('');
     setPrice(0);
-    setImageFile('');
+    setImageFile([]);
     setSoldout(false);
     setUploadedId('');
     setRelay_object_type('');
@@ -127,7 +127,10 @@ const RealestateEditModal: React.FC = () => {
       );
       setRealEstateInfo(res.data);
       setSoldout(res.data.soldout);
-      setImageFile(await getImageData(res.data.id));
+      for (let i= 1; i <= 10; i++){
+        const imgData = await getImageData(res.data.id, i)
+        setImageFile((prevState) => [...prevState, imgData]);
+      }
       if (res.data.latitude && res.data.longitude) {
         setMapCenter({ lat: res.data.latitude, lng: res.data.longitude });
       }
@@ -144,12 +147,30 @@ const RealestateEditModal: React.FC = () => {
     setMainUpdateChecker({updateCount:(updateChecker.updateCount + 1)});
   }
 
-  const ModifyData = async (target: string, newData : any) => {
+  const ModifyImageSubmit = async (target: string, newImg : any, index: number) => {
+    if (realEstateInfo === null) return;
+    if (newImg === ''){
+      if (await handleEmptySubmit() === true){
+        try {
+          const response = await axios.delete(
+            `/api/realestate/image/${showModal.realestateId}/${index}`,
+            { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
+          );
+          toast.success("내리기 성공");
+          pageUpdateChecker();
+        } catch (err: any) {
+          toast.error("내리기 실패");
+          toast.error(err.response.data.message);
+        }
+      }
+      return;
+    }
+    if (await handleConfirmSubmit('') === false) return;
     try {
       const response = await axios.patch<types.RealEstate>(
         `/api/realestate/${showModal.realestateId}`,
         {
-          [target]: newData,
+          [target]: newImg,
         },
         { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -284,9 +305,8 @@ const RealestateEditModal: React.FC = () => {
 
   const handleModifyImageSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!(inputRef.current && inputRef.current.value))
-        return;
-    ModifyDataSubmit("image", inputRef.current.files![0]);
+    const imgData = (inputRef.current && inputRef.current.value) ? inputRef.current.files![0] : '';
+    ModifyImageSubmit("image", imgData, 1);
   };
 
   const handleModifyKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -305,13 +325,21 @@ const RealestateEditModal: React.FC = () => {
       const selectedFile = e.target.files[0];
       if (selectedFile.size >= ((1 << 20) * 10))
           throw("10MB미만 업로드 가능.");
-      setImageFile(URL.createObjectURL(selectedFile));
+      setImageFileAtIndex(0, URL.createObjectURL(selectedFile))
     }
   };
 
-  const getImageData = async (id: number) => {
+  const setImageFileAtIndex = (indexToUpdate: number, newValue: string) => {
+    setImageFile((prevImageFile) => {
+      const updatedImageFile = [...prevImageFile];
+      updatedImageFile[indexToUpdate] = newValue;
+      return updatedImageFile;
+    });
+  };
+
+  const getImageData = async (id: number, index: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/image/' + id, {
+      const imgDataRes = await axios.get('/api/realestate/image/' + id + '/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });
@@ -441,11 +469,11 @@ const RealestateEditModal: React.FC = () => {
               <Grid item xs={21} sx={{ border: '1px solid black', borderRadius: '5px' }}>
                 <Grid container columns={5} columnSpacing={2}>
                   <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
-                    <Avatar src={imageFile} alt="real-estate image" variant="rounded" sx={{ width: 500, height: 350 }} />
+                    <Avatar src={imageFile[0]} alt="real-estate image" variant="rounded" sx={{ width: 500, height: 350 }} />
                   </Grid>
-                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
-                    <DefaultButton
-                      sx={{ width: "100%" }}
+                  <Grid item xs={2.5} display="flex" justifyContent="center" alignItems="center">
+                    <Button  variant="contained" component="label"
+                      sx={{ width: "97%", }}
                     >
                       사진선택
                     <input
@@ -456,10 +484,10 @@ const RealestateEditModal: React.FC = () => {
                       ref={inputRef}
                       hidden
                     />
-                    </DefaultButton>
+                    </Button>
                     
                   </Grid>
-                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                  <Grid item xs={2.5} display="flex" justifyContent="center" alignItems="center">
                     <DefaultButton
                       onClick={handleModifyImageSubmit}
                       sx={{ width: "100%" }}
