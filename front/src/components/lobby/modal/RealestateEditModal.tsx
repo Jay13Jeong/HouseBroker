@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
-import { realestateEditModalState, mainUpdateChecker } from "../../../common/states/recoilModalState";
+import { realestateEditModalState, mainUpdateChecker, selectedImgCardIndexState } from "../../../common/states/recoilModalState";
 import * as types from "../../../common/types/User";
 import ModalBase from "../../modal/ModalBase";
 import axios from "axios";
@@ -15,10 +15,12 @@ import { DefaultButton } from "../../common";
 import { MapMarker, Map, ZoomControl } from "react-kakao-maps-sdk";
 import "./../../../assets/mapStyle.css";
 import { confirmAlert } from "react-confirm-alert";
+import ImageCard from "../../card/imgCard";
 
 const defaultLocate = { lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }
 
 const RealestateEditModal: React.FC = () => {
+  const indexState = useRecoilValue(selectedImgCardIndexState);
   const showModal = useRecoilValue(realestateEditModalState);
   const resetState = useResetRecoilState(realestateEditModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
@@ -27,7 +29,8 @@ const RealestateEditModal: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
-  const [imageFile, setImageFile] = useState<any[]>([]);
+  const [imageFile, setImageFile] = useState<string[]>([]);
+  const [imageBin, setImageBin] = useState<any[]>([]);
   const [soldout, setSoldout] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement | null> (null);
   const [uploadedId, setUploadedId] = useState<string>('');
@@ -82,11 +85,11 @@ const RealestateEditModal: React.FC = () => {
   }, [mapAddressString])
 
   useEffect(() => {
+    setImageBin([null,null,null,null,null,null,null,null,null,null,]);
     setRealEstateInfo(null);
     setTitle('');
     setDescription('');
     setPrice(0);
-    setImageFile([]);
     setSoldout(false);
     setUploadedId('');
     setRelay_object_type('');
@@ -127,9 +130,12 @@ const RealestateEditModal: React.FC = () => {
       );
       setRealEstateInfo(res.data);
       setSoldout(res.data.soldout);
+      setImageFile([]);
       for (let i= 1; i <= 10; i++){
         const imgData = await getImageData(res.data.id, i)
-        setImageFile((prevState) => [...prevState, imgData]);
+        const imgDataUrl = imgData === null ? require('../../../assets/sampleroom.png') : URL.createObjectURL(imgData);
+        setImageFile((prevState) => [...prevState, imgDataUrl]);
+        // setImageBin((prevState) => [...prevState, imgData]);
       }
       if (res.data.latitude && res.data.longitude) {
         setMapCenter({ lat: res.data.latitude, lng: res.data.longitude });
@@ -147,9 +153,10 @@ const RealestateEditModal: React.FC = () => {
     setMainUpdateChecker({updateCount:(updateChecker.updateCount + 1)});
   }
 
-  const ModifyImageSubmit = async (target: string, newImg : any, index: number) => {
+  const ModifyImageSubmit = async (target: string, index: number) => {
     if (realEstateInfo === null) return;
-    if (newImg === ''){
+    const newImg : File = imageBin[indexState.index];
+    if (newImg === null){
       if (await handleEmptySubmit() === true){
         try {
           const response = await axios.delete(
@@ -305,8 +312,39 @@ const RealestateEditModal: React.FC = () => {
 
   const handleModifyImageSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const imgData = (inputRef.current && inputRef.current.value) ? inputRef.current.files![0] : '';
-    ModifyImageSubmit("image", imgData, 1);
+    let target = "";
+    switch (indexState.index) {
+      case 0:
+        target = "image"; break;
+      case 1:
+        target = "image2"; break;
+      case 2:
+        target = "image3"; break;
+      case 3:
+        target = "image4"; break;
+      case 4:
+        target = "image5"; break;
+      case 5:
+        target = "image6"; break;
+      case 6:
+        target = "image7"; break;
+      case 7:
+        target = "image8"; break;
+      case 8:
+        target = "image9"; break;
+      case 9:
+        target = "image10"; break;
+      default : break;
+    }
+    if (target === ""){
+      toast.info("이미지 슬롯 지정해주세요");
+      return;
+    }
+    if (imageBin[indexState.index] === null){
+      toast.info("기존과 동일한 이미지입니다");
+      return;
+    }
+    ModifyImageSubmit(target, indexState.index);
   };
 
   const handleModifyKey = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -320,15 +358,6 @@ const RealestateEditModal: React.FC = () => {
     resetState();
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.size >= ((1 << 20) * 10))
-          throw("10MB미만 업로드 가능.");
-      setImageFileAtIndex(0, URL.createObjectURL(selectedFile))
-    }
-  };
-
   const setImageFileAtIndex = (indexToUpdate: number, newValue: string) => {
     setImageFile((prevImageFile) => {
       const updatedImageFile = [...prevImageFile];
@@ -337,15 +366,45 @@ const RealestateEditModal: React.FC = () => {
     });
   };
 
+  const setImageBinAtIndex = (indexToUpdate: number, newBin: File) => {
+    setImageBin((prevImageBin) => {
+      const updatedImageBin = [...prevImageBin];
+      updatedImageBin[indexToUpdate] = newBin;
+      return updatedImageBin;
+    });
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (indexState.index === -1){
+      return;
+    }
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFile = e.target.files[0];
+      if (selectedFile.size >= ((1 << 20) * 10)){
+        toast.info("10M이하 파일만 가능합니다.")
+        return;
+      }
+      setImageFileAtIndex(indexState.index, URL.createObjectURL(selectedFile));
+      setImageBinAtIndex(indexState.index, selectedFile);
+    }
+  };
+
+  const handleBtnCondCheck = (e: any) => {
+    if (indexState.index === -1){
+      e.preventDefault();
+      toast.info("슬롯을 지정해주세요");
+    }
+  }
+
   const getImageData = async (id: number, index: number) => {
     try {
       const imgDataRes = await axios.get('/api/realestate/image/' + id + '/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });
-      return URL.createObjectURL(imgDataRes.data);
+      return imgDataRes.data;
     } catch (error) {
-      return require("../../../assets/sampleroom.png");
+      return null;
     }
   };
 
@@ -469,19 +528,22 @@ const RealestateEditModal: React.FC = () => {
               <Grid item xs={21} sx={{ border: '1px solid black', borderRadius: '5px' }}>
                 <Grid container columns={5} columnSpacing={2}>
                   <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
-                    <Avatar src={imageFile[0]} alt="real-estate image" variant="rounded" sx={{ width: 500, height: 350 }} />
+                    <ImageCard images={imageFile}/>
+                  </Grid>
+                  <Grid item xs={5} display="flex" justifyContent="center" alignItems="center">
+                    <h3>선택된 사진 슬롯 번호 :&nbsp;{ indexState.index === -1 ? '미지정' : indexState.index + 1 }</h3>
                   </Grid>
                   <Grid item xs={2.5} display="flex" justifyContent="center" alignItems="center">
                     <Button  variant="contained" component="label"
                       sx={{ width: "97%", }}
                     >
-                      사진선택
+                      슬롯 사진 선택
                     <input
                       type="file"
                       id="image"
                       accept="image/*"
                       onChange={handleImageChange}
-                      ref={inputRef}
+                      onClick={handleBtnCondCheck}
                       hidden
                     />
                     </Button>
@@ -492,7 +554,7 @@ const RealestateEditModal: React.FC = () => {
                       onClick={handleModifyImageSubmit}
                       sx={{ width: "100%" }}
                     >
-                      수정하기
+                      선택 이미지 수정하기
                     </DefaultButton>
                   </Grid>
                 </Grid>

@@ -58,7 +58,7 @@ export default function LeftSide() {
                 variant="rounded"
                 sx={{ height: 150, marginTop: 8,marginBottom: 1 }}
                 onClick={handleMapClick}
-                
+                onDragStart={e => e.preventDefault()}
             />
             <DefaultButton
                 className="LeftSideButton"
@@ -116,6 +116,7 @@ export default function LeftSide() {
                 alt="map_img"
                 variant="rounded"
                 sx={{ marginTop: 8,marginBottom: 1 }}
+                onDragStart={e => e.preventDefault()}
             />
             <h3>지금 전화걸기</h3>
             </center>

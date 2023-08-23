@@ -19,7 +19,6 @@ import OtherProfileModal from "../lobby/modal/OtherProfileModal";
 
 import RealestateModal from "../lobby/modal/RealestateModal";
 import RealestateEditModal from "../lobby/modal/RealestateEditModal";
-import RealestatePostModal from "../lobby/modal/RealestatePostModal";
 import RightSide from "./RightSide";
 
 function MainLayout() {
@@ -36,7 +35,6 @@ function MainLayout() {
                 <OtherProfileModal />
                 <RealestateModal />
                 <RealestateEditModal />
-                <RealestatePostModal />
                 <MyPathModal />
               </MainLayoutWrapper>
           <RightDiv><RightSide/></RightDiv>

@@ -9,9 +9,10 @@ import {
   realestateFilterState,
   socketConnectState,
 } from "../../common/states/recoilModalState";
-import { Avatar } from '@mui/material';
+import { Avatar, TextField } from '@mui/material';
 import { useSocket } from '../../common/states/socketContext';
 import { CardSection, Main, SearchSection } from './RootLayout.style';
+import { DefaultButton } from '../common';
 
 
 function RootLayout() {
@@ -87,7 +88,6 @@ function RootLayout() {
   async function getRealEstate() {
     try {
       const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
-      // console.log(res.data);
       setRealEstates(res.data);
       setSearchResults(res.data);
     } catch (err: any) {
@@ -214,19 +214,38 @@ function RootLayout() {
     }
     setCurrentPage(1);
   }
+  
+  const handleEmptyCheck = (e: any) => { 
+    if (e.key === 'Enter' && e.keyCode !== 13) return;
+    if (searchResults.length === 0){
+      toast.info("검색 결과가 없습니다");
+    }
+  }
 
   return (
       <Main>
         <SearchSection>
-          <form onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="매물 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button type="submit">검색</button>
-          </form>
+          <TextField
+            label="매물검색"
+            variant="outlined"
+            size="small"
+            sx={{ width: "75%" }}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              handleSearch(e);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter'){
+                handleEmptyCheck(e);  
+              }
+            }}
+          />
+          <DefaultButton
+            onClick={handleEmptyCheck}
+            sx={{ width: "20%", marginTop: 0 }}
+          >
+            검색
+          </DefaultButton>
         </SearchSection>
         <br/>
         <CardSection>
@@ -244,7 +263,7 @@ function RootLayout() {
                             className="real-estate-card"
                             onClick={() => handleClick(realEstate.id)}
                         >
-                          <Avatar src={estateImgs[index * 4 + i]} alt="estate_image" variant="rounded" sx={{ width: "100%", height: 250 }} />
+                          <Avatar src={estateImgs[index * 4 + i]} alt="estate_image" variant="rounded" sx={{ width: "100%", height: 250 }} onDragStart={e => e.preventDefault()}/>
                           <h3>{truncateTitle(realEstate.title, 20)}</h3>
                           <p>{truncateTitle(realEstate.description, 20)}</p>
                           <p>가격: {formatPrice(realEstate.price)}</p>
@@ -271,17 +290,6 @@ function RootLayout() {
           </div>
         </CardSection>
         <br/>
-        <SearchSection>
-          <form onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="매물 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button type="submit">검색</button>
-          </form>
-        </SearchSection>
       </Main>
   );
 }

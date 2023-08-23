@@ -7,16 +7,19 @@ import { ScrollableWrapper } from '../../components/realestate/ScrollableWrapper
 import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
 import "./../../assets/mapStyle.css";
+import ImageCard from '../../components/card/imgCard';
+import { useRecoilValue } from 'recoil';
+import { selectedImgCardIndexState } from '../../common/states/recoilModalState';
 
 
 function PostREPage() {
+  const indexState = useRecoilValue(selectedImgCardIndexState);
   const [title, setTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [price, setPrice] = useState<number>(0);
-  const [imageFile, setImageFile] = useState('');
+  const [imageFile, setImageFile] = useState<string[]>([]);
+  const [imageBin, setImageBin] = useState<any[]>([]);
   const [soldout, setSoldout] = useState<boolean>(false);
-  const inputRef = useRef<HTMLInputElement | null> (null);
-  const [uploadedId, setUploadedId] = useState<string>('');
   const [relay_object_type, setRelay_object_type] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [area, setArea] = useState<number>(0);
@@ -45,6 +48,12 @@ function PostREPage() {
   const [zoomable, setZoomable] = useState<boolean>(false);
 
   useEffect(() => {
+    const samp = require('../../assets/sampleroom.png');
+    setImageFile([samp,samp,samp,samp,samp,samp,samp,samp,samp,samp,])
+    setImageBin([null,null,null,null,null,null,null,null,null,null,])
+  }, [])
+
+  useEffect(() => {
     if (mapAddressString === '') return;
     const ps = new kakao.maps.services.Places();
     ps.keywordSearch(mapAddressString, (data, status, _pagination) => {
@@ -71,33 +80,23 @@ function PostREPage() {
     })
   }, [mapAddressString])
 
-  const handleImageSubmit = async(e: React.FormEvent) => {
-    e.preventDefault();
-    if (!(inputRef.current && inputRef.current.value))
-        return;
-    try {
-        const response = await axios.post('/api/realestate/image', {
-            id: uploadedId,
-            image: inputRef.current.files![0]
-        }, { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } });
-        toast.success("이미지 올리기 성공");
-    } catch (error: any) {
-        toast.error("이미지 올리기 실패");
-        toast.error(error.response.data.message);
-    }
-  };
-
 const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let imageData = null;
-    if (inputRef.current && inputRef.current.value)
-        imageData = inputRef.current.files![0]
     try {
         const response = await axios.post('/api/realestate/', {
             title: title,
             description: description,
             price: price,
-            image: imageData,
+            image: imageBin[0],
+            image2: imageBin[1],
+            image3: imageBin[2],
+            image4: imageBin[3],
+            image5: imageBin[4],
+            image6: imageBin[5],
+            image7: imageBin[6],
+            image8: imageBin[7],
+            image9: imageBin[8],
+            image10: imageBin[9],
             soldout : soldout,
             relay_object_type : relay_object_type, //중계대상물종류
             location : location, //소재지 (지번, 동, 호수)
@@ -119,14 +118,43 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     }
   };
 
+  const setImageFileAtIndex = (indexToUpdate: number, newValue: string) => {
+    setImageFile((prevImageFile) => {
+      const updatedImageFile = [...prevImageFile];
+      updatedImageFile[indexToUpdate] = newValue;
+      return updatedImageFile;
+    });
+  };
+
+  const setImageBinAtIndex = (indexToUpdate: number, newBin: File) => {
+    setImageBin((prevImageBin) => {
+      const updatedImageBin = [...prevImageBin];
+      updatedImageBin[indexToUpdate] = newBin;
+      return updatedImageBin;
+    });
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (indexState.index === -1){
+      return;
+    }
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      if (selectedFile.size >= ((1 << 20) * 4))
-          throw("4MB미만 업로드 가능.");
-      setImageFile(URL.createObjectURL(selectedFile));
+      if (selectedFile.size >= ((1 << 20) * 10)){
+        toast.info("10M이하 파일만 가능합니다.")
+        return;
+      }
+      setImageFileAtIndex(indexState.index, URL.createObjectURL(selectedFile));
+      setImageBinAtIndex(indexState.index, selectedFile);
     }
   };
+
+  const handleBtnCondCheck = (e: any) => {
+    if (indexState.index === -1){
+      e.preventDefault();
+      toast.info("슬롯을 지정해주세요");
+    }
+  }
 
   const handleTextareaDisable = (value : string) => {
     setIsTextareaDisabled(true);
@@ -183,7 +211,6 @@ const handleFormSubmit = async (e: React.FormEvent) => {
     <h2>부동산 매물 등록</h2>
       <form onSubmit={handleFormSubmit}>
       <div>
-          {/* <label htmlFor="number_of_cars_parked"><h3>매물 위치</h3></label> */}
           <Map
                 className="myMap"
                 style={{ width: "100%", height: "500px" }}
@@ -253,16 +280,17 @@ const handleFormSubmit = async (e: React.FormEvent) => {
           />
           <hr/>
         </div>
-        <Avatar src={imageFile} alt="real-estate image" variant="rounded" sx={{ width: 300, height: 250 }} />
+        <ImageCard images={imageFile}/>
+        <h3>선택된 사진 슬롯 번호 :&nbsp;{ indexState.index === -1 ? '미지정' : indexState.index + 1 }</h3>
         <div>
           <Button variant="contained" component="label">
-            사진 선택
+            슬롯 사진 선택
             <input
               type="file"
               id="image"
               accept="image/*"
               onChange={handleImageChange}
-              ref={inputRef}
+              onClick={handleBtnCondCheck}
               hidden
             />
           </Button>

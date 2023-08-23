@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import { useSetRecoilState } from "recoil";
+import { useResetRecoilState, useSetRecoilState } from "recoil";
 import { socketConnectState } from "../../common/states/recoilModalState";
 
 interface MySocketIterface {
@@ -39,10 +39,12 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
   const socketjs = new SockJS(Urll);
   const stomp = Stomp.over(socketjs);
   const setSocketState = useSetRecoilState(socketConnectState);
+  const resetSocketState = useResetRecoilState(socketConnectState);
   const subscriptionMap = new Map<string, Stomp.Subscription>();
   stomp.debug = () => {}; // debug log off.
 
   useEffect(() => {
+    resetSocketState();
     stomp.connect({}, () => {
       setSocketState({connected : true});
     });

@@ -8,17 +8,16 @@ import { toast } from "react-toastify";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
 import "./../../../assets/confirm-alert.css";
-import { Avatar } from '@mui/material';
 import { Typography, Stack, Grid, TextField } from "@mui/material";
 import { DefaultButton } from "../../common";
 import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style";
 import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../../common/configData';
 import { CustomGrid, CustomTextWrapper } from "../../modal/Modal.style";
+import ImageCard from "../../card/imgCard";
 
 const RealestateModal: React.FC = () => {
   const showModal = useRecoilValue(realestateModalState);
-  const setModalState = useSetRecoilState(realestateModalState);
   const resetState = useResetRecoilState(realestateModalState);
   const setEditModalState = useSetRecoilState(realestateEditModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
@@ -148,10 +147,8 @@ const RealestateModal: React.FC = () => {
             {/* 사진정보 */}
             <Grid item xs={2}>
             <CustomTextWrapper>
-                <center>
-                <Avatar src={images[0]} alt="estate_image" variant="rounded" sx={{ width: 500, height: 350 }} />
-                </center>
-              </CustomTextWrapper>
+              <ImageCard images={images}/>
+            </CustomTextWrapper>
             </Grid>
             {/* 매물정보 */}
             <Grid item xs={1}>

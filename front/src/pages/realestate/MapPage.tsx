@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import * as types from "../../common/types/User";
 import { toast } from "react-toastify";
@@ -7,6 +6,11 @@ import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
 import { useSetRecoilState , useRecoilValue, } from "recoil";
 import { realestateModalState, mainUpdateChecker, realestateFilterState, } from "../../common/states/recoilModalState";
+import { TextField } from '@mui/material';
+import { DefaultButton } from '../../components/common';
+
+const defaultLocate = { lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }
+const defaultLocate2 = { lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) + 0.0000000001 }
 
 function MapPage() {
   const [realEstates, setRealEstates] = useState<types.RealEstate[]>([]);
@@ -14,26 +18,35 @@ function MapPage() {
   const [searchResults, setSearchResults] = useState<types.RealEstate[]>([]);
   const filterState = useRecoilValue(realestateFilterState);
   const setModalState = useSetRecoilState(realestateModalState);
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(defaultLocate2);
 
   useEffect(() => {
     const reloadPage = async () => {
       try {
         await getRealEstate();
-      } catch (error) {
-      
-      }
+        setMapCenter(defaultLocate);
+      } catch (error) { }
     }
     reloadPage();
+    setMapCenter((preState) => {
+      if (preState === defaultLocate)
+        return defaultLocate2;
+      return defaultLocate;
+    })
   }, []);
 
   useEffect(() => {
     rearrangeByFilter();
+    setMapCenter((preState) => {
+      if (preState === defaultLocate)
+        return defaultLocate2;
+      return defaultLocate;
+    })
   }, [filterState]);
 
   async function getRealEstate() {
     try {
       const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
-      // console.log(res.data);
       setRealEstates(res.data);
       setSearchResults(res.data);
     } catch (err: any) {
@@ -71,6 +84,20 @@ function MapPage() {
     }
   }
 
+  const handleMapMove = (e: any) => {
+    if (e.key === 'Enter' && e.keyCode !== 13) return;
+    if (searchResults.length > 0 && searchResults[0].latitude && searchResults[0].longitude)
+      setMapCenter({lat: searchResults[0].latitude, lng: searchResults[0].longitude});
+    else{
+      setMapCenter((preState) => {
+        if (preState === defaultLocate)
+          return defaultLocate2;
+        return defaultLocate;
+      })
+      toast.info("검색 결과가 없습니다");
+    } 
+  }
+
   function handleClick(realEstateId: number) {
     setModalState({ realestateId: realEstateId, show: true });
   }
@@ -78,42 +105,53 @@ function MapPage() {
   return (
     <main style={{ width: "100%", height: "100%", }}>
     <section style={{ width: "100%", }}>
-      <form onSubmit={handleSearch} style={{ width: "100%", }}>
-        <input
-          type="text"
-          placeholder="매물 검색"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button type="submit">검색</button>
-      </form>
+      <TextField
+        label="매물검색"
+        variant="outlined"
+        size="small"
+        sx={{ width: "75%" }}
+        onChange={(e) => {
+          setSearchTerm(e.target.value);
+          handleSearch(e);
+        }}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter') return;
+          handleMapMove(e)
+        }}
+      />
+      <DefaultButton
+        onClick={handleMapMove}
+        sx={{ width: "20%", marginTop: 0 }}
+      >
+        검색
+      </DefaultButton>
     </section>
     <section style={{ width: "100%", height: "90vh" }}>
     <Map
       className="myMap"
-      style={{ width: "100%", height: "100%", }}
-      center={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}
+      style={{ width: "100%", height: "90vh", }}
+      center={mapCenter}
       level={6}
     >
       <ZoomControl />
-    <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
-      <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
-    </MapMarker>
-    {searchResults
-      .map((realEstate, i) => (
-        realEstate.latitude && realEstate.longitude &&
-        <MapMarker
-          position={{ lat: realEstate.latitude, lng: realEstate.longitude }}
-          onClick={() => handleClick(realEstate.id)}
-        >
-          <div
-            style={{textAlign:"center", width:"15vh"}}
+      {searchResults
+        .map((realEstate, i) => (
+          realEstate.latitude && realEstate.longitude &&
+          <MapMarker
+            position={{ lat: realEstate.latitude, lng: realEstate.longitude }}
             onClick={() => handleClick(realEstate.id)}
           >
-            {realEstate.title}
-          </div>
-        </MapMarker>
+            <div
+              style={{textAlign:"center", width:"15vh"}}
+              onClick={() => handleClick(realEstate.id)}
+            >
+              {realEstate.title}
+            </div>
+          </MapMarker>
       ))}
+      <MapMarker position={{ lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }}>
+        <div style={{textAlign:"center", width:"15vh"}}>{REACT_APP_NAME}</div>
+      </MapMarker>
     </Map>
     </section>
     </main>

@@ -130,3 +130,10 @@ export const socketConnectState = atom<{ connected: boolean }>({
         connected: false,
     }
 })
+
+export const selectedImgCardIndexState = atom<{ index: number }>({
+    key: "selectedImgCardIndexState",
+    default: {
+        index: -1,
+    }
+})
