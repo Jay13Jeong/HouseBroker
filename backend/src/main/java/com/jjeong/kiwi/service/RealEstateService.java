@@ -19,7 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,6 +29,13 @@ import java.util.UUID;
 public class RealEstateService {
     private final RealEstateRepository realEstateRepository;
     private final String NO_IMG = "NO_IMG";
+    private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
+
+    static {
+        allowedMimeTypes.put("image/jpeg", true);
+        allowedMimeTypes.put("image/png", true);
+        allowedMimeTypes.put("image/gif", true);
+    }
 
     @Value("${upload.path}") // 파일 업로드 경로 설정
     private String uploadPath;
@@ -36,6 +45,8 @@ public class RealEstateService {
     }
 
     public RealEstate createRealEstate(RealEstateDto realEstateDto) throws IOException {
+        if (this.checkMimeType(realEstateDto) == false)
+            throw new IOException("허용하지않은 이미지 Mime파일");
         RealEstate realEstate = new RealEstate();
         realEstate.setTitle(realEstateDto.getTitle());
         realEstate.setDescription(realEstateDto.getDescription());
@@ -150,6 +161,8 @@ public class RealEstateService {
 
 
     public void modifyRealEstate(Long id, RealEstateDto realEstateDto) throws IOException {
+        if (this.checkMimeType(realEstateDto) == false)
+            throw new IOException("허용하지않은 이미지 Mime파일");
         // 해당 ID를 가진 부동산 가져오기
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
@@ -334,5 +347,29 @@ public class RealEstateService {
                 imgName = realEstate.getImage(); break;
         }
         return  imgName;
+    }
+
+    private boolean checkMimeType(RealEstateDto rDto){
+        if (rDto.getImage() != null && allowedMimeTypes.get(rDto.getImage().getContentType()) == null)
+            return false;
+        if (rDto.getImage2() != null && allowedMimeTypes.get(rDto.getImage2().getContentType()) == null)
+            return false;
+        if (rDto.getImage3() != null && allowedMimeTypes.get(rDto.getImage3().getContentType()) == null)
+            return false;
+        if (rDto.getImage4() != null && allowedMimeTypes.get(rDto.getImage4().getContentType()) == null)
+            return false;
+        if (rDto.getImage5() != null && allowedMimeTypes.get(rDto.getImage5().getContentType()) == null)
+            return false;
+        if (rDto.getImage6() != null && allowedMimeTypes.get(rDto.getImage6().getContentType()) == null)
+            return false;
+        if (rDto.getImage7() != null && allowedMimeTypes.get(rDto.getImage7().getContentType()) == null)
+            return false;
+        if (rDto.getImage8() != null && allowedMimeTypes.get(rDto.getImage8().getContentType()) == null)
+            return false;
+        if (rDto.getImage9() != null && allowedMimeTypes.get(rDto.getImage9().getContentType()) == null)
+            return false;
+        if (rDto.getImage10() != null && allowedMimeTypes.get(rDto.getImage10().getContentType()) == null)
+            return false;
+        return  true;
     }
 }

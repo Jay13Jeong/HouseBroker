@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState, useResetRecoilState } from "recoil";
-import { realestateModalState, realestateEditModalState, mainUpdateChecker } from "../../../common/states/recoilModalState";
+import { realestateModalState, realestateEditModalState, mainUpdateChecker, selectedImgCardIndexState, bigImgModalState } from "../../../common/states/recoilModalState";
 import * as types from "../../../common/types/User";
 import ModalBase from "../../modal/ModalBase";
 import axios from "axios";
@@ -17,14 +17,23 @@ import { CustomGrid, CustomTextWrapper } from "../../modal/Modal.style";
 import ImageCard from "../../card/imgCard";
 
 const RealestateModal: React.FC = () => {
+  const indexState = useRecoilValue(selectedImgCardIndexState);
+  const setBigImgModalState = useSetRecoilState(bigImgModalState);
   const showModal = useRecoilValue(realestateModalState);
   const resetState = useResetRecoilState(realestateModalState);
   const setEditModalState = useSetRecoilState(realestateEditModalState);
   const updateChecker = useRecoilValue(mainUpdateChecker);
   const setMainUpdateChecker = useSetRecoilState(mainUpdateChecker);
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
-  const [images, setImageFile] = useState<any[]>([require("../../../assets/sampleroom.png"),]);
+  const [images, setImageFile] = useState<string[]>([]);
   const [zoomable, setZoomable] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (showModal.show === false) return;
+    if (indexState.index !== -1){
+      setBigImgModalState({show: true, imgUrl: images[indexState.index]});
+    }
+  }, [indexState]);
 
   useEffect(() => {
     if (showModal.show) {

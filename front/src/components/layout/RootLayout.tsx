@@ -242,7 +242,7 @@ function RootLayout() {
           />
           <DefaultButton
             onClick={handleEmptyCheck}
-            sx={{ width: "20%", marginTop: 0 }}
+            sx={{ width: "20%", marginTop: 0, marginBottom: 0 }}
           >
             검색
           </DefaultButton>

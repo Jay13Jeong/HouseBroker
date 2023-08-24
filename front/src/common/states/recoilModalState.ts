@@ -137,3 +137,11 @@ export const selectedImgCardIndexState = atom<{ index: number }>({
         index: -1,
     }
 })
+
+export const bigImgModalState = atom<{ show: boolean, imgUrl: string }>({
+    key: "bigImgModalState",
+    default: {
+        show: false,
+        imgUrl: require('../../assets/sampleroom.png'),
+    }
+})

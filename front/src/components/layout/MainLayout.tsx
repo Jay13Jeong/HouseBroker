@@ -20,6 +20,7 @@ import OtherProfileModal from "../lobby/modal/OtherProfileModal";
 import RealestateModal from "../lobby/modal/RealestateModal";
 import RealestateEditModal from "../lobby/modal/RealestateEditModal";
 import RightSide from "./RightSide";
+import BigImgModal from "../lobby/modal/BigImgModal";
 
 function MainLayout() {
     return (
@@ -36,6 +37,7 @@ function MainLayout() {
                 <RealestateModal />
                 <RealestateEditModal />
                 <MyPathModal />
+                <BigImgModal />
               </MainLayoutWrapper>
           <RightDiv><RightSide/></RightDiv>
         </TableRow>

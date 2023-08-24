@@ -24,7 +24,7 @@ const MyPathModal: React.FC = () => {
 
 
   return (
-    <ModalBase open={showModal.show} onClose={handleCloseModal} closeButton>
+    <ModalBase open={showModal.show} onClose={handleCloseModal}>
       <ModalScrollableWrapper>
       <Stack justifyContent="center" alignItems="center">
         <h2>중개사무소 위치</h2>
