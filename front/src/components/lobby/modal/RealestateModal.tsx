@@ -14,7 +14,7 @@ import { ModalScrollableWrapper } from "../../realestate/ScrollableWrapper.style
 import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../../common/configData';
 import { CustomGrid, CustomTextWrapper } from "../../modal/Modal.style";
-import ImageCard from "../../card/imgCard";
+import ImageCard from "../../card/ImgCard";
 
 const RealestateModal: React.FC = () => {
   const indexState = useRecoilValue(selectedImgCardIndexState);

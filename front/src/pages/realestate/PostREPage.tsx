@@ -7,7 +7,7 @@ import { ScrollableWrapper } from '../../components/realestate/ScrollableWrapper
 import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../common/configData';
 import "./../../assets/mapStyle.css";
-import ImageCard from '../../components/card/imgCard';
+import ImageCard from '../../components/card/ImgCard';
 import { useRecoilValue } from 'recoil';
 import { selectedImgCardIndexState } from '../../common/states/recoilModalState';
 

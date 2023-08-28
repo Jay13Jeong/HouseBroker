@@ -11,7 +11,7 @@ import { SocketProvider } from './common/states/socketContext';
 function App() {
 
   return (
-    <div >
+    <div onContextMenu={(e) => e.preventDefault()}>
       <BrowserRouter>
       <ThemeProvider theme={theme}>
         <RecoilRoot>

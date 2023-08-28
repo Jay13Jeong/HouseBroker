@@ -15,7 +15,7 @@ import { DefaultButton } from "../../common";
 import { MapMarker, Map, ZoomControl } from "react-kakao-maps-sdk";
 import "./../../../assets/mapStyle.css";
 import { confirmAlert } from "react-confirm-alert";
-import ImageCard from "../../card/imgCard";
+import ImageCard from "../../card/ImgCard";
 
 const defaultLocate = { lat: Number(REACT_APP_MY_LOCATE_Y), lng: Number(REACT_APP_MY_LOCATE_X) }
 

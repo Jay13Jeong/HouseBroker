@@ -1,10 +1,14 @@
 import styled from "@emotion/styled";
 
 export const RightSideWrapper = styled.div`
-margin-top: 45px;
+margin-top: 10vh;
+display: flex;
+justify-content: center;
+
 
 .ImgSection {
     width: 70%;
+    height: auto;
 }
 
 .RightSideButton {

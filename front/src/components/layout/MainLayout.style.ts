@@ -71,7 +71,7 @@ export const LeftDiv = styled(TableCell)`
 `;
 
 export const RightDiv = styled(TableCell)`
-  width: 13%; /* 오른쪽 분할의 너비 조정 */
+  width: 10%; /* 오른쪽 분할의 너비 조정 */
   // background-color: lightgreen;
 `;
 
