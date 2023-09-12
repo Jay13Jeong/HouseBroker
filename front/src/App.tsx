@@ -7,6 +7,7 @@ import { ThemeProvider } from '@mui/material';
 import Cursor from './components/util/Cursor';
 import Routing from './Routing';
 import { SocketProvider } from './common/states/socketContext';
+import { AuthProvider } from './common/states/AuthContext';
 
 function App() {
 
@@ -17,7 +18,9 @@ function App() {
         <RecoilRoot>
           <SocketProvider>
           <Sc.Provider value={s}>
+            <AuthProvider>
             <Routing />
+            </AuthProvider>
           </Sc.Provider>
           </SocketProvider>
         </RecoilRoot>

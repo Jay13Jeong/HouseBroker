@@ -29,6 +29,8 @@ function OtherProfileModal() {
     const [relate, setRelate] = useState<string>('nothing');// 대상과 나의 관계.
     const socket = useContext(SocketContext); //소켓.
     const [userInfo, setUserInfo] = useState<types.User>({ //유저정보 기본값.
+        username :"",
+        email: "",
         id: 0,
         avatar: "https://cdn.myanimelist.net/images/characters/11/421848.jpg",
         userName: "pinga", myProfile: true, userStatus: "offline",rank: 0,odds: 0,record: []
@@ -85,17 +87,19 @@ function OtherProfileModal() {
         try{
             const res = await axios.get('http://' + REACT_APP_HOST + '/api/user/' + showModal.userId, {withCredentials: true});
             let totalGame = res.data.wins + res.data.loses;
-            let myInfo : types.User = {
-                id : res.data.id,
-                avatar: res.data.avatar,
-                userName : res.data.username as string,
-                myProfile : false,
-                userStatus : 'off',
-                rank : 0,
-                odds : !res.data.wins ? 0 : Math.floor(100 / (totalGame / (res.data.wins ? res.data.wins : 1))),
-                record : [],
-            };
-            setUserInfo(myInfo);
+            // let myInfo : types.User = {
+            //     username : "",
+            //             email: "",
+            //     id : res.data.id,
+            //     avatar: res.data.avatar,
+            //     userName : res.data.username as string,
+            //     myProfile : false,
+            //     userStatus : 'off',
+            //     rank : 0,
+            //     odds : !res.data.wins ? 0 : Math.floor(100 / (totalGame / (res.data.wins ? res.data.wins : 1))),
+            //     record : [],
+            // };
+            setUserInfo(res.data);
         }catch{
             //nothing res...
         }

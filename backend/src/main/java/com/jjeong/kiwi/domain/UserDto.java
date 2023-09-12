@@ -5,21 +5,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.*;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
-@Entity
 @ToString
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String authid;
+public class UserDto {
     private String username;
     private String email;
-    private String password;
-    private int permitLevel;
 }

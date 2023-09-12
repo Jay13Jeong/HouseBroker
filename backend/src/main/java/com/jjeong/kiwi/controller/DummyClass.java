@@ -14,15 +14,6 @@ public class DummyClass {
         return "helloo";
     }
 
-    @GetMapping("/final")
-    public String ff()   {
-        final User user = new User("jg","hg@naver.com","1234");
-        System.out.println(user);
-        user.setUsername("pong");
-        System.out.println(user);
-        return "helloo";
-    }
-
     @GetMapping("/oauth2/authorization/google")
     public String dummyTest(HttpServletResponse response) {
         System.out.println("dummyTest");

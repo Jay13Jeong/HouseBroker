@@ -7,6 +7,9 @@ export interface Record {
 }
 
 export interface User {
+    email: string;
+    username: string;
+    ///////////////////////////////////
     id: number;
     avatar? : string;
     userName: string;       // 유저 이름

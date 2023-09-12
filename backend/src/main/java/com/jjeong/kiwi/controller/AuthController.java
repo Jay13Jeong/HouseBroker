@@ -2,9 +2,11 @@ package com.jjeong.kiwi.controller;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.repository.UserRepository;
 import com.jjeong.kiwi.service.AuthService;
+import com.jjeong.kiwi.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -35,6 +37,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     private static final String SECRET_KEY = System.getenv("JWTKEY");
 
@@ -60,11 +63,12 @@ public class AuthController {
         // 사용자 객체를 데이터베이스에 저장합니다. (예시로 UserRepository를 사용)
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            user = new User();
-            user.setEmail(email);
-            user.setAuthid(authId);
-            user.setUsername(userInfo.getUsername());
-            userRepository.save(user);
+            SignupRequest signupRequest = new SignupRequest();
+            signupRequest.setEmail(email);
+            signupRequest.setUsername(userInfo.getUsername());
+            userService.createUser(signupRequest);
+            user = userRepository.findByEmail(email);
+//          user.setAuthid(authId);
         }
 
 //        System.out.println("callback part 2 =======");
@@ -81,11 +85,11 @@ public class AuthController {
 
         // JWT 생성 및 설정
         String token = authService.generateToken( (User) request.getAttribute("user") );
-        System.out.println("responseWithJWT user =======");
-        System.out.println((User) request.getAttribute("user"));
-        System.out.println(token);
+//        System.out.println("responseWithJWT user =======");
+//        System.out.println((User) request.getAttribute("user"));
+//        System.out.println(token);
 //        System.out.println(authService.extractSubject(token));
-        System.out.println("responseWithJWT end =======");
+//        System.out.println("responseWithJWT end =======");
 
         // Create a JWT cookie
         Cookie jwtCookie = new Cookie("jwt", token);
@@ -99,7 +103,7 @@ public class AuthController {
 
         // 리다이렉트 설정
         response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", "http://" + System.getenv("SERVER_HOST") + "/");
+        response.setHeader("Location", "/" + System.getenv("SERVER_HOST") + "/");
 
         return new RedirectView("/");
     }

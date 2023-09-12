@@ -3,8 +3,11 @@ import { HeaderWrapper } from "./Header.style";
 import logo from "../../assets/logo.png";
 import { RoutePath } from "../../common/configData";
 import { REACT_APP_NAME } from '../../common/configData';
+import { useAuth } from "../../common/states/AuthContext";
 
 export default function Header() {
+    const Auth = useAuth();
+
     return (
         <HeaderWrapper>
         <Link to={RoutePath.lobby} style={{ textDecoration: "none" }}>
@@ -21,24 +24,29 @@ export default function Header() {
         </Link>
         {/* Right Container */}
         <span className="navi-right-container">
-            <Link to={RoutePath.postRE} style={{ textDecoration: "none" }}>
-            <span className="navi-right">
-                {/* <img src={logo} alt="logo" /> */}
-                <span>매물 올리기 \&nbsp;</span>
-            </span>
-            </Link>
-            <span onClick={() => { window.location.href = "/api/auth/google/login" }} style={{ textDecoration: "none" }}>
-            <span className="navi-right">
-                {/* <img src={logo} alt="logo" /> */}
-                <span>로그인&nbsp;</span>
-            </span>
-            </span>
-            <span onClick={() => { window.location.href = "/api/auth/logout" }} style={{ textDecoration: "none" }}>
-            <span className="navi-right">
-                {/* <img src={logo} alt="logo" /> */}
-                <span>로그아웃&nbsp;</span>
-            </span>
-            </span>
+            {Auth.isLoggedIn && Auth.permitLevel >= 10 &&
+                <Link to={RoutePath.postRE} style={{ textDecoration: "none" }}>
+                <span className="navi-right">
+                    {/* <img src={logo} alt="logo" /> */}
+                    <span>매물 올리기 \&nbsp;</span>
+                </span>
+                </Link>
+            }
+            {Auth.isLoggedIn ?
+                <span onClick={() => { window.location.href = "/api/auth/logout" }} style={{ textDecoration: "none" }}>
+                <span className="navi-right">
+                    {/* <img src={logo} alt="logo" /> */}
+                    <span>로그아웃&nbsp;</span>
+                </span>
+                </span>
+            :
+                <span onClick={() => { window.location.href = "/api/auth/google/login" }} style={{ textDecoration: "none" }}>
+                <span className="navi-right">
+                    {/* <img src={logo} alt="logo" /> */}
+                    <span>로그인&nbsp;</span>
+                </span>
+                </span>
+            }
         </span>
         </HeaderWrapper>
     );

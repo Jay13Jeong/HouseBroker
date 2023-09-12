@@ -26,6 +26,8 @@ function ProfileModal() {
     const [rank, setRank] = useState<number>(0); // 대상의 게임순위.
     const socket = useContext(SocketContext); //소켓.
     const [userInfo, setUserInfo] = useState<types.User>({ //유저정보 기본값.
+        username : "",
+                        email: "",
         id: 0,
         avatar: "https://cdn.myanimelist.net/images/characters/11/421848.jpg",
         userName: "pinga", myProfile: true, userStatus: "offline",rank: 0,odds: 0,record: []
@@ -48,6 +50,8 @@ function ProfileModal() {
                 } else {
                     let totalGame = res.data.wins + res.data.loses;
                     let myInfo : types.User = {
+                        username : "",
+                        email: "",
                         id : res.data.id,
                         avatar: res.data.avatar,
                         userName : res.data.username as string,
