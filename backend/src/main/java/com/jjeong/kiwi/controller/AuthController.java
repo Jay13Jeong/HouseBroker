@@ -36,7 +36,6 @@ import java.util.List;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRepository userRepository;
     private final UserService userService;
 
     private static final String SECRET_KEY = System.getenv("JWTKEY");
@@ -61,13 +60,14 @@ public class AuthController {
 //        System.out.println("callback part 1 =======");
 
         // 사용자 객체를 데이터베이스에 저장합니다. (예시로 UserRepository를 사용)
-        User user = userRepository.findByEmail(email);
+        User user = userService.getUserByEmail(email);
+
         if (user == null) {
             SignupRequest signupRequest = new SignupRequest();
             signupRequest.setEmail(email);
             signupRequest.setUsername(userInfo.getUsername());
             userService.createUser(signupRequest);
-            user = userRepository.findByEmail(email);
+            user = userService.getUserByEmail(email);
 //          user.setAuthid(authId);
         }
 
@@ -94,7 +94,7 @@ public class AuthController {
         // Create a JWT cookie
         Cookie jwtCookie = new Cookie("jwt", token);
         jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(24 * 60 * 60); // Set the cookie's expiration time (e.g., 24 hours)
+        jwtCookie.setMaxAge(24 * 60 * 60); // 쿠키 만료시간
         jwtCookie.setSecure(true); // Set whether the cookie should only be sent over HTTPS
         jwtCookie.setHttpOnly(true); // Set whether the cookie should be accessible only through HTTP or HTTPS
 

@@ -28,6 +28,7 @@ public class WebSocketEventListener {
         String socketId = (String) accessor.getSessionAttributes().get("socketId");
 //        System.out.println("WebSocket connection closed. ============");
         if (socketId != null) {
+//            System.out.println("((((((((((((((((((" + socketId + ">>>>>>>>>>>>>>>>>>");
             socketService.delSocketAndUserPkMap(socketId);
 //            long userPk = socketService.getUserPkBySocketIdMap(socketId);
 //            User user = userService.getUserById(userPk);

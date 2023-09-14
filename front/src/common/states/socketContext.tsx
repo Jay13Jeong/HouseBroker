@@ -52,6 +52,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
     return () => {
       stomp.disconnect(() => {
         setSocketState({connected : false});
+        window.location.href = "/"; //소켓연결이 끊어지면 메인화면으로 새로고침.
       });
     };
   }, []);

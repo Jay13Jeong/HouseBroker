@@ -2,7 +2,9 @@ package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.domain.RealEstate;
 import com.jjeong.kiwi.domain.RealEstateDto;
+import com.jjeong.kiwi.repository.UserRepository;
 import com.jjeong.kiwi.service.RealEstateService;
+import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RealEstateController {
     private final RealEstateService realEstateService;
+    private final UserService userService;
+    private final int allowLevel = 10;
 
     @GetMapping("/")
     public List<RealEstate> getRealEstates(Model model) {
@@ -52,9 +57,11 @@ public class RealEstateController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
+    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto, HttpServletRequest request) {
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
         try {
-            System.out.println(realEstateDto);
+//            System.out.println(realEstateDto);
             Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
             return ResponseEntity.ok(realEstateId.toString());
         } catch (Exception e) {
@@ -63,19 +70,27 @@ public class RealEstateController {
     }
 
     @DeleteMapping("/image/{id}/{index}")
-    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index) {
+    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index, HttpServletRequest request) {
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
         realEstateService.deleteImage(id, index);
         return ResponseEntity.ok("부동산 이미지가 삭제되었습니다.");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRealEstate(@PathVariable Long id) {
+    public ResponseEntity<String> deleteRealEstate(@PathVariable Long id, HttpServletRequest request) {
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
         realEstateService.deleteRealEstate(id);
         return ResponseEntity.ok("부동산 정보가 삭제되었습니다.");
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRealEstate(@PathVariable Long id, @ModelAttribute RealEstateDto realEstateDto){
+    public ResponseEntity<String> updateRealEstate(@PathVariable Long id,
+                                                   @ModelAttribute RealEstateDto realEstateDto,
+                                                   HttpServletRequest request){
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
         try {
             this.realEstateService.modifyRealEstate(id, realEstateDto);
             return ResponseEntity.ok("부동산이 수정되었습니다.");
@@ -85,7 +100,11 @@ public class RealEstateController {
     }
 
     @PatchMapping("/soldout/{id}")
-    public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id, @RequestBody Map<String, Boolean> requestBody){
+    public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id,
+                                                            @RequestBody Map<String, Boolean> requestBody,
+                                                            HttpServletRequest request){
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
         try {
             boolean soldout = requestBody.get("soldout");
             this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
@@ -94,4 +113,5 @@ public class RealEstateController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
         }
     }
+
 }

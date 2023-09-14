@@ -1,16 +1,13 @@
 package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.domain.SignupRequest;
-import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.domain.UserDto;
-import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController

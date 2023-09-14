@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -77,20 +75,18 @@ public class UserService {
     }
 
     public long getIdByCookies(Cookie[] cookies) {
-        String token = "";
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("jwt")) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        } else {
-            throw new RuntimeException("user not found");
-        }
-
+        String token = this.getParsedToken(cookies);
         return (this.getUserPrimaryKeyByJwt(token));
+    }
+
+    public User getUserByCookies(Cookie[] cookies) {
+        long userPkId = this.getIdByCookies(cookies);
+        return this.getUserById(userPkId);
+    }
+
+    public Map<String, String> getUserInfoMapByCookies(Cookie[] cookies) {
+        String token = this.getParsedToken(cookies);
+        return this.getUserInfoMapByJwt(token);
     }
 
     public long getUserPrimaryKeyByJwt(String token){
@@ -112,4 +108,42 @@ public class UserService {
             throw new RuntimeException("user not found");
         return  id;
     }
+
+    public Map<String, String> getUserInfoMapByJwt(String token){
+        if (token.isEmpty())
+            throw new RuntimeException();
+
+        Map<String, String> infoMap = new HashMap<>();
+        String[] payload = authService.extractSubject(token).getSubject().split(",");
+
+        for (String raw : payload){
+            int separatorIndex = raw.indexOf("=");
+            infoMap.put(raw.substring(0, separatorIndex), raw.substring(separatorIndex + 1));
+        }
+
+        return  infoMap;
+    }
+
+    public boolean isAdminLevelUser(Cookie[] cookies, int allowLevel){
+        User user = this.getUserByCookies(cookies);
+        return (user.getPermitLevel() >= allowLevel);
+    }
+
+    private String getParsedToken(Cookie[] cookies){
+        String token = "";
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("jwt")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        } else {
+            throw new RuntimeException("user not found");
+        }
+
+        return token;
+    }
+
 }

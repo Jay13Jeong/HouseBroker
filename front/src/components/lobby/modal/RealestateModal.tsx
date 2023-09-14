@@ -15,6 +15,7 @@ import { Map, MapMarker, ZoomControl } from "react-kakao-maps-sdk";
 import { REACT_APP_NAME, REACT_APP_MY_LOCATE_X, REACT_APP_MY_LOCATE_Y } from '../../../common/configData';
 import { CustomGrid, CustomTextWrapper } from "../../modal/Modal.style";
 import ImageCard from "../../card/ImgCard";
+import { useAuth } from "../../../common/states/AuthContext";
 
 const RealestateModal: React.FC = () => {
   const indexState = useRecoilValue(selectedImgCardIndexState);
@@ -27,6 +28,7 @@ const RealestateModal: React.FC = () => {
   const [realEstateInfo, setRealEstateInfo] = useState<types.RealEstate | null>(null);
   const [images, setImageFile] = useState<string[]>([]);
   const [zoomable, setZoomable] = useState<boolean>(false);
+  const Auth = useAuth();
 
   useEffect(() => {
     if (showModal.show === false) return;
@@ -237,24 +239,28 @@ const RealestateModal: React.FC = () => {
             </Map>
           </Grid>
           }
-          {/* 수정버튼 */}
-          <Grid item xs={1}>
-            <DefaultButton
-              onClick={handleModifyModal}
-              sx={{ width: "100%" }}
-            >
-              수정
-            </DefaultButton>
-          </Grid>
-          {/* 삭제버튼 */}
-          <Grid item xs={1}>
-            <DefaultButton
-              onClick={handleDeleteSubmit}
-              sx={{ width: "100%" }}
-            >
-              삭제
-            </DefaultButton>
-          </Grid>
+          {/* 수정삭제버튼 */}
+          {Auth.isLoggedIn && Auth.permitLevel >= 10 &&
+            <>
+            <Grid item xs={1}>
+              <DefaultButton
+                onClick={handleModifyModal}
+                sx={{ width: "100%" }}
+              >
+                수정
+              </DefaultButton>
+            </Grid>
+            <Grid item xs={1}>
+              <DefaultButton
+                onClick={handleDeleteSubmit}
+                sx={{ width: "100%" }}
+              >
+                삭제
+              </DefaultButton>
+            </Grid>
+            </>
+          }
+          
           </CustomGrid>
         )}
         <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
