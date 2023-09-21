@@ -103,7 +103,7 @@ public class AuthController {
 
         // 리다이렉트 설정
         response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", "/" + System.getenv("SERVER_HOST") + "/");
+        response.setHeader("Location", "/");
 
         return new RedirectView("/");
     }
