@@ -38,6 +38,8 @@ services:
     volumes:
       - ./backend/src:/my_backend/src
       - "${HOME}/kiwi_data/upload_images:/uploadImages"
+    expose:
+      - 8080
     networks:
       - jg
 
@@ -62,7 +64,7 @@ services:
     networks:
       - jg
     ports:
-      - 3000:3000
+      - 3000
     volumes:
       - ./front/src:/my_front/src
 
