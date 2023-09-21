@@ -39,8 +39,8 @@ public class AuthService {
         String authId = user.getAuthid();
         String name = user.getUsername();
 
-        System.out.println("generateToken ===========");
-        System.out.println(user);
+//        System.out.println("generateToken ===========");
+//        System.out.println(user);
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("authId", authId);
         claims.put("name", name);
