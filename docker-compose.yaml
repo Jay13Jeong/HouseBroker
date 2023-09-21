@@ -13,7 +13,7 @@ services:
       - 3306
     volumes:
       - type: bind
-        source: ${HOME}/kiwi_data/DB
+        source: $HOME/kiwi_data/DB
         target: /var/lib/mysql
     networks:
       - jg
@@ -42,7 +42,7 @@ services:
         source: ./backend/src
         target: /my_backend/src
       - type: bind
-        source: ${HOME}/kiwi_data/upload_images
+        source: $HOME/kiwi_data/upload_images
         target: /uploadImages
     expose:
       - 8080
