@@ -48,6 +48,9 @@ function RootLayout() {
     socket.unsubscribe('/topic/hi');
     });
     socket.sendMessage('/app/hello', 'Hello client?');
+    socket.addSubscribe('/topic/message', (message) => {
+      toast.success("recv socket : " +  message.body);
+      });
   }, [socketState]);
 
   useEffect(() => {
@@ -220,6 +223,9 @@ function RootLayout() {
     if (searchResults.length === 0){
       toast.info("검색 결과가 없습니다");
     }
+    /////////////////
+    socket.sendMessage('/app/send/1', 'Hello client?');
+    /////////////
   }
 
   return (

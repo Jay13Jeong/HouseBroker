@@ -40,7 +40,7 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
                         }catch (Exception e){ break; }
                         attributes.put("jwt", jwtValue);
                         try {
-                            if (socketService.getUserPkAndSocketMap(userPk).size() > 50) return false;
+                            if (socketService.getSocketSetByUserPk(userPk).size() > 50) return false;
                         } catch (Exception e) {}
 //                        System.out.println("[[[[[[[[[[[" + userPk + "]]]]]]]]]]]]]]]]");
                         String socketId = this.getWebSocketKey(request);

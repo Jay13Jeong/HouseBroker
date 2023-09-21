@@ -7,11 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -20,6 +23,17 @@ public class WebSocketEventListener {
 
     private final SocketService socketService;
 //    private final UserService userService;
+
+    @EventListener
+    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+        WebSocketSession session = (WebSocketSession) event.getSource();
+        Map<String, Object> attributes = session.getAttributes();
+        String socketId = attributes.get("socketId").toString();
+        System.out.println("&&&&&&&&&&&&&&&&&&&&1");
+        System.out.println(socketId);
+        System.out.println("&&&&&&&&&&&&&&&&&&&&2");
+        socketService.addSocketSession(socketId, session); // 클라이언트 세션을 맵에 저장
+    }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
