@@ -155,6 +155,7 @@ function RootLayout() {
     }
   };
 
+  //////이미지 합성////////////
   const composeImages = async (baseImgUrl: string, overlayImgUrl: string): Promise<string> => {
     const baseImgPromise = new Promise<HTMLImageElement>((resolve, reject) => {
       const baseImg = new Image();
@@ -184,16 +185,56 @@ function RootLayout() {
       const [baseImg, overlayImg] = await Promise.all([baseImgPromise, overlayImgPromise]);
   
       const canvas = document.createElement('canvas');
-      canvas.width = baseImg.width;
-      canvas.height = baseImg.height;
+  
+      // 화면 비율의 30%를 넘지 않도록 최대 크기 설정
+      const maxScreenWidth = window.innerWidth * 0.3;
+      const maxScreenHeight = window.innerHeight * 0.3;
+  
+      // 베이스 이미지와 오버레이 이미지의 가로, 세로 비율 계산
+      const baseAspect = baseImg.width / baseImg.height;
+      const overlayAspect = overlayImg.width / overlayImg.height;
+  
+      // 베이스 이미지 크기 계산
+      let baseWidth = baseImg.width;
+      let baseHeight = baseImg.height;
+  
+      if (baseWidth > maxScreenWidth) {
+        baseWidth = maxScreenWidth;
+        baseHeight = maxScreenWidth / baseAspect;
+      }
+      if (baseHeight > maxScreenHeight) {
+        baseHeight = maxScreenHeight;
+        baseWidth = maxScreenHeight * baseAspect;
+      }
+  
+      // 오버레이 이미지 크기 계산
+      let overlayWidth = overlayImg.width;
+      let overlayHeight = overlayImg.height;
+  
+      if (overlayWidth > baseWidth) {
+        overlayWidth = baseWidth;
+        overlayHeight = baseWidth / overlayAspect;
+      }
+      if (overlayHeight > baseHeight) {
+        overlayHeight = baseHeight;
+        overlayWidth = baseHeight * overlayAspect;
+      }
+  
+      // 캔버스 크기 설정
+      canvas.width = baseWidth;
+      canvas.height = baseHeight;
   
       const context: CanvasRenderingContext2D | null = canvas.getContext('2d');
       if (context === null) {
         return overlayImgUrl;
       }
   
-      context.drawImage(baseImg, 0, 0);
-      context.drawImage(overlayImg, 0, 0, baseImg.width, baseImg.height);
+      // 오버레이 이미지를 중앙에 배치
+      const xOffset = (canvas.width - overlayWidth) / 2;
+      const yOffset = (canvas.height - overlayHeight) / 2;
+  
+      context.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
+      context.drawImage(overlayImg, xOffset, yOffset, overlayWidth, overlayHeight);
   
       const composedImgUrl = canvas.toDataURL();
       return composedImgUrl;
@@ -201,6 +242,7 @@ function RootLayout() {
       return overlayImgUrl;
     }
   };
+  ////이미지 합성끝/////////////
 
   const rearrangeByFilter = () => {
     if (filterState.filter === "default"){
