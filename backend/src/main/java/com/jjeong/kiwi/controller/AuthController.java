@@ -77,7 +77,7 @@ public class AuthController {
         Cookie jwtCookie = new Cookie("jwt", token);
         jwtCookie.setPath("/");
         jwtCookie.setMaxAge(24 * 60 * 60); // 쿠키 만료시간
-        jwtCookie.setSecure(true);
+//        jwtCookie.setSecure(true);
         jwtCookie.setHttpOnly(true);
 
         // Add the JWT cookie to the response
