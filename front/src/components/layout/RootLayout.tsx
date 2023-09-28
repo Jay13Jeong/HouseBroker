@@ -326,13 +326,13 @@ function RootLayout() {
             {Array.from(
               { length: Math.ceil(searchResults.length / pageSize) },
               (_, index) => (
-                <Button
+                <DefaultButton
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
-                  className={currentPage === index + 1 ? 'active' : ''}
+                  className={(currentPage === index + 1 ? 'active' : '') + " pageBtn"}
                 >
                   {index + 1}
-                </Button>
+                </DefaultButton>
               )
             )}
           </div>

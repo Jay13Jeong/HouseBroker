@@ -17,6 +17,11 @@ td {
   width: 25%;
   // height: 50%;
 }
+
+.pageBtn {
+  margin: 3px;
+  height: 3vh;
+}
 `;
 
 export const SearchSection = styled.section`
