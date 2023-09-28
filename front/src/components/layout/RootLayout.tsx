@@ -322,7 +322,7 @@ function RootLayout() {
               )}
             </tbody>
           </table>
-          <div className="pagination">
+          <center className="pagination">
             {Array.from(
               { length: Math.ceil(searchResults.length / pageSize) },
               (_, index) => (
@@ -335,7 +335,7 @@ function RootLayout() {
                 </DefaultButton>
               )
             )}
-          </div>
+          </center>
         </CardSection>
         <br/>
       </Main>

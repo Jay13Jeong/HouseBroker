@@ -18,6 +18,10 @@ td {
   // height: 50%;
 }
 
+.pagination {
+  
+}
+
 .pageBtn {
   margin: 3px;
   height: 3vh;
