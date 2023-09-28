@@ -9,7 +9,7 @@ import {
   realestateFilterState,
   socketConnectState,
 } from "../../common/states/recoilModalState";
-import { Avatar, TextField } from '@mui/material';
+import { Avatar, Button, TextField } from '@mui/material';
 import { useSocket } from '../../common/states/socketContext';
 import { CardSection, Main, SearchSection } from './RootLayout.style';
 import { DefaultButton } from '../common';
@@ -326,13 +326,13 @@ function RootLayout() {
             {Array.from(
               { length: Math.ceil(searchResults.length / pageSize) },
               (_, index) => (
-                <button
+                <Button
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
                   className={currentPage === index + 1 ? 'active' : ''}
                 >
                   {index + 1}
-                </button>
+                </Button>
               )
             )}
           </div>
