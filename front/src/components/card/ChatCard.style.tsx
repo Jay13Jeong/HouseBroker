@@ -31,14 +31,14 @@ box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
 // background-color: gray;
 `;
 
-export const MessageContainer = styled.div<{ isMine?: boolean }>`
+export const MessageContainer = styled.div<{ isMine: boolean }>`
   display: flex;
   justify-content: flex-start;
   margin-bottom: 1%;
   ${({ isMine }) => isMine && 'justify-content: flex-end;'}
 `;
 
-export const MessageText = styled(Typography)<{ isMine?: boolean }>`
+export const MessageText = styled.div<{ isMine: boolean }>`
   padding: 1% 2%;
   border-radius: 10px;
   background-color: #f0f0f0;

@@ -25,6 +25,7 @@ export interface RealEstate {
     image8: string;
     image9: string;
     image10: string;
+    imageSlotState: number[];
     soldout: boolean;
     relay_object_type : string; //중계대상물종류
     location : string; //소재지

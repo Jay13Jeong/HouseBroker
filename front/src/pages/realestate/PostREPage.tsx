@@ -226,6 +226,7 @@ const handleFormSubmit = async (e: React.FormEvent) => {
             .map((realEstate, i) => (
               realEstate && realEstate.position && realEstate.content &&
               <MapMarker
+                key={i}
                 position={{ lat: realEstate.position.lat, lng: realEstate.position.lng }}
               >
                 <div

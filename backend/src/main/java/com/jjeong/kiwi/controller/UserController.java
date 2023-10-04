@@ -31,11 +31,15 @@ public class UserController {
 
     @GetMapping("/")
     public ResponseEntity<UserDto> getUserInfo(HttpServletRequest request) {
-        long id = userService.getIdByCookies(request.getCookies());
+        long id = -1;
+        UserDto userDto = null;
 
-        // 서비스 호출하여 사용자 정보 검색
-        UserDto userDto = userService.getUserDtoById(id);
-
+        try {
+            id = userService.getIdByCookies(request.getCookies());
+            userDto = userService.getUserDtoById(id);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         if (userDto != null) {
             return ResponseEntity.ok(userDto);
         } else {

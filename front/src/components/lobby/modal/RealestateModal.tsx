@@ -54,7 +54,11 @@ const RealestateModal: React.FC = () => {
       );
       setRealEstateInfo(res.data);
       setImageFile([]);
-      for (let i= 1; i <= 10; i++){
+      for (let i = 1; i <= 10; i++){
+        if (!res.data.imageSlotState || res.data.imageSlotState.includes(i) === false){
+          setImageFile((prevState) => [...prevState, require("../../../assets/sampleroom.png")]);
+          continue;  
+        }
         const imgData = await getImageData(res.data.id, i)
         setImageFile((prevState) => [...prevState, imgData]);
       }
@@ -227,6 +231,7 @@ const RealestateModal: React.FC = () => {
             {
                 realEstateInfo.latitude && realEstateInfo.longitude &&
                 <MapMarker
+                  key={realEstateInfo.id}
                   position={{ lat: realEstateInfo.latitude, lng: realEstateInfo.longitude }}
                 >
                   <div

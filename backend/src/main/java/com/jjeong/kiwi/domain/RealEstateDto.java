@@ -6,6 +6,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.ElementCollection;
+import java.util.List;
+
 @ToString
 @Getter
 @Setter
@@ -21,6 +24,7 @@ public class RealEstateDto{
     private MultipartFile image8;
     private MultipartFile image9;
     private MultipartFile image10;
+    private List<Integer> imageSlotState;
     private String title;
     private String description;
     private Long price;

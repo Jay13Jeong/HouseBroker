@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.lang.reflect.Method;
+import java.util.List;
 
 @Entity
 @ToString
@@ -28,6 +29,10 @@ public class RealEstate{
     private String image8;
     private String image9;
     private String image10;
+
+    @ElementCollection
+    private List<Integer> imageSlotState;
+
     private String title;
 
     @Column(length=5000)

@@ -29,7 +29,7 @@ function RootLayout() {
   const socketState = useRecoilValue(socketConnectState);
   const socket = useSocket();
   const setSocketIdState = useSetRecoilState(socketIdState);
-  const socketId = useRecoilValue(socketIdState);
+  // const socketId = useRecoilValue(socketIdState);
  
   useEffect(() => {
     const reloadPage = async () => {
@@ -42,29 +42,29 @@ function RootLayout() {
     reloadPage();
   }, [updateChecker]);
 
-  useEffect(() => {
-    if (!socket.stomp.connected)
-      return;
-    // toast.info("socket server accessed");
-    socket.addSubscribe('/topic/hi', (message: any) => {
-      // toast.success("recv socket : " +  message.headers['message-id']);
-      socket.unsubscribe('/topic/hi');
-      const sId = "-user" + (message.headers['message-id'].split('-')[0]);
-      setSocketIdState( {socketId : sId} );
-      socket.addSubscribe('/topic/refresh' + sId, () => {
-        alert("!!!");
-        window.location.reload();
-      });
+  // useEffect(() => {
+  //   if (!socket.stomp.connected)
+  //     return;
+  //   // toast.info("socket server accessed");
+  //   socket.addSubscribe('/topic/hi', (message: any) => {
+  //     // toast.success("recv socket : " +  message.headers['message-id']);
+  //     socket.unsubscribe('/topic/hi');
+  //     const sId = "-user" + (message.headers['message-id'].split('-')[0]);
+  //     setSocketIdState( {socketId : sId} );
+  //     socket.addSubscribe('/topic/refresh' + sId, () => {
+  //       alert("!!!");
+  //       window.location.reload();
+  //     });
 
-      ////////////////
-      socket.addSubscribe('/topic/message' + sId, (message) => {
-        toast.success("chat : " +  message.body);
-      });
-      ///////////////////
+  //     ////////////////
+  //     socket.addSubscribe('/topic/message' + sId, (message) => {
+  //       toast.success("chat : " +  message.body);
+  //     });
+  //     ///////////////////
 
-    });
-    socket.sendMessage('/app/hello', '');
-  }, [socketState]);
+  //   });
+  //   socket.sendMessage('/app/hello', '');
+  // }, [socketState]);
 
   useEffect(() => {
     get8Imgs();
@@ -89,8 +89,13 @@ function RootLayout() {
     try{
       let new8Imgs : string[] = [];
       let imgData = "";
-      for (const realEstate of getCurrentPageResults()) {
-        imgData = await getImageData(realEstate.id);
+      const realEstates = getCurrentPageResults();
+      for (const realEstate of realEstates) {
+        if (!realEstate.imageSlotState || !realEstate.imageSlotState.includes(1)){
+          imgData = require("../../assets/sampleroom.png");
+        } else {
+          imgData = await getImageData(realEstate.id);
+        }
         if (realEstate.soldout === true)
           imgData = await composeImages(imgData, require("../../assets/SOLD_OUT.png"))
         new8Imgs = [...new8Imgs, imgData];
@@ -279,7 +284,7 @@ function RootLayout() {
       toast.info("검색 결과가 없습니다");
     }
     /////////////////
-    socket.sendMessage('/app/send/1', 'Hello client?');
+    // socket.sendMessage('/app/send/1', 'Hello client?');
     /////////////
   }
 
