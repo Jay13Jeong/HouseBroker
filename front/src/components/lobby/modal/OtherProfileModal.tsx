@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { SocketContext } from "../../../common/states/contextSocket";
 import { useNavigate } from "react-router-dom";
 import ModalBase from "../../modal/ModalBase";
-import GameRecordList from "../../card/game/GameRecordList";
+// import GameRecordList from "../../card/game/GameRecordList";
 import { useResetRecoilState, useRecoilValue } from "recoil"
 import { otherProfileModalState, } from "../../../common/states/recoilModalState";
 import * as types from "../../../common/types/User"
@@ -281,7 +281,7 @@ function OtherProfileModal() {
                 </Grid>
                 <Divider />
                 <Typography variant="subtitle2" >최근 10경기 전적</Typography>
-                <GameRecordList user={userInfo}/>
+                {/* <GameRecordList user={userInfo}/> */}
             </Stack>
         </ModalBase>
     )

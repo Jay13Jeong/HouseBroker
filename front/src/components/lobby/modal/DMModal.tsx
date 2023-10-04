@@ -1,7 +1,7 @@
 import {useEffect, useState } from "react";
 import { useRecoilValue, useResetRecoilState } from "recoil";
 import { dmModalState } from "../../../common/states/recoilModalState";
-import DmCardButtonList from "../../card/dm/DmCardButtonList";
+// import DmCardButtonList from "../../card/dm/DmCardButtonList";
 import ModalBase from "../../modal/ModalBase";
 import { REACT_APP_HOST } from "../../../common/configData";
 import axios from "axios";
@@ -31,19 +31,6 @@ function DMModal() {
 
     return (
         <ModalBase open={showModal} reset={resetState} closeButton>
-            <Stack 
-                justifyContent="center"
-                alignItems="center"
-            >
-                <Typography variant="h2" gutterBottom>💌 DM List 💌</Typography>
-                {dmList === undefined ? 
-                <>
-                <Typography variant="subtitle1">로딩중...</Typography>
-                <DefaultLinearProgress/>
-                </>
-                : 
-                <DmCardButtonList dmList={dmList}/>}
-            </Stack>
         </ModalBase>
     )
 }
