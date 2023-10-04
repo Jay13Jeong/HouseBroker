@@ -201,12 +201,19 @@ const RealestateEditModal: React.FC = () => {
     else {
       if (await handleConfirmSubmit(newData) === false) return;
     }
+    let uploadData = {}
+    if (target === "latitude") {
+      uploadData = {
+        [target]: newData[0],
+        longitude : newData[1]
+      }
+    } else {
+      uploadData = {[target]: newData}
+    }
     try {
       const response = await axios.patch<types.RealEstate>(
         `/api/realestate/${showModal.realestateId}`,
-        {
-          [target]: newData,
-        },
+        uploadData,
         { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
       );
       toast.success("변경 성공");
@@ -286,8 +293,8 @@ const RealestateEditModal: React.FC = () => {
     event.preventDefault();
     const modifyLatLong = async () => {
       try{
-        await ModifyDataSubmit("latitude", latitude);
-        await ModifyDataSubmit("longitude", longitude);
+        await ModifyDataSubmit("latitude", [latitude,longitude]);
+        // await ModifyDataSubmit("longitude", longitude);
       } catch (err : any) {
         toast.error("위치 수정 실패");
       } 
