@@ -14,8 +14,7 @@ import {
 import Footer from "./Footer";
 import LeftSide from "./LeftSide";
 import CustomToastContainer from "../util/CustomToastContainer";
-import { MyPathModal, ProfileModal } from "../lobby/modal";
-import OtherProfileModal from "../lobby/modal/OtherProfileModal";
+import { MyPathModal, } from "../lobby/modal";
 
 import RealestateModal from "../lobby/modal/RealestateModal";
 import RealestateEditModal from "../lobby/modal/RealestateEditModal";
@@ -32,8 +31,6 @@ function MainLayout() {
           <LeftDiv><LeftSide/></LeftDiv>
               <MainLayoutWrapper>
                 <Outlet />
-                <ProfileModal />
-                <OtherProfileModal />
                 <RealestateModal />
                 <RealestateEditModal />
                 <MyPathModal />

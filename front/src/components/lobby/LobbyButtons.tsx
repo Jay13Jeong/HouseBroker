@@ -9,16 +9,6 @@ export default function LobbyButtons() {
 
     return (
         <Stack>
-            <LobbyButton onClick={()=>{navigate(RoutePath.game)}}>
-                <Box sx={{minWidth: '100%', border: '1px dashed #141616'}}>
-                    Game
-                </Box>
-            </LobbyButton>
-            <LobbyButton onClick={()=>{navigate(RoutePath.chat)}}>
-                <Box sx={{minWidth: '100%', border: '1px dashed #141616'}}>
-                    Chat
-                </Box>
-            </LobbyButton>
         </Stack>
     );
 }

@@ -1,9 +1,7 @@
 import { Typography } from "@mui/material";
-import useCheckLogin from "../util/useCheckLogin";
 function NotFound() {
-    useCheckLogin();
     return (
-        <Typography variant="h1" color="#FFFFFF">🤡 Not Found 🤡</Typography>
+        <Typography variant="h1" color="#FFFFFF">🤡 잘못된 주소입니다 🤡</Typography>
     );
 }
 

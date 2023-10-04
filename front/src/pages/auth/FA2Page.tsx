@@ -42,7 +42,7 @@ export default function FA2Page() {
         try{
           const res = await axios.post('http://' + REACT_APP_HOST + '/api/fa2', {code : code}, {withCredentials: true})
           if (res.status === 200)
-            navigate('/lobby');
+            navigate('/');
         }catch(err: any){
           setError(true);
           setHelperText("인증코드가 일치하지 않습니다.");

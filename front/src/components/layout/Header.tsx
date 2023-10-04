@@ -12,13 +12,13 @@ export default function Header() {
 
     return (
         <HeaderWrapper>
-        <Link to={RoutePath.lobby} style={{ textDecoration: "none" }}>
+        <Link to={RoutePath.root} style={{ textDecoration: "none" }}>
             <span className="navi-left">
             <img src={logo} alt="logo" />
             <span>메인으로</span>
             </span>
         </Link>
-        <Link to={RoutePath.lobby} style={{ textDecoration: "none" }}>
+        <Link to={RoutePath.root} style={{ textDecoration: "none" }}>
             <span className="navi-title">
             <img src={logo} alt="logo" />
             <span>{REACT_APP_NAME}</span>
