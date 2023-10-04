@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 import {SocketContext as Sc, socket as s} from './common/states/contextSocket';
-import GlobalStyle from './common/styles/GlobalStyle';
+import 'react-toastify/dist/ReactToastify.css';
 import { theme } from './common/styles/Theme.style';
 import { ThemeProvider } from '@mui/material';
 import Cursor from './components/util/Cursor';

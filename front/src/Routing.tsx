@@ -1,6 +1,6 @@
 import {Routes, Route} from 'react-router-dom'
 import {MainLayout, RootLayout} from "./components/layout";
-import { ChatRoomPage } from './pages/chat';
+import { ChatLobbyPage } from './pages/chat';
 import { PostREPage, MapPage } from './pages/realestate';
 import {RoutePath} from "./common/configData";
 import NotFound from './pages/NotFound';
@@ -14,7 +14,7 @@ export default function Routing() {
                 <Route path={RoutePath.map} element={<MapPage/>}/>
                 <Route path={RoutePath.postRE} element={<PostREPage/>}/>
 
-                <Route path={`${RoutePath.chat}`} element={<ChatRoomPage/>}/>
+                <Route path={`${RoutePath.chat}`} element={<ChatLobbyPage/>}/>
                 <Route path="*" element={<NotFound/>}/>
             </Route>
         </Routes>
