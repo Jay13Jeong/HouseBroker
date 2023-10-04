@@ -1,30 +1,55 @@
 package com.jjeong.kiwi.config;
 
 import com.jjeong.kiwi.domain.StompPrincipal;
+import com.jjeong.kiwi.service.SocketService;
+import com.jjeong.kiwi.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+@RequiredArgsConstructor
 public class CustomHandshakeHandler extends DefaultHandshakeHandler {
+
+    private final UserService userService;
+    private final SocketService socketService;
 
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
+//        System.out.println("@@@@@@ determineUser start");
         // JWT 토큰을 헤더에서 추출하고 유저 ID를 얻어옵니다.
-        String jwtToken = request.getHeaders().getFirst("Authorization");
-        String userId = extractUserIdFromToken(jwtToken); // 추출하는 방법은 본인의 구현에 따라 다를 수 있습니다.
-
+        List<String> cookieHeaders = request.getHeaders().get("Cookie");
+        String userPrincipalId = UUID.randomUUID().toString();
+        if (cookieHeaders != null) {
+            for (String cookieHeader : cookieHeaders) {
+                String[] cookies = cookieHeader.split(";");
+                for (String cookie : cookies) {
+                    String[] parts = cookie.trim().split("=");
+                    if (parts.length == 2 && "jwt".equals(parts[0])) {
+//                        System.out.println("^^^^^^^^^^^ determineUser ^^^^^^^^^^^^^^^^^");
+                        String jwtValue = parts[1];
+                        long userPk = -1;
+                        try {
+                            userPk = userService.getUserPrimaryKeyByJwt(jwtValue);
+                        }catch (Exception e){ break; }
+//                        userPrincipalId = String.valueOf(userPk);
+//                        attributes.put("jwt", jwtValue);
+//                        attributes.put("session-id", );
+                        socketService.addUserPkAndSocketMap(userPk, userPrincipalId);
+                        break;
+                    }
+                }
+            }
+        }
         // Principal 객체에 유저 ID 저장
-        return new StompPrincipal(userId);
+//        System.out.println("@@@@@@ determineUser " + userPrincipalId);
+        return new StompPrincipal(userPrincipalId);
     }
 
-    // JWT 토큰에서 유저 ID 추출 로직
-    private String extractUserIdFromToken(String jwtToken) {
-        // 본인의 JWT 파싱 및 유저 ID 추출 로직을 구현
-        // 예: JWT 라이브러리 사용
-        return  "";
-    }
 
 }

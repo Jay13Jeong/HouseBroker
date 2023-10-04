@@ -4,9 +4,11 @@ import logo from "../../assets/logo.png";
 import { RoutePath } from "../../common/configData";
 import { REACT_APP_NAME } from '../../common/configData';
 import { useAuth } from "../../common/states/AuthContext";
+import { useSocket } from "../../common/states/socketContext";
 
 export default function Header() {
     const Auth = useAuth();
+    const socket = useSocket();
 
     return (
         <HeaderWrapper>
@@ -33,7 +35,7 @@ export default function Header() {
                 </Link>
             }
             {Auth.isLoggedIn ?
-                <span onClick={() => { window.location.href = "/api/auth/logout" }} style={{ textDecoration: "none" }}>
+                <span onClick={() => { socket.sendMessage('/app/logout', ''); window.location.href = "/api/auth/logout"; }} style={{ textDecoration: "none" }}>
                 <span className="navi-right">
                     {/* <img src={logo} alt="logo" /> */}
                     <span>로그아웃&nbsp;</span>

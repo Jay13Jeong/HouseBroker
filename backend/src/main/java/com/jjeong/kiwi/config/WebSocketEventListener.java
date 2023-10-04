@@ -1,11 +1,18 @@
 package com.jjeong.kiwi.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.service.SocketService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.messaging.support.NativeMessageHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -24,55 +31,56 @@ public class WebSocketEventListener {
     private final SocketService socketService;
 //    private final UserService userService;
 
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        WebSocketSession session = (WebSocketSession) event.getSource();
-        Map<String, Object> attributes = session.getAttributes();
-        String socketId = attributes.get("socketId").toString();
-        System.out.println("&&&&&&&&&&&&&&&&&&&&1");
-        System.out.println(socketId);
-        System.out.println("&&&&&&&&&&&&&&&&&&&&2");
-        socketService.addSocketSession(socketId, session); // 클라이언트 세션을 맵에 저장
-    }
+//    @EventListener
+//    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+//        System.out.println("&&&&&&&& handleWebSocketConnectListener &&&&&&&&&&&&");
+//
+//
+//        System.out.println(event.getUser());
+//        System.out.println(event.getSource());
+//        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+//        String sessionId = headerAccessor.getSessionId();
+//        System.out.println(sessionId);
+//        System.out.println("&&&&&&&& handleWebSocketConnectListener2 &&&&&&&&&&&&");
+//
+//        MessageHeaderAccessor accessor = NativeMessageHeaderAccessor.getAccessor(event.getMessage(), SimpMessageHeaderAccessor.class);
+//        GenericMessage generic = (GenericMessage) accessor.getHeader("simpConnectMessage");
+//        Map attributes = (Map) generic.getHeaders().get("simpSessionAttributes");
+//        String socketId = (String) attributes.get("socketId");
+////        String sessionId = (String) generic.getHeaders().get("simpSessionId");
+//
+////        String socketId = "";
+////        try {
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-0 &&&&&&&&&&&&");
+////            String simpSessionAttributes = (String) headerAccessor.getSessionAttributes().get("simpSessionAttributes");
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-1 &&&&&&&&&&&&");
+////            String simpSessionAttributes = (String) headerAccessor.getSessionAttributes().get("simpSessionAttributes");
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-1 &&&&&&&&&&&&");
+////            String simpSessionAttributes = (String) headerAccessor.getSessionAttributes().get("simpSessionAttributes");
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-1 &&&&&&&&&&&&");
+////            ObjectMapper objectMapper = new ObjectMapper();
+////            Map<String, Object> sessionAttributesMap = objectMapper.readValue(simpSessionAttributes, Map.class);
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-2 &&&&&&&&&&&&");
+////            socketId = (String) sessionAttributesMap.get("socketId");
+////            System.out.println("&&&&&&&& handleWebSocketConnectListener2-3 &&&&&&&&&&&&");
+////            System.out.println("socketId: " + socketId);
+////        } catch (JsonProcessingException e) {
+////            // JSON 처리 예외가 발생한 경우 여기에서 처리
+////            e.printStackTrace();
+////            return;
+////        }
+//        System.out.println("&&&&&&&& handleWebSocketConnectListener3 &&&&&&&&&&&&");
+//        socketService.addSocketSession(socketId, (WebSocketSession) event.getSource()); // 클라이언트 세션을 맵에 저장
+//        System.out.println("&&&&&&&& handleWebSocketConnectListener4 &&&&&&&&&&&&");
+//    }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
         String socketId = (String) accessor.getSessionAttributes().get("socketId");
-//        System.out.println("WebSocket connection closed. ============");
         if (socketId != null) {
-//            System.out.println("((((((((((((((((((" + socketId + ">>>>>>>>>>>>>>>>>>");
             socketService.delSocketAndUserPkMap(socketId);
-//            long userPk = socketService.getUserPkBySocketIdMap(socketId);
-//            User user = userService.getUserById(userPk);
-//            String[] socketIds = user.getSocketId().split(",");
-//            int newCount = user.getConnectCount();
-//            if (newCount < 1){
-//                System.out.println("user conn count underflow :" + user.getEmail());
-////                if (socketIds.length > 0){
-////                    user.setSocketId(socketIds[socketIds.length - 1]);
-////                }
-//                user.setConnectCount(0);
-//                user.setSocketId("");
-//            } else if (newCount > 50) {
-//                newCount = 1;
-//                System.out.println("user conn count overflow :" + user.getEmail());
-////                if (socketIds.length > 0){
-////                    user.setSocketId(socketIds[socketIds.length - 1]);
-////                }
-//                user.setConnectCount(0);
-//                user.setSocketId("");
-//            } else {
-//                List<String> socketIdList = new ArrayList<>(Arrays.asList(socketIds));
-//                while (socketIdList.contains(socketId)) { //중복도 삭제.
-//                    socketIdList.remove(socketId);
-//                }
-//                user.setSocketId(socketIdList.stream().collect(Collectors.joining(",")));
-//                user.setConnectCount(newCount - 1);
-//            }
-//            socketService.delSocketAndUserPkMap(socketId);
-//            userService.saveUser(user);
         }
     }
 }

@@ -8,6 +8,7 @@ import {
   mainUpdateChecker, 
   realestateFilterState,
   socketConnectState,
+  socketIdState,
 } from "../../common/states/recoilModalState";
 import { Avatar, Button, TextField } from '@mui/material';
 import { useSocket } from '../../common/states/socketContext';
@@ -27,6 +28,8 @@ function RootLayout() {
   const [estateImgs, setEstateImgs] = useState<string[]>([]);
   const socketState = useRecoilValue(socketConnectState);
   const socket = useSocket();
+  const setSocketIdState = useSetRecoilState(socketIdState);
+  const socketId = useRecoilValue(socketIdState);
  
   useEffect(() => {
     const reloadPage = async () => {
@@ -42,15 +45,25 @@ function RootLayout() {
   useEffect(() => {
     if (!socket.stomp.connected)
       return;
-    toast.info("socket server accessed");
-    socket.addSubscribe('/topic/hi', (message) => {
-    toast.success("recv socket : " +  message.body);
-    socket.unsubscribe('/topic/hi');
-    });
-    socket.sendMessage('/app/hello', 'Hello client?');
-    socket.addSubscribe('/topic/message', (message) => {
-      toast.success("recv socket : " +  message.body);
+    // toast.info("socket server accessed");
+    socket.addSubscribe('/topic/hi', (message: any) => {
+      // toast.success("recv socket : " +  message.headers['message-id']);
+      socket.unsubscribe('/topic/hi');
+      const sId = "-user" + (message.headers['message-id'].split('-')[0]);
+      setSocketIdState( {socketId : sId} );
+      socket.addSubscribe('/topic/refresh' + sId, () => {
+        alert("!!!");
+        window.location.reload();
       });
+
+      ////////////////
+      socket.addSubscribe('/topic/message' + sId, (message) => {
+        toast.success("chat : " +  message.body);
+      });
+      ///////////////////
+
+    });
+    socket.sendMessage('/app/hello', '');
   }, [socketState]);
 
   useEffect(() => {

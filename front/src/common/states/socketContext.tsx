@@ -45,7 +45,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
 
   useEffect(() => {
     resetSocketState();
-    stomp.connect({}, () => {
+    stomp.connect({}, (frame: any) => {
       setSocketState({connected : true});
     });
 

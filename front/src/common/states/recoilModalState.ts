@@ -145,3 +145,10 @@ export const bigImgModalState = atom<{ show: boolean, imgUrl: string }>({
         imgUrl: require('../../assets/sampleroom.png'),
     }
 })
+
+export const socketIdState = atom<{ socketId: string }>({
+    key: "socketIdState",
+    default: {
+        socketId: "",
+    }
+})
