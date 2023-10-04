@@ -132,6 +132,10 @@ const RealestateEditModal: React.FC = () => {
       setSoldout(res.data.soldout);
       setImageFile([]);
       for (let i= 1; i <= 10; i++){
+        if (!res.data.imageSlotState || res.data.imageSlotState.includes(i) === false){
+          setImageFile((prevState) => [...prevState, require("../../../assets/sampleroom.png")]);
+          continue;  
+        }
         const imgData = await getImageData(res.data.id, i)
         const imgDataUrl = imgData === null ? require('../../../assets/sampleroom.png') : URL.createObjectURL(imgData);
         setImageFile((prevState) => [...prevState, imgDataUrl]);
@@ -1012,6 +1016,7 @@ const RealestateEditModal: React.FC = () => {
                       .map((realEstate, i) => (
                         realEstate && realEstate.position && realEstate.content &&
                         <MapMarker
+                          key={i}
                           position={{ lat: realEstate.position.lat, lng: realEstate.position.lng }}
                         >
                           <div
