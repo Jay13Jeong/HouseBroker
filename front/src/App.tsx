@@ -1,6 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
-import {SocketContext as Sc, socket as s} from './common/states/contextSocket';
 import 'react-toastify/dist/ReactToastify.css';
 import { theme } from './common/styles/Theme.style';
 import { ThemeProvider } from '@mui/material';
@@ -17,11 +16,9 @@ function App() {
       <ThemeProvider theme={theme}>
         <RecoilRoot>
           <SocketProvider>
-          <Sc.Provider value={s}>
             <AuthProvider>
             <Routing />
             </AuthProvider>
-          </Sc.Provider>
           </SocketProvider>
         </RecoilRoot>
       </ThemeProvider>

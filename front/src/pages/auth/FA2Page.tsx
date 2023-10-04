@@ -20,7 +20,7 @@ export default function FA2Page() {
         try{
           const res = await axios.get('http://' + REACT_APP_HOST + '/api/fa2/status', {withCredentials: true}) //쿠키와 함께 보내기 true.
           if (res.data.twofa === false){
-            navigate(RoutePath.lobby); //2단계인증이 꺼져있으면 로비로 간다.
+            navigate(RoutePath.root); //2단계인증이 꺼져있으면 로비로 간다.
             return ;
           }
           try{
@@ -54,7 +54,7 @@ export default function FA2Page() {
     return (
       <DefaultBox>
         <Stack>
-          <Typography variant="h2" component="h1" gutterBottom>2차 인증 코드</Typography>
+          {/* <Typography variant="h2" component="h1" gutterBottom>2차 인증 코드</Typography>
           <form onSubmit={handleSubmit}>
             <Stack>
               <TextField
@@ -69,7 +69,7 @@ export default function FA2Page() {
                 />
               <DefaultButton type="submit">확인</DefaultButton>
             </Stack>
-          </form>
+          </form> */}
         </Stack>
       </DefaultBox>
     )

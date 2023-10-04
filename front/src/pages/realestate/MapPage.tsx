@@ -135,9 +135,10 @@ function MapPage() {
     >
       <ZoomControl />
       {searchResults
-        .map((realEstate, i) => (
+        .map((realEstate) => (
           realEstate.latitude && realEstate.longitude &&
           <MapMarker
+            key={realEstate.id}
             position={{ lat: realEstate.latitude, lng: realEstate.longitude }}
             onClick={() => handleClick(realEstate.id)}
           >
