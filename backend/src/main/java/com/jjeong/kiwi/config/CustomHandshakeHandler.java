@@ -39,7 +39,8 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                         }catch (Exception e){ break; }
 //                        userPrincipalId = String.valueOf(userPk);
 //                        attributes.put("jwt", jwtValue);
-//                        attributes.put("session-id", );
+                        attributes.put("session-id", userPrincipalId);
+                        socketService.addSocketAndUserPkMap(userPrincipalId,userPk);
                         socketService.addUserPkAndSocketMap(userPk, userPrincipalId);
                         break;
                     }

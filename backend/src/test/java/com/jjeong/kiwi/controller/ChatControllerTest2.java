@@ -1,16 +1,5 @@
 package com.jjeong.kiwi.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import com.jjeong.kiwi.domain.Message;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ChatControllerTest2 {

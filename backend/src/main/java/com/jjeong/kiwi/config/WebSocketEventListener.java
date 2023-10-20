@@ -78,7 +78,7 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
 
-        String socketId = (String) accessor.getSessionAttributes().get("socketId");
+        String socketId = (String) accessor.getSessionAttributes().get("session-id");
         if (socketId != null) {
             socketService.delSocketAndUserPkMap(socketId);
         }

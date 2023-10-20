@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @ToString
@@ -22,4 +24,12 @@ public class User {
     private String email;
     private String password;
     private int permitLevel;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_chatroom",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+    )
+    private Set<ChatRoom> chatRooms = new HashSet<>();
 }

@@ -146,4 +146,8 @@ public class UserService {
         return token;
     }
 
+    public Set<String> getAdminEmails(){
+        return this.adminEmails;
+    }
+
 }

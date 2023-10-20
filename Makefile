@@ -1,4 +1,6 @@
 all :
+	mkdir -p $(HOME)/kiwi_data/upload_images
+	mkdir -p $(HOME)/kiwi_data/DB
 	docker compose up --build
 
 clean :

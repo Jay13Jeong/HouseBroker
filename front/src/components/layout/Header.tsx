@@ -35,7 +35,10 @@ export default function Header() {
                 </Link>
             }
             {Auth.isLoggedIn ?
-                <span onClick={() => { socket.sendMessage('/app/logout', ''); window.location.href = "/api/auth/logout"; }} style={{ textDecoration: "none" }}>
+                <span onClick={() => { 
+                    // socket.sendMessage('/app/logout', ''); 
+                    window.location.href = "/api/auth/logout"; 
+                    }} style={{ textDecoration: "none" }}>
                 <span className="navi-right">
                     {/* <img src={logo} alt="logo" /> */}
                     <span>로그아웃&nbsp;</span>

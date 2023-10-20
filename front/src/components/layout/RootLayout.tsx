@@ -42,29 +42,27 @@ function RootLayout() {
     reloadPage();
   }, [updateChecker]);
 
-  // useEffect(() => {
-  //   if (!socket.stomp.connected)
-  //     return;
-  //   // toast.info("socket server accessed");
-  //   socket.addSubscribe('/topic/hi', (message: any) => {
-  //     // toast.success("recv socket : " +  message.headers['message-id']);
-  //     socket.unsubscribe('/topic/hi');
-  //     const sId = "-user" + (message.headers['message-id'].split('-')[0]);
-  //     setSocketIdState( {socketId : sId} );
-  //     socket.addSubscribe('/topic/refresh' + sId, () => {
-  //       alert("!!!");
-  //       window.location.reload();
-  //     });
-
-  //     ////////////////
-  //     socket.addSubscribe('/topic/message' + sId, (message) => {
-  //       toast.success("chat : " +  message.body);
-  //     });
-  //     ///////////////////
-
-  //   });
-  //   socket.sendMessage('/app/hello', '');
-  // }, [socketState]);
+  useEffect(() => {
+    if (!socket.stomp.connected)
+      return;
+    // toast.info("socket server accessed");
+    socket.addSubscribe('/topic/hi', (message: any) => {
+      // toast.success("recv socket : " +  message.headers['message-id']);
+      socket.unsubscribe('/topic/hi');
+      const sId = "-user" + (message.headers['message-id'].split('-')[0]);
+      setSocketIdState( {socketId : sId} );
+      socket.addSubscribe('/topic/refresh' + sId, () => {
+        // alert("!!!");
+        window.location.reload();
+      });
+      //////////////
+      // socket.addSubscribe('/topic/message3' + sId, (message) => {
+      //   toast.success("chat : " +  message.body);
+      // });
+      /////////////////
+    });
+    socket.sendMessage('/app/hello', '');
+  }, [socketState]);
 
   useEffect(() => {
     get8Imgs();
@@ -284,7 +282,8 @@ function RootLayout() {
       toast.info("검색 결과가 없습니다");
     }
     /////////////////
-    // socket.sendMessage('/app/send/1', 'Hello client?');
+    // socket.sendMessage('/app/send2/1', 'Hello client?');
+    // socket.sendMessage('/app/logout', 't?');
     /////////////
   }
 

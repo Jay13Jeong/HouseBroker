@@ -1,4 +1,5 @@
 import { atom } from "recoil"
+import { Chat, ChatRoom } from "../types/User"
 
 export const dmModalState = atom<boolean>({
     key: "dmModalState",
@@ -150,5 +151,19 @@ export const socketIdState = atom<{ socketId: string }>({
     key: "socketIdState",
     default: {
         socketId: "",
+    }
+})
+
+export const chatRoomState = atom<{ chatRooms : ChatRoom[] }>({
+    key: "chatRoomState",
+    default: {
+        chatRooms: [],
+    }
+})
+
+export const messageState = atom<{ chat : Chat[] }>({
+    key: "messageState",
+    default: {
+        chat : [],
     }
 })

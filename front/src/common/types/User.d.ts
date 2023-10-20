@@ -1,7 +1,6 @@
 export interface User {
     email: string;
     username: string;
-    ///////////////////////////////////
     id: number;
     avatar? : string;
     userName: string;       // 유저 이름
@@ -40,3 +39,19 @@ export interface RealEstate {
     latitude : number; //위도
     longitude : number; //경도
   }
+
+export interface Chat {
+    id : number;
+    message : string;
+    chatRoom : ChatRoom;
+    sender : User;
+    receiver : User;
+    timestamp : string
+}
+
+export interface ChatRoom {
+    id : number;
+    chats : Chat[];
+    roomName : string;
+    users : User[];
+}
