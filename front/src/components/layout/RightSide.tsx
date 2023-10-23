@@ -15,9 +15,11 @@ import { useAuth } from "../../common/states/AuthContext";
 import { useSocket } from "../../common/states/socketContext";
 
 export default function RightSide() {
+    const Auth = useAuth();
     const [showChat, setShowChat] = useState(false);
     const setChatRoomState = useSetRecoilState(chatRoomState);
     const setMessages = useSetRecoilState(messageState);
+    const messages = useRecoilValue(messageState);
     const [newMessage, setNewMessage] = useState('');
     // const [messages, setMessages] = useState([
     //     { text: '안녕하세요!', isMine: true },
@@ -39,7 +41,26 @@ export default function RightSide() {
         socket.addSubscribe('/topic/message' + socketId.socketId, (message) => {
             // toast.info("뭔가 도착: " + message.body );
            const newChat : Chat =  JSON.parse(message.body);
-           setMessages((preMessages) => ({ chat : [ ...(preMessages.chat), newChat ]}));
+           const sender = newChat.sender;
+           const isAdmin = Auth.permitLevel === 10;
+           const roomNo = isAdmin ? (sender.email === Auth.user?.email ? newChat.receiver.id : sender.id) : 0;
+        //    const roomNo = newChat.chatRoom ? newChat.chatRoom.id : 0; 
+           try{
+            setMessages((prevChatState) => ({
+                chat: {
+                  ...prevChatState.chat,
+                  [roomNo] : [...prevChatState.chat[roomNo], newChat],
+                },
+            }));
+           }catch{
+            setMessages((prevChatState) => ({
+                chat: {
+                  ...prevChatState.chat,
+                  [roomNo] : [newChat],
+                },
+            }));
+           }
+           toast.info(newChat.message);
         });
         // socket.addSubscribe('/topic/message2' + socketId.socketId, (message) => {
         //         toast.info("뭔가 도착2");

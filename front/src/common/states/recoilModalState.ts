@@ -161,9 +161,11 @@ export const chatRoomState = atom<{ chatRooms : ChatRoom[] }>({
     }
 })
 
-export const messageState = atom<{ chat : Chat[] }>({
+export const messageState = atom<{ chat : { [key: number]: Chat[] } }>({
     key: "messageState",
     default: {
-        chat : [],
+        chat : {
+            0 : []
+        },
     }
 })

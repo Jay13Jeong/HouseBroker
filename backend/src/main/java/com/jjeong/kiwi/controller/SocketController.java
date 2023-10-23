@@ -25,10 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -88,6 +85,9 @@ public class SocketController {
 
     private String convertChat2ChatJson(Chat chat) throws JsonProcessingException {
         ChatDto chatDto = new ChatDto();
+//        ChatRoomDto chatRoomDto = new ChatRoomDto();
+//        chatRoomDto.setId(chat.getChatRoom().getId());
+//        chatDto.setChatRoom(chatRoomDto);
         chatDto.setId(chat.getId());
         chatDto.setMessage(chat.getMessage());
         User sender = chat.getSender();
@@ -138,6 +138,31 @@ public class SocketController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return new ResponseEntity<List<ChatRoom>>(socketService.getChatRooms(myId), HttpStatus.OK);
+    }
+
+    @GetMapping("/chat/admin")
+    public ResponseEntity<List<Chat>> getChatsFromAdmin(HttpServletRequest request) {
+        long myId = -1;
+        User user = null;
+
+        try {
+            myId = userService.getIdByCookies(request.getCookies());
+            user = userService.getUserById(myId);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Chat> chatList = new ArrayList<>();
+        for (String email : userService.getAdminEmails()){
+            Long userId = null;
+            try {
+                userId = userService.getUserByEmail(email).getId();
+                if (userId == null) continue;
+            }catch (Exception e) {
+                continue;
+            }
+            chatList.addAll(socketService.getChats(myId, userId));
+        }
+        return new ResponseEntity<List<Chat>>(chatList, HttpStatus.OK);
     }
 
 //    @MessageMapping("/logout")

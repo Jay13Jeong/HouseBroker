@@ -43,7 +43,7 @@ export interface RealEstate {
 export interface Chat {
     id : number;
     message : string;
-    chatRoom : ChatRoom;
+    chatRoom : ChatRoom | null;
     sender : User;
     receiver : User;
     timestamp : string
