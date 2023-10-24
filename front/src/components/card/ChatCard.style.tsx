@@ -59,5 +59,6 @@ export const MessageText = styled.div<{ isMine: boolean }>`
   padding: 1% 2%;
   border-radius: 10px;
   background-color: #f0f0f0;
-  ${({ isMine }) => isMine && 'background-color: #DCF8C6;'}
+  max-width: 80%;
+  ${({ isMine }) => isMine && 'background-color: #DCF8C6; text-align: right;'}
 `;

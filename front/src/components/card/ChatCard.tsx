@@ -176,6 +176,10 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
         }
     };
 
+    const manageMsg = (msg : string) => {
+        return msg.replace(/(.{30})/g, '$1\n');
+    }
+
     return (
         <ChatBox>
             <TopBotSection onClick={() => setShowChat(false)}>
@@ -209,7 +213,7 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
                 {messages.chat[selectChatNo].map((message : types.Chat, index : number) => (
                 <MessageContainer key={index} isMine={message.sender.email === Auth.user?.email}>
                 <MessageText isMine={message.sender.email === Auth.user?.email}>
-                    { message.message }
+                    { manageMsg(message.message) }
                 </MessageText>
                 </MessageContainer>
             ))}
