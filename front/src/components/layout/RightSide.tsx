@@ -45,6 +45,7 @@ export default function RightSide() {
            const isAdmin = Auth.permitLevel === 10;
            const roomNo = isAdmin ? (sender.email === Auth.user?.email ? newChat.receiver.id : sender.id) : 0;
         //    const roomNo = newChat.chatRoom ? newChat.chatRoom.id : 0; 
+        newChat.timestamp = new Date(newChat.timestamp);
            try{
             setMessages((prevChatState) => ({
                 chat: {

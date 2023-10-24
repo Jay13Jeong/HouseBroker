@@ -112,7 +112,7 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             const newChat : types.Chat = {
                 message : newMessage,
                 sender : Auth.user,
-                timestamp : new Date().toLocaleString(),
+                timestamp : new Date(),
                 id : -1,
                 receiver : Auth.user,
                 chatRoom : null,
@@ -144,17 +144,19 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
               `/api/chat/` + no,
               { withCredentials: true }
             );
+            const modifiedChatArray = res.data.map(chat => {
+                const date = new Date(chat.timestamp);
+                return {
+                  ...chat, // 원래 chat 객체의 속성들을 그대로 유지하면서
+                  timestamp: date, // timestamp 속성을 수정한 Date 객체로 대체
+                };
+            });
             const sender = res.data[0].sender;
             const roomNo = sender.email === Auth.user?.email ? res.data[0].receiver.id : sender.id;
-            // setMessagesTmp((prevChatState) => ({
-            //     ...prevChatState,
-            //     [roomNo] : res.data,
-            // }));
-            // setMessages({ chat: messagesTmp });
             setMessages((prevChatState) => ({
                 chat : {
                     ...prevChatState.chat,
-                    [roomNo] : res.data,
+                    [roomNo] : modifiedChatArray,
                 }
             }));
             setSelectChatNo(roomNo);
@@ -169,19 +171,20 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
               `/api/chat/admin`,
               { withCredentials: true }
             );
-            res.data.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-            // setMessagesTmp((prevChatState) => ({
-            //     ...prevChatState,
-            //     0 : res.data,
-            // }));
+            const modifiedChatArray = res.data.map(chat => {
+                const date = new Date(chat.timestamp);
+                return {
+                  ...chat, // 원래 chat 객체의 속성들을 그대로 유지하면서
+                  timestamp: date, // timestamp 속성을 수정한 Date 객체로 대체
+                };
+              });
+            modifiedChatArray.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
             setMessages((prevChatState) => ({
                 chat : {
                     ...prevChatState.chat,
-                    0 : res.data,
+                    0 : modifiedChatArray,
                 }
             }));
-            // setMessages({ chat: messagesTmp });
-            // setSelectPage(false);
             setSelectChatNo(0);
         } catch (err: any) {
             toast.info("채팅방 정보 불러오기 실패")
@@ -263,7 +266,7 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             <>
             <ChatContainer ref={chatContainerRef}>
                 {messages.chat[selectChatNo].map((message : types.Chat, index : number) => (
-                <MessageContainer key={index} isMine={message.sender.email === Auth.user?.email}>
+                <MessageContainer title={message.timestamp.toLocaleString()} key={index} isMine={message.sender.email === Auth.user?.email}>
                 <MessageText isMine={message.sender.email === Auth.user?.email}>
                     { manageMsg(message.message) }
                 </MessageText>

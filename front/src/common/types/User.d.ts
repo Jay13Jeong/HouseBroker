@@ -47,7 +47,7 @@ export interface Chat {
     chatRoom : ChatRoom | null;
     sender : User;
     receiver : User;
-    timestamp : string
+    timestamp : Date;
 }
 
 export interface ChatRoom {
