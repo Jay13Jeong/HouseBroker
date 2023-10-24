@@ -147,6 +147,13 @@ export const bigImgModalState = atom<{ show: boolean, imgUrl: string }>({
     }
 })
 
+export const dormantModalState = atom<{ show: boolean, }>({
+    key: "dormantModalState",
+    default: {
+        show: false,
+    }
+})
+
 export const socketIdState = atom<{ socketId: string }>({
     key: "socketIdState",
     default: {

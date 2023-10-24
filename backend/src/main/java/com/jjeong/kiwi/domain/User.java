@@ -25,11 +25,13 @@ public class User {
     private String password;
     private int permitLevel;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "user_chatroom",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "chatroom_id")
     )
     private Set<ChatRoom> chatRooms = new HashSet<>();
+
+    private boolean dormant = false;
 }

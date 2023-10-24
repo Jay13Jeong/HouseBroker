@@ -41,7 +41,7 @@ function MainLayout() {
         <BottomRow>
           <BottomCellLeft></BottomCellLeft>
           <BottomCellMiddle>
-            <Footer/>
+            <Footer btnShow={true}/>
           </BottomCellMiddle>
           <BottomCellRight></BottomCellRight>
         </BottomRow>

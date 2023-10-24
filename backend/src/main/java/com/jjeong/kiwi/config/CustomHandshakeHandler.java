@@ -36,6 +36,7 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                         long userPk = -1;
                         try {
                             userPk = userService.getUserPrimaryKeyByJwt(jwtValue);
+                            if (userService.getUserById(userPk).isDormant()) break; //휴면 검사.
                         }catch (Exception e){ break; }
 //                        userPrincipalId = String.valueOf(userPk);
 //                        attributes.put("jwt", jwtValue);

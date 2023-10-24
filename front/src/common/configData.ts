@@ -13,8 +13,9 @@ export const RoutePath = {
     patchRE: "/realestate/patch",
     delRE: "/realestate/delete",
     loginTest: "/api/auth/google/login",
+    dormant: "/returning",
 
-    fa2: "/auth/fa2",
+    // fa2: "/auth/fa2",
 }
 export const colors = {
     backgroudColor: "#2B3467",

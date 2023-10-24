@@ -47,10 +47,18 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/dormant")
+    public ResponseEntity<String> returningUser(HttpServletRequest request) {
+        long id = userService.getIdByCookies(request.getCookies());
+        userService.returningUser(id);
+        return ResponseEntity.ok("회원복귀 성공");
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(HttpServletRequest request) {
         long id = userService.getIdByCookies(request.getCookies());
-        userService.deleteUser(id);
+        userService.dormantUser(id);
+//        userService.deleteUser(id);
         return ResponseEntity.ok("회원탈퇴 성공");
     }
 

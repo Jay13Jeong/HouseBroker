@@ -1,14 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { HeaderWrapper } from "./Header.style";
 import logo from "../../assets/logo.png";
 import { RoutePath } from "../../common/configData";
 import { REACT_APP_NAME } from '../../common/configData';
 import { useAuth } from "../../common/states/AuthContext";
 import { useSocket } from "../../common/states/socketContext";
+import { useEffect } from "react";
 
 export default function Header() {
     const Auth = useAuth();
     const socket = useSocket();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (Auth.user) {
+            if (Auth.user.dormant === true) navigate(RoutePath.dormant);
+        }
+    }, [Auth]);
 
     return (
         <HeaderWrapper>

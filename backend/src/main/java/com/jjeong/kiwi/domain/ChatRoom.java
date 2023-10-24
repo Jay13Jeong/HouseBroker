@@ -6,15 +6,11 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @ToString
 @Getter
 @Setter
-@RequiredArgsConstructor
 @Entity
 public class ChatRoom {
 
@@ -22,7 +18,7 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "chatRoom")
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
     private List<Chat> chats = new ArrayList<>();
 
     private String roomName;
@@ -41,5 +37,11 @@ public class ChatRoom {
 
     public void addChat(Chat chat){
         this.chats.add(chat);
+    }
+
+    private Date timestamp;
+
+    public ChatRoom() {
+        this.timestamp = new Date();
     }
 }

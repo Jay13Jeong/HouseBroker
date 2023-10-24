@@ -63,6 +63,7 @@ public class UserService {
         UserDto userDto = new UserDto();
         userDto.setEmail(user.getEmail());
         userDto.setUsername((user.getUsername()));
+        userDto.setDormant(user.isDormant());
         return userDto;
     }
 
@@ -150,4 +151,15 @@ public class UserService {
         return this.adminEmails;
     }
 
+    public void dormantUser(long id) {
+        User user = userRepository.findUserById(id);
+        user.setDormant(true);
+        userRepository.save(user);
+    }
+
+    public void returningUser(long id) {
+        User user = userRepository.findUserById(id);
+        user.setDormant(false);
+        userRepository.save(user);
+    }
 }

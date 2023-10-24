@@ -120,6 +120,7 @@ public class SocketController {
         try {
             myId = userService.getIdByCookies(request.getCookies());
             user = userService.getUserById(myId);
+            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -134,6 +135,7 @@ public class SocketController {
         try {
             myId = userService.getIdByCookies(request.getCookies());
             user = userService.getUserById(myId);
+            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -148,6 +150,7 @@ public class SocketController {
         try {
             myId = userService.getIdByCookies(request.getCookies());
             user = userService.getUserById(myId);
+            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -164,6 +167,7 @@ public class SocketController {
         }
         return new ResponseEntity<List<Chat>>(chatList, HttpStatus.OK);
     }
+
 
 //    @MessageMapping("/logout")
 //    public void sendLogoutToClient(Principal principal, SimpMessageHeaderAccessor accessor) {

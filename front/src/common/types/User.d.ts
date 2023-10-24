@@ -1,6 +1,7 @@
 export interface User {
     email: string;
     username: string;
+    dormant: boolean;
     id: number;
     avatar? : string;
     userName: string;       // 유저 이름

@@ -98,8 +98,8 @@ public class SocketService {
         List<ChatRoom> commonChatRooms = chatRoomRepository.findByUsersIn(users);
         if (commonChatRooms.isEmpty()) {
             chatRoom = new ChatRoom();
-            System.out.println("######### saveChat1" + sender.getId());
-            System.out.println("######### saveChat2" + receiver.getId());
+//            System.out.println("######### saveChat1" + sender.getId());
+//            System.out.println("######### saveChat2" + receiver.getId());
             chatRoom.addUser(sender);
             chatRoom.addUser(receiver);
             if (userService.getAdminEmails().contains(sender.getEmail())){

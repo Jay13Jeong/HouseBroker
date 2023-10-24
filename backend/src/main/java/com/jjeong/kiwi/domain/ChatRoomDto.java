@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -17,4 +18,5 @@ public class ChatRoomDto {
     private List<ChatDto> chats;
     private String roomName;
     private Set<User> users;
+    private Date timestamp;
 }

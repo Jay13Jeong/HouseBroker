@@ -6,19 +6,21 @@ import { REACT_APP_LOCATION, REACT_APP_PHONE_INFO } from '../../common/configDat
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
+import { useAuth } from "../../common/states/AuthContext";
 
-export default function Footer() {
+export default function Footer({btnShow} : { btnShow : boolean}) {
+  const Auth = useAuth();
+
     const handleDeleteUser = async () => {
         try {
             const res = await axios.delete(
               `/api/user/delete`,
               { withCredentials: true }
             );
-            window.location.reload()
-            toast.success("회원탈퇴 완료");
+            alert("회원탈퇴 완료");
+            window.location.href = "/api/auth/logout";
           } catch (err: any) {
-            window.location.reload()
-            toast.error("회원탈퇴 실패");
+            alert("회원탈퇴 실패 : 관리자에게 문의 주세요.");
           }
     }
 
@@ -28,7 +30,7 @@ export default function Footer() {
             {REACT_APP_LOCATION}
             <br/>
             {REACT_APP_PHONE_INFO}
-            <br/><Button onClick={handleDeleteUser}>회원탈퇴</Button>
+            {btnShow && Auth.isLoggedIn && <><br/><Button onClick={handleDeleteUser}>회원탈퇴</Button></>}
         </FooterWrapper>
     );
 }

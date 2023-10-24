@@ -25,17 +25,33 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
     const [selectChatNo, setSelectChatNo] = useState<number>(0);
     const [chatRoomName, setChatRoomName] = useState<string>('');
     const chatContainerRef = useRef<HTMLDivElement | null>(null);
-    // const [messagesTmp, setMessagesTmp] = useState<{[key: number]: types.Chat[]}>({0 : []});
-
-    // useEffect(() => {
-    //     // setSelectChatNo(0);
-    //     setMessages({ chat: messagesTmp });
-    //     setSelectPage(false); 
-    // }, [messagesTmp]);
+    const [page, setPage] = useState(1);
+    const pageSize = 5; // 한 페이지당 표시할 개수
+    const displayedChatRooms = chatRooms.chatRooms.slice(
+      (page - 1) * pageSize,
+      page * pageSize
+    );
+    const isLastPage = page === Math.ceil(chatRooms.chatRooms.length / pageSize);
+    const isFirstPage = page === 1;
+  
+    const handlePrevPage = () => {
+        // if (isFirstPage) return ;
+      if (page > 1) {
+        setPage(page - 1);
+      }
+    };
+  
+    const handleNextPage = () => {
+        // if (isLastPage) return;
+      if (page < Math.ceil(chatRooms.chatRooms.length / pageSize)) {
+        setPage(page + 1);
+      }
+    };
 
     useEffect(() => {
         // if (selectChatNo === -1) return;
         setSelectPage(false);
+        scrollDown();
     }, [messages]);
 
     useEffect(() => {
@@ -43,6 +59,11 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
     }, [selectPage]);
 
     useEffect(() => {
+        if (!Auth.isLoggedIn){
+            setShowChat(false);
+            toast.info("로그인 후 이용가능합니다");
+            return;
+        }
         setSelectPage(true);
         if (!socket.stomp.connected){
             setShowChat(false);
@@ -70,6 +91,7 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
               { withCredentials: true }
             );
             setChatRoomState({ chatRooms : res.data })
+            // setChatRoomState((pre) => ({ chatRooms : [...pre.chatRooms, ...res.data] }))////////////
           } catch (err: any) {
             toast.info("채팅방 정보 불러오기 실패")
           }
@@ -190,23 +212,53 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             {chatRoomName && <TopBotSection><h5>{chatRoomName}</h5></TopBotSection>}
             
             {selectPage ?
-            <ChatContainer ref={chatContainerRef}>    
-            {chatRooms.chatRooms.length === 0 ? <>문의가 없습니다</> : 
-                (
-                    chatRooms.chatRooms.map((room, index) => (
-                        <DefaultButton key={index}
-                            className='chatRoomBtn'
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleRoomClick(room.id, room.users, room.roomName)
-                            }}
-                        >
-                        {room.roomName}<br/>
-                        </DefaultButton>
-                    ))
-                )
-                        }
-            </ChatContainer>
+            <ChatContainer ref={chatContainerRef}>
+            {chatRooms.chatRooms.length === 0 ? (
+              <>문의가 없습니다</>
+            ) : (
+              <>
+                {displayedChatRooms.map((room, index) => (
+                  <DefaultButton
+                    key={room.id}
+                    className="chatRoomBtn"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleRoomClick(room.id, room.users, room.roomName);
+                    }}
+                  >
+                    {room.roomName}
+                    <br />
+                  </DefaultButton>
+                ))}
+                {chatRooms.chatRooms.length > pageSize && (
+                  <div>
+                    {isFirstPage ? 
+                    <Button
+                        sx={{
+                            backgroundColor: 'white',
+                            color: 'gray',
+                        }}
+                    >
+                        이전
+                    </Button>
+                    : <Button onClick={handlePrevPage}>이전</Button>
+                    }
+                    {isLastPage ? 
+                    <Button
+                        sx={{
+                            backgroundColor: 'white',
+                            color: 'gray',
+                        }}
+                    >
+                        다음
+                    </Button>
+                    : <Button onClick={handleNextPage}>다음</Button>
+                    }
+                  </div>
+                )}
+              </>
+            )}
+          </ChatContainer>
             :
             <>
             <ChatContainer ref={chatContainerRef}>
