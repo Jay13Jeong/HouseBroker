@@ -28,19 +28,25 @@ export default function Header() {
               clearInterval(windowCheckInterval); // 새 창이 닫히면 감지 중단
               setNewWindow(null);
               Auth.initUserInfo();
+              setLoginBtnStatus('로그인');
             }
         }
         const windowCheckInterval = setInterval(checkWindowStatus, 1000);
     }, [newWindow]);
 
     function openLoginWindow() {
+        if (newWindow && !newWindow.closed) {
+            // 이미 열린 창을 다시 사용
+            newWindow.focus();
+            return;
+        }
         // 로그인 페이지 URL을 여기에 설정
-        const loginUrl = "/api/auth/google/login"; // 구글 로그인 페이지 또는 다른 인증 페이지 URL로 변경
+        const loginUrl = "/auth/login"; // 구글 로그인 페이지 또는 다른 인증 페이지 URL로 변경
         // 새 창 열기
-        const newWindow_ = window.open(loginUrl, "_blank", "width=500,height=600")
-        setNewWindow(newWindow_);
+        const newWindowLocal = window.open(loginUrl, "_blank", "width=500,height=600")
+        setNewWindow(newWindowLocal);
         // 새 창이 차단되었는지 확인
-        if (newWindow_) {
+        if (newWindowLocal) {
             setLoginBtnStatus('로그인 중...')
         } else {
           // 팝업 차단 등의 이유로 새 창 열기에 실패한 경우

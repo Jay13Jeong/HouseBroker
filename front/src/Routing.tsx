@@ -3,7 +3,7 @@ import {MainLayout, RootLayout} from "./components/layout";
 import { PostREPage, MapPage } from './pages/realestate';
 import {RoutePath} from "./common/configData";
 import NotFound from './pages/NotFound';
-import { CallbackPage, DormantPage } from './pages/auth';
+import { CallbackPage, DormantPage, LoginPage } from './pages/auth';
 
 export default function Routing() {
     return (
@@ -18,6 +18,7 @@ export default function Routing() {
             </Route>
             <Route path={RoutePath.dormant} element={<DormantPage/>}></Route>
             <Route path={RoutePath.callback} element={<CallbackPage/>}></Route>
+            <Route path={RoutePath.login} element={<LoginPage/>}></Route>
         </Routes>
     )
 }

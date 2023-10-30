@@ -14,7 +14,8 @@ export const RoutePath = {
     delRE: "/realestate/delete",
     loginTest: "/api/auth/google/login",
     dormant: "/returning",
-    callback: "/auth/callback"
+    callback: "/auth/callback",
+    login: "/auth/login",
 
     // fa2: "/auth/fa2",
 }

@@ -19,7 +19,6 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {
-        // 회원가입 로직 구현
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("이미 사용 중인 이메일입니다.");
@@ -27,6 +26,17 @@ public class UserController {
         userService.createUser(signupRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("회원가입이 성공적으로 완료되었습니다.");
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<String> signIn(@ModelAttribute SignupRequest signupRequest) {
+        // 로그인 로직.
+//        if (userService.existsByEmail(signupRequest.getEmail())) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body("이미 사용 중인 이메일입니다.");
+//        }
+//        userService.createUser(signupRequest);
+        return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
     }
 
     @GetMapping("/")

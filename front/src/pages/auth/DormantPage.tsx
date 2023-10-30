@@ -19,10 +19,10 @@ export default function DormantPage() {
   const Auth = useAuth();
 
   useEffect(() => {
-    if (Auth.user) {
+   if (Auth.user) {
         if (Auth.user.dormant === false) navigate(RoutePath.root);
     }
-}, [Auth]);
+}, [Auth] );
 
   // useEffect(() => {
   //   // setModal({show : true});
