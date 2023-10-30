@@ -8,6 +8,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   user: types.User | null;
   permitLevel: number;
+  initUserInfo: () => void;
   // login: () => void;
   // logout: () => void;
 }
@@ -61,6 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     isLoggedIn,
     user,
     permitLevel,
+    initUserInfo,
     // login,
     // logout,
   };

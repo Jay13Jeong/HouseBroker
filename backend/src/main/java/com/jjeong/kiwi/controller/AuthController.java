@@ -85,7 +85,7 @@ public class AuthController {
 
         // 리다이렉트 설정
         response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", "/");
+        response.setHeader("Location", "/auth/callback");
     }
 
     @GetMapping("/logout")
