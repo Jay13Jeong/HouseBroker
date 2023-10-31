@@ -23,21 +23,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("이미 사용 중인 이메일입니다.");
         }
-        userService.createUser(signupRequest);
+        if (userService.createUser(signupRequest) == false){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("유저정보 생성 실패.");
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("회원가입이 성공적으로 완료되었습니다.");
     }
 
-    @PostMapping("/")
-    public ResponseEntity<String> signIn(@ModelAttribute SignupRequest signupRequest) {
-        // 로그인 로직.
-//        if (userService.existsByEmail(signupRequest.getEmail())) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body("이미 사용 중인 이메일입니다.");
-//        }
-//        userService.createUser(signupRequest);
-        return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
-    }
+//    @PostMapping("/")
+//    public ResponseEntity<String> signIn(@ModelAttribute SignupRequest signupRequest) {
+//        if (userService.)
+//        return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
+//    }
 
     @GetMapping("/")
     public ResponseEntity<UserDto> getUserInfo(HttpServletRequest request) {

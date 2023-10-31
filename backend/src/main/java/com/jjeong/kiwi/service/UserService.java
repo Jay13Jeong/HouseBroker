@@ -1,11 +1,13 @@
 package com.jjeong.kiwi.service;
 
+import com.jjeong.kiwi.domain.Password;
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.domain.UserDto;
+import com.jjeong.kiwi.repository.PasswordRepository;
 import com.jjeong.kiwi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -15,7 +17,9 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordRepository passwordRepository;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
     private final Set<String> adminEmails = new HashSet<>(Arrays.asList(System.getenv("ADMIN_EMAIL").split(",")));
 
     public boolean existsByEmail(String email) {
@@ -24,8 +28,13 @@ public class UserService {
 
     public boolean createUser(SignupRequest signupRequest) {
         User user = new User();
+        Password pwd = new Password();
         user.setEmail(signupRequest.getEmail());
-        user.setPassword(signupRequest.getPassword());
+        user.setUsername(signupRequest.getUsername());
+        if (signupRequest.getPassword() != null){
+            pwd.setEmail(signupRequest.getEmail());
+            pwd.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        }
 //        user.setConnectCount(0);
 //        user.setSocketId("");
         if ((!signupRequest.getEmail().isEmpty()) && (signupRequest.getEmail() != null) &&
@@ -34,6 +43,7 @@ public class UserService {
         } else user.setPermitLevel(1);
         try {
             userRepository.save(user);
+            if (pwd.getPassword() != null) passwordRepository.save(pwd);
             return true;
         } catch (Exception e) {
             return false;
@@ -161,5 +171,16 @@ public class UserService {
         User user = userRepository.findUserById(id);
         user.setDormant(false);
         userRepository.save(user);
+    }
+
+    public User getUserByEmailAndPwd(SignupRequest signupRequest) {
+        try {
+            Password pwd = passwordRepository.findByEmail(signupRequest.getEmail());
+            if (pwd == null) return null;
+            if (!passwordEncoder.matches(pwd.getPassword(), signupRequest.getPassword())) return null;
+            return userRepository.findByEmail(signupRequest.getEmail());
+        } catch (Exception e){
+            return null;
+        }
     }
 }

@@ -30,7 +30,7 @@ setInterval(checkWindowStatus, 1000);
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const response = await axios.post('/api/user/', {
+        const response = await axios.post('/api/auth/login', {
             email : [email],
             password : [pwd],
             username : '',

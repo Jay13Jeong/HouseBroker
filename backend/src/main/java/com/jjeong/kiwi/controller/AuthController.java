@@ -6,10 +6,9 @@ import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
@@ -45,8 +44,6 @@ public class AuthController {
         String authId = userInfo.getAuthid();
 
 //        System.out.println("callback part 1 =======");
-
-        // 사용자 객체를 데이터베이스에 저장합니다. (예시로 UserRepository를 사용)
         User user = userService.getUserByEmail(email);
 
         if (user == null) {
@@ -66,6 +63,17 @@ public class AuthController {
         request.setAttribute("user", user);
 //        System.out.println("callback end =======");
         this.responseWithJWT(response, request);
+    }
+
+    @PostMapping("/login")
+    public void signIn(@ModelAttribute SignupRequest signupRequest, HttpServletResponse response) {
+        User user = userService.getUserByEmailAndPwd(signupRequest);
+        if (user == null){
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        request.setAttribute("user", user);
     }
 
     private void responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
