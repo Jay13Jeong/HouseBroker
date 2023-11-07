@@ -2,6 +2,7 @@ package com.jjeong.kiwi.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.User;
 import com.jjeong.kiwi.domain.UserInfoResponse;
 import io.jsonwebtoken.Claims;
@@ -11,15 +12,20 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.SecretKey;
-import java.util.ArrayList;
-
-import java.util.Date;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +36,12 @@ public class AuthService {
     private static final String CLIENT_SECRET = System.getenv("GOOGLE_ACCESS_SECRET");
     private static final String TOKEN_SERVER_URL = "https://oauth2.googleapis.com/token";
     private static final String REDIRECT_URI = System.getenv("GOOGLE_AUTH_CALLBACK_URL");
+    private static final String CONFIRM_MAIL_TITLE = System.getenv("CONFIRM_MAIL_TITLE");
+
+    private static final Map<String, List> emailAuthList = new HashMap<>();
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private final JavaMailSender javaMailSender;
 
     public String generateToken(User user) {
         Date now = new Date();
@@ -145,5 +157,71 @@ public class AuthService {
         user.setEmail(userInfoResponse.getEmail());
 
         return user;
+    }
+
+    public boolean sendConfirmMail(String email) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        List<String> codeAndCreateTime = new ArrayList<>();
+        String code = UUID.randomUUID().toString().substring(0,5);
+        Date currentDate = new Date();
+        String createTime = sdf.format(currentDate);
+//        Date parsedDate = sdf.parse(dateStr);
+        codeAndCreateTime.add(code);
+        codeAndCreateTime.add(createTime);
+        emailAuthList.put(email, codeAndCreateTime);
+        try {
+            helper.setTo(email);
+            helper.setSubject(CONFIRM_MAIL_TITLE);
+            helper.setText(code, true);
+            javaMailSender.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean confirmEmail(SignupRequest signupRequest) {
+        try {
+            List<String> codeAndCreateTime = emailAuthList.get(signupRequest.getEmail());
+            String code = codeAndCreateTime.get(0);
+            Date currentDate = new Date();
+            String createTime = codeAndCreateTime.get(1);
+            Date parsedDate = sdf.parse(createTime);
+            long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
+            long minutesDifference = timeDifferenceMillis / (60 * 1000);
+            if (minutesDifference >= 5) { //5분경과하면 실패.
+                emailAuthList.remove(signupRequest.getEmail());
+                return false;
+            }
+            if (!code.equals(signupRequest.getEmailcode()) ){
+                return false;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    @Scheduled(fixedRate = 60000) // 60 seconds
+    private void removeOldEmailcode() {
+        Date currentDate = new Date();
+        for (Map.Entry<String, List> entry : emailAuthList.entrySet()) {
+            String key = entry.getKey();
+            try {
+                List<String> value = entry.getValue();
+                String createTime = value.get(1);
+                Date parsedDate = sdf.parse(createTime);
+                long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
+                long minutesDifference = timeDifferenceMillis / (60 * 1000);
+                if (minutesDifference >= 5) { //5분경과하면 제거.
+                    emailAuthList.remove(key);
+                }
+            } catch (Exception e){
+                emailAuthList.remove((key));
+            }
+        }
     }
 }

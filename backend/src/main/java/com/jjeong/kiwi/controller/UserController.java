@@ -2,6 +2,7 @@ package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.domain.SignupRequest;
 import com.jjeong.kiwi.domain.UserDto;
+import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,14 +17,19 @@ import javax.servlet.http.HttpServletRequest;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {
+        if (authService.confirmEmail(signupRequest) == false){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("이메일 인증 실패.");
+        }
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("이미 사용 중인 이메일입니다.");
         }
-        if (userService.createUser(signupRequest) == false){
+        if (userService.createUser(signupRequest, true) == false){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("유저정보 생성 실패.");
         }

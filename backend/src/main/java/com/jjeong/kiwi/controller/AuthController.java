@@ -16,6 +16,9 @@ import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,11 +28,13 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
 
+    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
+
     private static final String SECRET_KEY = System.getenv("JWTKEY");
 
     @GetMapping("/google/login")
     public void googleAuth(HttpServletResponse response) {
-        System.out.println("login start =======/");
         response.setStatus(HttpServletResponse.SC_FOUND);
         response.addHeader("Location", "/api/oauth2/authorization/google");
 //        System.out.println(response);
@@ -50,7 +55,7 @@ public class AuthController {
             SignupRequest signupRequest = new SignupRequest();
             signupRequest.setEmail(email);
             signupRequest.setUsername(userInfo.getUsername());
-            userService.createUser(signupRequest);
+            userService.createUser(signupRequest, false);
             user = userService.getUserByEmail(email);
 //          user.setAuthid(authId);
         }
@@ -66,7 +71,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public void signIn(@ModelAttribute SignupRequest signupRequest, HttpServletResponse response) {
+    public void signIn(@RequestBody SignupRequest signupRequest, HttpServletResponse response) {
         User user = userService.getUserByEmailAndPwd(signupRequest);
         if (user == null){
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -74,6 +79,8 @@ public class AuthController {
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         request.setAttribute("user", user);
+        this.responseWithJWT(response, request);
+        response.setStatus(HttpServletResponse.SC_OK);
     }
 
     private void responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
@@ -100,5 +107,24 @@ public class AuthController {
     public RedirectView logout(HttpServletResponse response) {
         response.setHeader("Set-Cookie", "jwt=; Path=/; Max-Age=0; HttpOnly"); // JWT 쿠키 삭제
         return new RedirectView("/");
+    }
+
+    @PostMapping("/email/code")
+    public void sendConfirmMail(@RequestBody SignupRequest signupRequest, HttpServletResponse response) {
+        String email = signupRequest.getEmail();
+        if (!emailValidate(email)){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        if (!authService.sendConfirmMail(email)){
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            return;
+        }
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
+
+    private static boolean emailValidate(final String email) {
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
     }
 }

@@ -31,19 +31,16 @@ setInterval(checkWindowStatus, 1000);
     e.preventDefault();
     try {
         const response = await axios.post('/api/auth/login', {
-            email : [email],
-            password : [pwd],
-            username : '',
+            email : email,
+            password : pwd,
         }, { 
           withCredentials: true, 
-          // headers: { 'Content-Type': 'multipart/form-data' } 
         });
         closeWindow();
         setFinish(true);
-        // toast.success("성공");
     } catch (error: any) {
+        alert("이메일/비밀번호를 다시 확인해주세요.");
         toast.info("이메일/비밀번호를 다시 확인해주세요.");
-        // toast.error(error.response.data.message);
     }
   };
 
@@ -53,7 +50,8 @@ setInterval(checkWindowStatus, 1000);
 
   return (
     <center>
-
+      <h1>로그인</h1>
+      <hr/>
       <TextField
         className='textField'
         label="이메일 / EMAIL"
@@ -69,6 +67,7 @@ setInterval(checkWindowStatus, 1000);
       />
       <br></br>
       <TextField
+        type="password"
         className='textField'
         label="비밀번호 / PASSWORD"
         variant="outlined"

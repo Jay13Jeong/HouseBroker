@@ -16,6 +16,7 @@ export const RoutePath = {
     dormant: "/returning",
     callback: "/auth/callback",
     login: "/auth/login",
+    signup: "/auth/signup",
 
     // fa2: "/auth/fa2",
 }

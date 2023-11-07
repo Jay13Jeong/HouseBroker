@@ -27,6 +27,9 @@ services:
     depends_on:
       - mariadb
     environment:
+      GOOGLE_MAIL_UNAME: ${GOOGLE_MAIL_UNAME}
+      GOOGLE_MAIL_PWD: ${GOOGLE_MAIL_PWD}
+      CONFIRM_MAIL_TITLE: "[부동산] 인증코드 입니다"
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/mydb
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
