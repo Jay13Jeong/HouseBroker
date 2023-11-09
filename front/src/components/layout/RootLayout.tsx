@@ -107,7 +107,7 @@ function RootLayout() {
   async function getRealEstate() {
     try {
       const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
-      setRealEstates(res.data);
+      setRealEstates(res.data.reverse());
       setSearchResults(res.data);
     } catch (err: any) {
       toast.error('정보 불러오기 실패');

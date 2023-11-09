@@ -99,6 +99,19 @@ public class RealEstateController {
         }
     }
 
+    @PatchMapping("/sequence/{id}")
+    public ResponseEntity<String> updateSequence(@PathVariable Long id,
+                                                   HttpServletRequest request){
+        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+        try {
+            this.realEstateService.modifySequence(id);
+            return ResponseEntity.ok("부동산이 순서가 수정되었습니다.");
+        } catch ( Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("부동산 순서 Failed");
+        }
+    }
+
     @PatchMapping("/soldout/{id}")
     public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id,
                                                             @RequestBody Map<String, Boolean> requestBody,

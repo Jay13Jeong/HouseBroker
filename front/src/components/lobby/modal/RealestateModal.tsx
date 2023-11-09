@@ -54,6 +54,7 @@ const RealestateModal: React.FC = () => {
       );
       setRealEstateInfo(res.data);
       setImageFile([]);
+      // alert(res.data.imageSlotState)/////
       for (let i = 1; i <= 10; i++){
         if (!res.data.imageSlotState || res.data.imageSlotState.includes(i) === false){
           setImageFile((prevState) => [...prevState, require("../../../assets/sampleroom.png")]);
@@ -109,6 +110,21 @@ const RealestateModal: React.FC = () => {
       },
     });
   };
+
+  const handleToLatest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios.patch(
+        `/api/realestate/sequence/${showModal.realestateId}`,
+        {},
+        { withCredentials: true, }
+      );
+      toast.success("끌어올리기 성공");
+      pageUpdateChecker();
+    } catch (err: any) {
+      toast.error("끌어올리기 실패");
+    }
+  }
 
   const deleteRealEstate = async () => {
     try {
@@ -247,6 +263,14 @@ const RealestateModal: React.FC = () => {
           {/* 수정삭제버튼 */}
           {Auth.isLoggedIn && Auth.permitLevel >= 10 &&
             <>
+            <Grid item xs={2}>
+              <DefaultButton
+                onClick={handleToLatest}
+                sx={{ width: "100%", marginBottom: 0 }}
+              >
+                게시글 끌어올리기
+              </DefaultButton>
+            </Grid>
             <Grid item xs={1}>
               <DefaultButton
                 onClick={handleModifyModal}

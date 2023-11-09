@@ -13,6 +13,6 @@ export const ScrollableWrapper = styled.div`
 `;
 
 export const ModalScrollableWrapper = styled.div`
-  max-height: 900px; /* 높이 조정 */
+  max-height: 80vh; /* 높이 조정 */
   overflow-y: auto;
 `;

@@ -423,4 +423,21 @@ public class RealEstateService {
             return false;
         return  true;
     }
+
+    public void modifySequence(Long id) throws IOException {
+        RealEstate realEstate = this.getRealEstateById(id);
+        if (realEstate == null) {
+            throw new IOException("게시글 id로 찾기 실패");
+        }
+        RealEstate newEstate = new RealEstate();
+        newEstate = realEstateRepository.save(newEstate);
+        Long newId = newEstate.getId();
+        realEstateRepository.delete(newEstate);
+        List<Integer> slotTmp = new ArrayList<>();
+        slotTmp.addAll(realEstate.getImageSlotState());
+        realEstateRepository.delete(realEstate);
+        realEstate.setId(newId);
+        realEstate.setImageSlotState(slotTmp);
+        realEstateRepository.save(realEstate);
+    }
 }
