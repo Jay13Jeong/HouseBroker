@@ -22,6 +22,7 @@ export default function SignupPage() {
   const Auth = useAuth();
   const [finish, setFinish] = useState<boolean>(false);
   const [waitCode, setWaitCode] = useState<boolean>(false);
+  const [sendBtnClicked, setSendBtnClicked] = useState<boolean>(false);
   const [samePwd, setSamePwd] = useState<boolean>(false);
   const [statusEmail, setStatusEmail] = useState<boolean>(false);
   const specialCharsPattern = /[@#$%^&*()_+{}\[\]:;<>,.?~\\\/-]/;
@@ -103,6 +104,7 @@ export default function SignupPage() {
   };
 
   const handleEmailConfirm = async (e: React.FormEvent) => {
+    setSendBtnClicked(true);
     e.preventDefault();
     try {
         const response = await axios.post('/api/auth/email/code', {
@@ -112,8 +114,9 @@ export default function SignupPage() {
         });
         setWaitCode(true);
     } catch (error: any) {
-      alert("인증메일 발송실패.");
-      toast.info("인증메일 발송실패.");
+      setSendBtnClicked(false);
+      alert("이미 가입중이거나 입력한 메일을 다시 확인해주세요");
+      toast.info("이미 가입중이거나 입력한 메일을 다시 확인해주세요");
     }
   };
 
@@ -140,6 +143,7 @@ export default function SignupPage() {
             helperText={emailHelperText}
             error={!statusEmail}
             disabled={waitCode}
+            autoComplete="off"
           />
         </div>
       </Grid>
@@ -154,8 +158,11 @@ export default function SignupPage() {
             size="small"
             value={emailCode}
             onChange={e => setEmailCode(e.target.value)}
+            helperText={"5분안에 입력해주세요"}
+            autoComplete="off"
             />
             :
+            sendBtnClicked ? <>인증코드 전송중...</> :
             <Button variant="contained" color="primary" onClick={handleEmailConfirm}>
             이메일 인증하기
             </Button>
@@ -172,6 +179,7 @@ export default function SignupPage() {
             size="small"
             value={name}
             onChange={e => setName(e.target.value)}
+            autoComplete="off"
           />
         </div>
       </Grid>
@@ -187,6 +195,7 @@ export default function SignupPage() {
             value={pwd}
             onChange={e => setPwd(e.target.value)}
             error={!samePwd}
+            autoComplete="off"
           />
         </div>
       </Grid>
@@ -203,6 +212,7 @@ export default function SignupPage() {
             onChange={e => setPwd2(e.target.value)}
             helperText={pwdHelperText}
             error={!samePwd}
+            autoComplete="off"
           />
         </div>
       </Grid>

@@ -110,6 +110,7 @@ function MapPage() {
         variant="outlined"
         size="small"
         sx={{ width: "75%" }}
+        autoComplete="off"
         onChange={(e) => {
           setSearchTerm(e.target.value);
           handleSearch(e);

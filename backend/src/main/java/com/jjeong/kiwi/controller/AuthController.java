@@ -116,6 +116,10 @@ public class AuthController {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
+        if (userService.getUserByEmail(email) != null){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         if (!authService.sendConfirmMail(email)){
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             return;

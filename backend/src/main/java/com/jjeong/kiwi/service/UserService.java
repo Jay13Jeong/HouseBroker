@@ -28,13 +28,15 @@ public class UserService {
 
     public boolean createUser(SignupRequest signupRequest, boolean isNomalSignup) {
         User user = new User();
-        Password pwd = new Password();
+        Password pwd = null;
         user.setEmail(signupRequest.getEmail());
         user.setUsername(signupRequest.getUsername());
         if (isNomalSignup && (signupRequest.getPassword() == null || signupRequest.getPassword().isEmpty())){
             return false;
         }
         if (isNomalSignup){
+            pwd = passwordRepository.findByEmail(signupRequest.getEmail());
+            if (pwd == null) pwd = new Password();
             pwd.setEmail(signupRequest.getEmail());
             pwd.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         }
@@ -46,7 +48,7 @@ public class UserService {
         } else user.setPermitLevel(1);
         try {
             userRepository.save(user);
-            if (pwd.getPassword() != null) passwordRepository.save(pwd);
+            if (isNomalSignup && pwd != null) passwordRepository.save(pwd);
             return true;
         } catch (Exception e) {
             return false;

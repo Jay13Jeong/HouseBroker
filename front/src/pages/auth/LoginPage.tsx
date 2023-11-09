@@ -58,6 +58,7 @@ setInterval(checkWindowStatus, 1000);
         variant="outlined"
         size="small"
         value={email}
+        autoComplete="username"
         onChange={e => setEmail(e.target.value)}
         // onKeyDown={(e) => {
         //     if (e.key === 'Enter'){
@@ -65,7 +66,7 @@ setInterval(checkWindowStatus, 1000);
         //     }
         //   }}
       />
-      <br></br>
+      <br/><br/>
       <TextField
         type="password"
         className='textField'
@@ -73,6 +74,7 @@ setInterval(checkWindowStatus, 1000);
         variant="outlined"
         size="small"
         value={pwd}
+        autoComplete="current-password"
         onChange={e => setPwd(e.target.value)}
         // onKeyDown={(e) => {
         //     if (e.key === 'Enter'){
@@ -80,7 +82,7 @@ setInterval(checkWindowStatus, 1000);
         //     }
         //   }}
       />
-      <br/>
+      <br/><br/>
       <Button variant="contained" color="primary" onClick={handleLoginSubmit}>
             로그인
       </Button>
