@@ -60,11 +60,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Connect to EC2 and pull code
+      - name: Connect to EC2 and pull code and make
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
           chmod 400 mykey.pem
-          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
+          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+          'cd ${{ secrets.REPO_NAME }} && git pull origin main && sudo make'
 #          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
 #          'cd ${{ secrets.REPO_NAME }} && \
 #          git config --global user.email "Jay13Jeong@github.com" && \
@@ -72,10 +73,11 @@ jobs:
 #          git pull https://${{ secrets.GITHUB_TOKEN }}@github.com/Jay13Jeong/${{ secrets.REPO_NAME }}.git main' || exit 1           
 #          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
       
-      - name: Build with make
-        run: |
-          cd /home/ubuntu/${{ secrets.REPO_NAME }}
-          sudo make
+      # - name: Build with make
+      #   run: |
+      #     cd /home/ubuntu/${{ secrets.REPO_NAME }}
+      #     sudo make
+      
       # - name: Build with make
       #   run: |
       #     cd ~
