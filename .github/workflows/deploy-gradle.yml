@@ -55,19 +55,27 @@ jobs:
     needs: build
 
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    #   - name: Set up SSH
+    #     uses: webfactory/ssh-agent@v0.8.0
+    #     with:
+    #       ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Connect to EC2 and pull code
         run: |
-          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main' || exit 1 
-##          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
-##          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
-
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
+          chmod 600 mykey.pem
+          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main' || exit 1 
+#          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
+#          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
+      
       - name: Build with make
         run: |
           cd ${{ secrets.REPO_NAME }}
           sudo make
+      # - name: Build with make
+      #   run: |
+      #     cd ~
+      #     mkdir -p ${{ secrets.REPO_NAME }}
+      #     cd ${{ secrets.REPO_NAME }}
+      #     git pull origin main && sudo make
 
