@@ -58,11 +58,11 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
-          ssh-private-key: ${{ secrets.PEMKEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Connect to EC2 and pull code
         run: |
-          ssh -i ${{ secrets.PEMKEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
+          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main' || exit 1 
 ##          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
 ##          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
 
