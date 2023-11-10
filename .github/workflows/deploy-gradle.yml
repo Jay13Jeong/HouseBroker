@@ -37,16 +37,16 @@ jobs:
         gradle-version: 7.5.1
         arguments: build
 
-# ## gradle caching
-#     - name: Gradle Caching
-#       uses: actions/cache@v3
-#       with:
-#         path: |
-#           ~/.gradle/caches
-#           ~/.gradle/wrapper
-#         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-#         restore-keys: |
-#           ${{ runner.os }}-gradle-
+## gradle caching
+    - name: Gradle Caching
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
 
   deploy:
 
@@ -56,7 +56,7 @@ jobs:
 
     steps:
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.5
+        uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.PEMKEY }}
 
