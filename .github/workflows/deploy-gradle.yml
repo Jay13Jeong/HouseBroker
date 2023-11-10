@@ -62,10 +62,10 @@ jobs:
 
       - name: Connect to EC2 and pull code
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd aht && git pull origin main'
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
 
       - name: Build with make
         run: |
-          cd aht
-          make
+          cd ${{ secrets.REPO_NAME }}
+          sudo make
 
