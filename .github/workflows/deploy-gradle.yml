@@ -74,7 +74,7 @@ jobs:
       
       - name: Build with make
         run: |
-          cd ${{ secrets.REPO_NAME }}
+          cd /home/ubuntu/${{ secrets.REPO_NAME }}
           sudo make
       # - name: Build with make
       #   run: |
