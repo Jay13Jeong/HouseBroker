@@ -28,13 +28,15 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
+
     - name: init with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
     - run: gradle init
+    
     - name: Build with Gradle
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
-        gradle-version: 7.5.1
+        gradle-version: 8.4
         arguments: build
 
 ## gradle caching
@@ -55,10 +57,10 @@ jobs:
     needs: build
 
     steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      # - name: Set up SSH
+      #   uses: webfactory/ssh-agent@v0.8.0
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Connect to EC2 and pull code and make
         run: |
