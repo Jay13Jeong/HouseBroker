@@ -87,6 +87,7 @@ services:
       - backend
       - frontend
     environment:
+      - DOMAIN=${DOMAIN}
       - SERVER_HOST=${SERVER_HOST}
     build: ./proxy
     networks:

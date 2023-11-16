@@ -1,7 +1,12 @@
-all :
+all : dir
+	docker compose up --build -d
+
+fore : dir
+	docker compose up --build
+
+dir :
 	mkdir -p $(HOME)/kiwi_data/upload_images
 	mkdir -p $(HOME)/kiwi_data/DB
-	docker compose up --build -d
 
 clean :
 	docker compose -f docker-compose.yaml down
