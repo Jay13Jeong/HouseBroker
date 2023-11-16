@@ -160,6 +160,7 @@ export default function SignupPage() {
             onChange={e => setEmailCode(e.target.value)}
             helperText={"5분안에 입력해주세요"}
             autoComplete="off"
+            error={emailCode === ''}
             />
             :
             sendBtnClicked ? <>인증코드 전송중...</> :
