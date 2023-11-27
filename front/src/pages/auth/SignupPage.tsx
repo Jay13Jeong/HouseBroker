@@ -142,7 +142,7 @@ export default function SignupPage() {
             onChange={e => setEmail(e.target.value)}
             helperText={emailHelperText}
             error={!statusEmail}
-            disabled={waitCode}
+            disabled={sendBtnClicked}
             autoComplete="off"
           />
         </div>

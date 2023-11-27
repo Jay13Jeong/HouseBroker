@@ -29,6 +29,7 @@ export default function Header() {
               setNewWindow(null);
               Auth.initUserInfo();
               setLoginBtnStatus('로그인');
+              window.location.reload();
             }
         }
         const windowCheckInterval = setInterval(checkWindowStatus, 1000);
