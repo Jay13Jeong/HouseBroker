@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -22,6 +23,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import javax.websocket.Session;
 import java.io.IOException;
 import java.security.Principal;
@@ -43,51 +45,120 @@ public class SocketController {
         return "";
     }
 
-    @MessageMapping("/send/{id}")
+//    @MessageMapping("/send/{id}")
+//    public void sendMessageToClient(
+//            Principal principal,
+//            @DestinationVariable Long id,
+//            String message) throws JsonProcessingException {
+////        System.out.println("*********** i am 3");
+////        System.out.println("*********** principal " + principal.getName());
+////        System.out.println("*********** msg " + message);
+//        if (!this.checkSender(principal)) return;
+//        Chat chat = socketService.saveChat(socketService.getUserPkBySocketId(principal.getName()), id, message);
+//        String chatJson = convertChat2ChatJson(chat);
+//        for (String target : socketService.getSocketSetByUserPk(id)){
+//            messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
+//        }
+////        System.out.println("*********** i am 3 end");
+//    }
+
+    @MessageMapping("/send/room/{roomId}")
     public void sendMessageToClient(
             Principal principal,
-            @DestinationVariable Long id,
-            String message) throws JsonProcessingException {
-//        System.out.println("*********** i am 3");
-//        System.out.println("*********** principal " + principal.getName());
-//        System.out.println("*********** msg " + message);
+            @DestinationVariable Long roomId,
+            String message,
+            MessageHeaders headers) throws JsonProcessingException {
         if (!this.checkSender(principal)) return;
-        Chat chat = socketService.saveChat(socketService.getUserPkBySocketId(principal.getName()), id, message);
-        String chatJson = convertChat2ChatJson(chat);
-        for (String target : socketService.getSocketSetByUserPk(id)){
-            messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
+        String clientIp = this.getClientIp(headers);
+        ChatRoom chatRoom = socketService.loadChatRoomById(roomId);
+        if (chatRoom == null) {
+//            System.out.println("======== sendMessageToClient null");
+            return ;
+        }
+        Long senderId = socketService.getUserPkBySocketId(principal.getName());
+        boolean sent = false;
+        Chat chat = null;
+        //방에 참여중인 나를 제외한 모두에게 보내기.
+        for (User recver : chatRoom.getUsers()){
+            if (recver.getId() == senderId) continue;
+            Set<String> socketSet = socketService.getSocketSetByUserPk(recver.getId());
+            if (socketSet == null) continue;
+            if (sent == false) {
+                chat = socketService.saveChat(senderId, recver.getId(), message, chatRoom, clientIp);
+                sent = true;
+            }
+            chat.setReceiver(recver);
+            String chatJson = convertChat2ChatJson(chat);
+            for (String target : socketSet){
+                messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
+            }
         }
 //        System.out.println("*********** i am 3 end");
+    }
+
+    private String getClientIp(MessageHeaders headers){
+        return "0.0.0.0";
+//        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap((Message<?>) headers);
+//        String clientIp = accessor.getSessionAttributes().get("BaSyoOfUser").toString();
+//        if (clientIp == null || clientIp.isEmpty())
+//            return "";
+//        return clientIp;
     }
 
     @MessageMapping("/send/admin")
     public void sendMessageToAdminClient(
             Principal principal,
-            String message) throws JsonProcessingException {
+            String message,
+            MessageHeaders headers) throws JsonProcessingException {
         if (!this.checkSender(principal)) return;
+//        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 1");
+        System.out.println(headers.toString());
+        String clientIp = this.getClientIp(headers);
+//        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 2");
+        Long senderId = socketService.getUserPkBySocketId(principal.getName());
+//        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 3");
+        Chat chat = null;
+        boolean sent = false;
         for (String email : userService.getAdminEmails()){
-            Long userId = null;
+//            System.out.println("==============sendMessageToAdminClient " + email);
+            User recver = null;
+            Long recverId = null;
             try {
-                userId = userService.getUserByEmail(email).getId();
-                if (userId == null) continue;
+                recver = userService.getUserByEmail(email);
+                recverId = recver.getId();
+                if (recver == null) continue;
             }catch (Exception e) {
                 continue;
             }
-            Long senderId = socketService.getUserPkBySocketId(principal.getName());
-            Chat chat = socketService.saveChat(senderId, userId, message);
+//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 4");
+            ChatRoom chatRoom = socketService.saveChatRoom(senderId, recverId);
+//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 4-1");
+            if (sent == false) {
+                chat = socketService.saveChat(senderId, recverId, message, chatRoom, clientIp);
+                sent = true;
+            }
+//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 4-2");
+            socketService.saveChatRoom(senderId, recverId);
+            Set<String> socketSet = socketService.getSocketSetByUserPk(recverId);
+            if (socketSet == null)
+                continue;
+//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 5");
+            chat.setReceiver(recver);
             String chatJson = convertChat2ChatJson(chat);
-            for (String target : socketService.getSocketSetByUserPk(userId)){
+//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 6");
+            for (String target : socketSet){
+//                System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 7");
                 messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
-
+//                System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 8");
             }
         }
     }
 
     private String convertChat2ChatJson(Chat chat) throws JsonProcessingException {
         ChatDto chatDto = new ChatDto();
-//        ChatRoomDto chatRoomDto = new ChatRoomDto();
-//        chatRoomDto.setId(chat.getChatRoom().getId());
-//        chatDto.setChatRoom(chatRoomDto);
+        ChatRoomDto chatRoomDto = new ChatRoomDto();
+        chatRoomDto.setId(chat.getChatRoom().getId());
+        chatDto.setChatRoom(chatRoomDto);
         chatDto.setId(chat.getId());
         chatDto.setMessage(chat.getMessage());
         User sender = chat.getSender();
@@ -112,8 +183,8 @@ public class SocketController {
         return true;
     }
 
-    @GetMapping("/chat/{id}")
-    public ResponseEntity<List<Chat>> getChatsByUserId(HttpServletRequest request, @PathVariable Long id) {
+    @GetMapping("/chat/{roomId}")
+    public ResponseEntity<List<Chat>> getChatsByUserId(HttpServletRequest request, @PathVariable Long roomId) {
         long myId = -1;
         User user = null;
 
@@ -124,7 +195,22 @@ public class SocketController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return new ResponseEntity<List<Chat>>(socketService.getChats(myId, id), HttpStatus.OK);
+        return new ResponseEntity<List<Chat>>(socketService.getChatsByRoomId(roomId), HttpStatus.OK);
+    }
+
+    @GetMapping("/chat/general")
+    public ResponseEntity<List<Chat>> getChatsByUserId(HttpServletRequest request) {
+        long myId = -1;
+        User user = null;
+
+        try {
+            myId = userService.getIdByCookies(request.getCookies());
+            user = userService.getUserById(myId);
+            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return new ResponseEntity<List<Chat>>(socketService.getChatsByUserId(myId), HttpStatus.OK);
     }
 
     @GetMapping("/chat/rooms")
@@ -142,31 +228,31 @@ public class SocketController {
         return new ResponseEntity<List<ChatRoom>>(socketService.getChatRooms(myId), HttpStatus.OK);
     }
 
-    @GetMapping("/chat/admin")
-    public ResponseEntity<List<Chat>> getChatsFromAdmin(HttpServletRequest request) {
-        long myId = -1;
-        User user = null;
-
-        try {
-            myId = userService.getIdByCookies(request.getCookies());
-            user = userService.getUserById(myId);
-            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        List<Chat> chatList = new ArrayList<>();
-        for (String email : userService.getAdminEmails()){
-            Long userId = null;
-            try {
-                userId = userService.getUserByEmail(email).getId();
-                if (userId == null) continue;
-            }catch (Exception e) {
-                continue;
-            }
-            chatList.addAll(socketService.getChats(myId, userId));
-        }
-        return new ResponseEntity<List<Chat>>(chatList, HttpStatus.OK);
-    }
+//    @GetMapping("/chat/admin")
+//    public ResponseEntity<List<Chat>> getChatsFromAdmin(HttpServletRequest request) {
+//        long myId = -1;
+//        User user = null;
+//
+//        try {
+//            myId = userService.getIdByCookies(request.getCookies());
+//            user = userService.getUserById(myId);
+//            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+//        List<Chat> chatList = new ArrayList<>();
+//        for (String email : userService.getAdminEmails()){
+//            Long userId = null;
+//            try {
+//                userId = userService.getUserByEmail(email).getId();
+//                if (userId == null) continue;
+//            }catch (Exception e) {
+//                continue;
+//            }
+//            chatList.addAll(socketService.getChats(myId, userId));
+//        }
+//        return new ResponseEntity<List<Chat>>(chatList, HttpStatus.OK);
+//    }
 
 
 //    @MessageMapping("/logout")

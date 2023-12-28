@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Paper, Typography } from '@mui/material';
+import { color } from "framer-motion";
 
 export const ChatBox = styled.div`
   width: 40vh;
@@ -55,10 +56,10 @@ export const MessageContainer = styled.div<{ isMine: boolean }>`
   ${({ isMine }) => isMine && 'justify-content: flex-end;'}
 `;
 
-export const MessageText = styled.div<{ isMine: boolean }>`
+export const MessageText = styled.div<{ isMine: boolean, color: string }>`
   padding: 1% 2%;
   border-radius: 10px;
-  background-color: #f0f0f0;
+  background-color: ${ ({color}) => color };
   max-width: 80%;
   ${({ isMine }) => isMine && 'background-color: #DCF8C6; text-align: right;'}
 `;

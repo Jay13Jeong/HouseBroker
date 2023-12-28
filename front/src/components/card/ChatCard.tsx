@@ -49,8 +49,9 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
     };
 
     useEffect(() => {
-        // if (selectChatNo === -1) return;
-        setSelectPage(false);
+        if (Auth.permitLevel < 10){
+            setSelectPage(false);
+        }
         scrollDown();
     }, [messages]);
 
@@ -93,24 +94,31 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             setChatRoomState({ chatRooms : res.data })
             // setChatRoomState((pre) => ({ chatRooms : [...pre.chatRooms, ...res.data] }))////////////
           } catch (err: any) {
-            toast.info("채팅방 정보 불러오기 실패")
+            toast.info("채팅방 정보 불러오기 실패 : 1")
           }
     }
 
     const handleSendClick = (e : any) => {
         if (e.key === 'Enter' && e.keyCode !== 13) return;
-        if (newMessage.trim() !== '') {
+        let sendMsg = newMessage.trim();
+        if (sendMsg !== '') {
             if (Auth.permitLevel < 10){
-                socket.sendMessage('/app/send/admin', newMessage);
-            } else if (targetId !== null) {
-                socket.sendMessage('/app/send/' + targetId, newMessage);
+                socket.sendMessage('/app/send/admin', sendMsg);
+            } else if (selectChatNo !== 0) {
+                sendMsg = sendMsg + " [관리자]";
+                socket.sendMessage('/app/send/room/' + selectChatNo, sendMsg);
+            }else{
+                // toast.info("홈페이지 새로고침 해주세요")
+                alert("다시 문의 시도해주세요")
+                window.location.reload();
+                return ;
             }
             if (!Auth.user) return;
             // let dummyUser : types.User = Auth.user;
             // dummyUser.email = "";
             // dummyUser.id = -1;
             const newChat : types.Chat = {
-                message : newMessage,
+                message : sendMsg,
                 sender : Auth.user,
                 timestamp : new Date(),
                 id : -1,
@@ -152,23 +160,31 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
                 };
             });
             const sender = res.data[0].sender;
-            const roomNo = sender.email === Auth.user?.email ? res.data[0].receiver.id : sender.id;
+            // const roomNo = sender.email === Auth.user?.email ? res.data[0].receiver.id : sender.id;
+            // setMessages((prevChatState) => ({
+            //     chat : {
+            //         ...prevChatState.chat,
+            //         [roomNo] : modifiedChatArray,
+            //     }
+            // }));
+            // setSelectChatNo(roomNo);
             setMessages((prevChatState) => ({
                 chat : {
                     ...prevChatState.chat,
-                    [roomNo] : modifiedChatArray,
+                    [no] : modifiedChatArray,
                 }
             }));
-            setSelectChatNo(roomNo);
+            setSelectChatNo(no);
+            //////
         } catch (err: any) {
-            toast.info("채팅방 정보 불러오기 실패")
+            toast.info("채팅방 정보 불러오기 실패 : 2")
         }
     }
 
     const getChatsFromAdmin = async () => {
         try {
             const res = await axios.get<types.Chat[]>(
-              `/api/chat/admin`,
+              `/api/chat/general`,
               { withCredentials: true }
             );
             const modifiedChatArray = res.data.map(chat => {
@@ -187,7 +203,7 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             }));
             setSelectChatNo(0);
         } catch (err: any) {
-            toast.info("채팅방 정보 불러오기 실패")
+            toast.info("채팅방 정보 불러오기 실패 : 3")
         }
     }
 
@@ -199,10 +215,30 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
         }else{
             setTargetId(users[0].id.toString());
         }
+        setSelectPage(false);
     };
 
     const manageMsg = (msg : string) => {
         return msg.replace(/(.{30})/g, '$1\n');
+    }
+
+    function stringToColor(str : string) {
+        // 간단한 문자열을 해시로 변환하는 함수
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        // 해시 값을 16진수로 변환하고, 헥스 코드 형태로 리턴
+        const baseColor = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+
+        // 채도를 50%로 설정
+        const saturation = '50';
+
+        // 채도를 추가하여 완전한 헥스 코드 형태로 조합
+        const color = baseColor + saturation;
+
+        return '#' + color;
     }
 
     return (
@@ -267,29 +303,29 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             <ChatContainer ref={chatContainerRef}>
                 {messages.chat[selectChatNo].map((message : types.Chat, index : number) => (
                 <MessageContainer title={message.timestamp.toLocaleString()} key={index} isMine={message.sender.email === Auth.user?.email}>
-                <MessageText isMine={message.sender.email === Auth.user?.email}>
+                <MessageText isMine={message.sender.email === Auth.user?.email} color={ stringToColor(message.sender.email) }>
                     { manageMsg(message.message) }
                 </MessageText>
                 </MessageContainer>
             ))}
             </ChatContainer>
             <TopBotSection>
-            <TextField
-            className='textField'
-            label="메시지 입력"
-            variant="outlined"
-            size="small"
-            value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
-            onKeyDown={(e) => {
-                if (e.key === 'Enter'){
-                    handleSendClick(e);  
-                }
-              }}
-            />
-            <Button className='textFieldBtn' variant="contained" color="primary" onClick={handleSendClick}>
-            전송
-            </Button>
+                <TextField
+                    className='textField'
+                    label="메시지 입력"
+                    variant="outlined"
+                    size="small"
+                    value={newMessage}
+                    onChange={e => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter'){
+                            handleSendClick(e);  
+                        }
+                    }}
+                />
+                <Button className='textFieldBtn' variant="contained" color="primary" onClick={handleSendClick}>
+                전송
+                </Button>
             </TopBotSection>
             </>
             }

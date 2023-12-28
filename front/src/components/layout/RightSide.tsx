@@ -20,13 +20,7 @@ export default function RightSide() {
     const setChatRoomState = useSetRecoilState(chatRoomState);
     const setMessages = useSetRecoilState(messageState);
     const messages = useRecoilValue(messageState);
-    const [newMessage, setNewMessage] = useState('');
-    // const [messages, setMessages] = useState([
-    //     { text: '안녕하세요!', isMine: true },
-    //     { text: '반가워요!', isMine: false },
-    //     { text: '오늘 날씨는 어떤가요?', isMine: true },
-    //     { text: '매우 화창해요!', isMine: false },
-    // ]);
+    const [newAlert, setNewAlert] = useState('');
     const socket = useSocket();
     const socketId = useRecoilValue(socketIdState);
     const socketState = useRecoilValue(socketConnectState);
@@ -43,8 +37,9 @@ export default function RightSide() {
            const newChat : Chat =  JSON.parse(message.body);
            const sender = newChat.sender;
            const isAdmin = Auth.permitLevel === 10;
-           const roomNo = isAdmin ? (sender.email === Auth.user?.email ? newChat.receiver.id : sender.id) : 0;
-        //    const roomNo = newChat.chatRoom ? newChat.chatRoom.id : 0; 
+        //    const roomNo = isAdmin ? (sender.email === Auth.user?.email ? newChat.receiver.id : sender.id) : 0;
+           let roomNo = newChat.chatRoom ? newChat.chatRoom.id : 0;
+           roomNo = isAdmin ? roomNo : 0;
         newChat.timestamp = new Date(newChat.timestamp);
            try{
             setMessages((prevChatState) => ({
@@ -61,13 +56,18 @@ export default function RightSide() {
                 },
             }));
            }
-           toast.info(newChat.message);
+           setNewAlert(newChat.message);
         });
         // socket.addSubscribe('/topic/message2' + socketId.socketId, (message) => {
         //         toast.info("뭔가 도착2");
         //     });
         // toast.info("/topic/message 구독함")
     }, [socketState, socketId]);
+
+    useEffect(() => {
+        if (newAlert === '') return ;
+        if (showChat === false) toast.info(newAlert);
+    }, [newAlert]);
 
     const handleClick = () => {
         setShowChat(true);

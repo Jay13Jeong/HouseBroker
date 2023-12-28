@@ -36,6 +36,8 @@ public class Chat {
 
     private Date timestamp;
 
+    private String senderIp;
+
     public Chat() {
         this.timestamp = new Date();
     }

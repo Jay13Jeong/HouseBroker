@@ -29,7 +29,7 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
         //헨드쉐이크 중 jwt값 읽어오기.
-//        System.out.println("#################### start");
+        attributes.put("BaSyoOfUser", request.getRemoteAddress().getHostString());
         List<String> cookieHeaders = request.getHeaders().get("Cookie");
         if (cookieHeaders != null) {
             for (String cookieHeader : cookieHeaders) {

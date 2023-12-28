@@ -38,6 +38,10 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                             userPk = userService.getUserPrimaryKeyByJwt(jwtValue);
                             if (userService.getUserById(userPk).isDormant()) break; //휴면 검사.
                         }catch (Exception e){ break; }
+                        String clientIp = request.getRemoteAddress().getHostString();
+                        attributes.put("session-ip", userPrincipalId);
+                        attributes.put("ip", clientIp);
+
 //                        userPrincipalId = String.valueOf(userPk);
 //                        attributes.put("jwt", jwtValue);
                         attributes.put("session-id", userPrincipalId);

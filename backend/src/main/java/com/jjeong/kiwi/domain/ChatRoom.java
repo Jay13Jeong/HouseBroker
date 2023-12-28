@@ -44,4 +44,6 @@ public class ChatRoom {
     public ChatRoom() {
         this.timestamp = new Date();
     }
+
+    public boolean haveUser(User user) { return this.users.contains(user); }
 }
