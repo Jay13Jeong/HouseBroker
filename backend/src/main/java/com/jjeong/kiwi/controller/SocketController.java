@@ -69,7 +69,7 @@ public class SocketController {
             String message,
             MessageHeaders headers) throws JsonProcessingException {
         if (!this.checkSender(principal)) return;
-        String clientIp = this.getClientIp(headers);
+        String clientIp = this.getClientIp(principal.getName());
         ChatRoom chatRoom = socketService.loadChatRoomById(roomId);
         if (chatRoom == null) {
 //            System.out.println("======== sendMessageToClient null");
@@ -96,13 +96,8 @@ public class SocketController {
 //        System.out.println("*********** i am 3 end");
     }
 
-    private String getClientIp(MessageHeaders headers){
-        return "0.0.0.0";
-//        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap((Message<?>) headers);
-//        String clientIp = accessor.getSessionAttributes().get("BaSyoOfUser").toString();
-//        if (clientIp == null || clientIp.isEmpty())
-//            return "";
-//        return clientIp;
+    private String getClientIp(String socketId){
+        return socketService.getIpBySocketId(socketId);
     }
 
     @MessageMapping("/send/admin")
@@ -113,7 +108,7 @@ public class SocketController {
         if (!this.checkSender(principal)) return;
 //        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 1");
         System.out.println(headers.toString());
-        String clientIp = this.getClientIp(headers);
+        String clientIp = this.getClientIp(principal.getName());
 //        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 2");
         Long senderId = socketService.getUserPkBySocketId(principal.getName());
 //        System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 3");

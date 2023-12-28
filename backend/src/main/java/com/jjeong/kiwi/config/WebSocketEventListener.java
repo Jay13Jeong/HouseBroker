@@ -81,6 +81,8 @@ public class WebSocketEventListener {
         String socketId = (String) accessor.getSessionAttributes().get("session-id");
         if (socketId != null) {
             socketService.delSocketAndUserPkMap(socketId);
+            socketService.delSocketAndUserIp(socketId);
         }
+//        socketService.getSize();
     }
 }

@@ -22,25 +22,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SocketService {
     private static final Map<String, Long> socketAndUserPkMap = new HashMap<>();
     private static final Map<Long, Set<String>> userPkAndSocketMap = new HashMap<>();
-    private static final Map<String, WebSocketSession> socketSessions = new ConcurrentHashMap<>();
 
-    public void addSocketSession(String socketId, WebSocketSession wss){
-        socketSessions.put(socketId, wss);
-    }
-
-    public void delSocketSession(String socketId){
-        socketSessions.remove(socketId);
-    }
-
-    public WebSocketSession getWebSocketSession(String socketId) {
-        return  socketSessions.get(socketId);
-    }
+    private static final Map<String, String> socketAndUserIp = new HashMap<>();
 
     private final UserService userService;
 
     private final ChatRoomRepository chatRoomRepository;
 
     private final ChatRepository chatRepository;
+
+//    public void getSize(){
+//        System.out.println("***************************");
+//        System.out.println(socketAndUserPkMap.size());
+//        System.out.println(userPkAndSocketMap.size());
+//        System.out.println(socketAndUserIp.size());
+//        System.out.println("***************************");
+//    }
 
     public void addSocketAndUserPkMap(String socketId, Long userPk){
         socketAndUserPkMap.put(socketId, userPk);
@@ -52,6 +49,23 @@ public class SocketService {
         if (userPk != -1L) this.delUserPkAndSocketMap(userPk, socketId);
         socketAndUserPkMap.remove(socketId);
 //        socketSessions.remove(socketId);
+    }
+
+    public void addSocketAndUserIp(String socketId, String ip){
+        socketAndUserIp.put(socketId, ip);
+    }
+
+    public void delSocketAndUserIp(String socketId){
+        socketAndUserIp.remove(socketId);
+    }
+
+    public String getIpBySocketId(String socketId){
+        try {
+            return  socketAndUserIp.get(socketId);
+        } catch (Exception e) {
+            System.out.println("notFound:getIpBySocketId");
+            return "0.0.0.0";
+        }
     }
 
     public Long getUserPkBySocketId(String socketId){
@@ -81,9 +95,15 @@ public class SocketService {
         Set<String> tmp = null;
         try{
             tmp = userPkAndSocketMap.get(userPk);
+            if (tmp.size() <= 1) {
+                userPkAndSocketMap.remove(userPk);
+                return;
+            }
             tmp.remove(socketId);
             userPkAndSocketMap.put(userPk, tmp);
-        }catch (Exception e){ }
+        }catch (Exception e){
+            System.out.println("fail:delUserPkAndSocketMap");
+        }
     }
 
     public  Set<String> getSocketSetByUserPk(Long userPk) {
