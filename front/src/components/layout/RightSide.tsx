@@ -66,6 +66,7 @@ export default function RightSide() {
 
     useEffect(() => {
         if (newAlert === '') return ;
+        if (newAlert === '대화를 종료합니다.') setShowChat(false);
         if (showChat === false) toast.info(newAlert);
     }, [newAlert]);
 

@@ -22,7 +22,11 @@ export const ChatBox = styled.div`
     margin: 1%
   }
   .chatRoomBtn {
-    width: 93%;
+    // width: 93%;
+    width: 74%;
+  }
+  .chatRoomDelBtn {
+    width: 9%;
   }
 `;
 

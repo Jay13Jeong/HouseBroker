@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.socket.TextMessage;
@@ -221,6 +222,21 @@ public class SocketController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         return new ResponseEntity<List<ChatRoom>>(socketService.getChatRooms(myId), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/chatroom/delete/{roomId}")
+    public ResponseEntity<String> deleteChatRoom(HttpServletRequest request,@PathVariable Long roomId) {
+        long myId = -1;
+        User user = null;
+        try {
+            myId = userService.getIdByCookies(request.getCookies());
+            user = userService.getUserById(myId);
+            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        socketService.deleteChatRoom(roomId);
+        return ResponseEntity.ok("채팅방 해산 성공");
     }
 
 //    @GetMapping("/chat/admin")

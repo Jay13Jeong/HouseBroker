@@ -311,4 +311,8 @@ public class SocketService {
 //            System.out.println("============loadChatRoomByRoomName2");
             return chatRoom;
     }
+
+    public void deleteChatRoom(Long roomId) {
+        chatRoomRepository.deleteById(roomId);
+    }
 }

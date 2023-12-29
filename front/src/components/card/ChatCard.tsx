@@ -218,6 +218,21 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
         setSelectPage(false);
     };
 
+    const handleRoomDeleteClick = async (roomNo : number) => {
+        try {
+            // socket.sendMessage('/app/send/room/' + roomNo, '대화를 종료합니다.');
+            const res = await axios.delete(
+              `/api/chatroom/delete/${roomNo}`,
+              { withCredentials: true }
+            );
+            toast.info("채팅방 삭제 성공");
+            setChatRoomState({chatRooms:[]});
+            setShowChat(false);
+          } catch (err: any) {
+            toast.error("잠시 후 다시 시도해 주세요. 채팅방 삭제 실패");
+        }
+    };
+
     const manageMsg = (msg : string) => {
         return msg.replace(/(.{30})/g, '$1\n');
     }
@@ -257,17 +272,32 @@ const ChatCard: React.FC<{setShowChat : (status : boolean) => void}> = ({setShow
             ) : (
               <>
                 {displayedChatRooms.map((room, index) => (
-                  <DefaultButton
-                    key={room.id}
-                    className="chatRoomBtn"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleRoomClick(room.id, room.users, room.roomName);
-                    }}
-                  >
+                    <>
+                    <DefaultButton
+                        key={room.id}
+                        className="chatRoomBtn"
+                        onClick={(e) => {
+                        e.preventDefault();
+                        handleRoomClick(room.id, room.users, room.roomName);
+                        }}
+                    >
                     {room.roomName}
+                    </DefaultButton>
+                    <Button
+                        key={room.id}
+                        className="chatRoomDelBtn"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handleRoomDeleteClick(room.id);
+                        }}
+                        variant="outlined"
+                        color="error"
+                        size="small"
+                    >
+                    삭제    
+                    </Button>
                     <br />
-                  </DefaultButton>
+                    </>
                 ))}
                 {chatRooms.chatRooms.length > pageSize && (
                   <div>
