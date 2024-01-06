@@ -85,5 +85,5 @@ jobs:
       #     cd ~
       #     mkdir -p ${{ secrets.REPO_NAME }}
       #     cd ${{ secrets.REPO_NAME }}
-      #     git pull origin main && sudo make
+      #     git pull origin main && make
 
