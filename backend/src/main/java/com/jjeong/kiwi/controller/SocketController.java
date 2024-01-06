@@ -82,12 +82,12 @@ public class SocketController {
         //방에 참여중인 나를 제외한 모두에게 보내기.
         for (User recver : chatRoom.getUsers()){
             if (recver.getId() == senderId) continue;
-            Set<String> socketSet = socketService.getSocketSetByUserPk(recver.getId());
-            if (socketSet == null) continue;
             if (sent == false) {
                 chat = socketService.saveChat(senderId, recver.getId(), message, chatRoom, clientIp);
                 sent = true;
             }
+            Set<String> socketSet = socketService.getSocketSetByUserPk(recver.getId());
+            if (socketSet == null) continue;
             chat.setReceiver(recver);
             String chatJson = convertChat2ChatJson(chat);
             for (String target : socketSet){
@@ -128,7 +128,6 @@ public class SocketController {
             }
 //            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 4");
             ChatRoom chatRoom = socketService.saveChatRoom(senderId, recverId);
-//            System.out.println("sendMessageToAdminClient&&&&&&&&&&&&& 4-1");
             if (sent == false) {
                 chat = socketService.saveChat(senderId, recverId, message, chatRoom, clientIp);
                 sent = true;
