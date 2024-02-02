@@ -37,12 +37,6 @@ public class UserController {
                 .body("회원가입이 성공적으로 완료되었습니다.");
     }
 
-//    @PostMapping("/")
-//    public ResponseEntity<String> signIn(@ModelAttribute SignupRequest signupRequest) {
-//        if (userService.)
-//        return ResponseEntity.status(HttpStatus.OK).body("로그인 성공");
-//    }
-
     @GetMapping("/")
     public ResponseEntity<UserDto> getUserInfo(HttpServletRequest request) {
         long id = -1;
