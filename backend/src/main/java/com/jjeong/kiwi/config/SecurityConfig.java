@@ -1,16 +1,11 @@
 package com.jjeong.kiwi.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @RequiredArgsConstructor
 @Configuration
@@ -19,17 +14,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors() // Enable CORS support
+                .cors() // Enable CORS
+//                .and()
+//                .logout()
+//                .logoutUrl("/delete/jsession") // post로 접근필요.
+//                .logoutSuccessUrl("/")
+//                .invalidateHttpSession(true)
+//                .clearAuthentication(true) // 인증정보 삭제.
+//                .deleteCookies("JSESSIONID")
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .oauth2Login()
+                .defaultSuccessUrl("/delete/jsession")
+                .and()
                 .csrf().disable();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // BCryptPasswordEncoder를 사용하여 비밀번호를 암호화
-        return new BCryptPasswordEncoder();
-    }
 }

@@ -1,13 +1,11 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
-import java.lang.reflect.Method;
 import java.util.List;
 
 @Entity

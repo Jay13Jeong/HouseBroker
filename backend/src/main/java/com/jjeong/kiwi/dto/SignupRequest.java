@@ -1,20 +1,23 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 @ToString
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class UserDto {
+public class  SignupRequest {
     private String username;
     private String email;
-    private boolean dormant;
+    private String password;
+    private String emailcode;
+
 }
+
+
+
+
+

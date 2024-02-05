@@ -1,14 +1,11 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.model;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Set;
 
 @ToString
 @Getter

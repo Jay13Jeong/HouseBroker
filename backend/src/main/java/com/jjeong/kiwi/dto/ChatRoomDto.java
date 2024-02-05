@@ -1,5 +1,7 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.dto;
 
+import com.jjeong.kiwi.dto.ChatDto;
+import com.jjeong.kiwi.model.User;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

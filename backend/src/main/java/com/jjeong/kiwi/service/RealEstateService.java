@@ -1,14 +1,14 @@
 package com.jjeong.kiwi.service;
 
-import com.jjeong.kiwi.domain.RealEstate;
-import com.jjeong.kiwi.domain.RealEstateDto;
+import com.jjeong.kiwi.model.RealEstate;
+import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.repository.RealEstateRepository;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.implementation.bytecode.Throw;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +27,7 @@ public class RealEstateService {
     private final RealEstateRepository realEstateRepository;
     private final String NO_IMG = "NO_IMG";
     private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(RealEstateService.class);
 
     static {
         allowedMimeTypes.put("image/jpeg", true);
@@ -42,8 +43,10 @@ public class RealEstateService {
     }
 
     public RealEstate createRealEstate(RealEstateDto realEstateDto) throws IOException {
-        if (this.checkMimeType(realEstateDto) == false)
-            throw new IOException("허용하지않은 이미지 Mime파일");
+        if (this.checkMimeType(realEstateDto) == false){
+            logger.error("허용하지않은 이미지 Mime파일");
+            throw new RuntimeException();
+        }
         RealEstate realEstate = new RealEstate();
         realEstate.setTitle(realEstateDto.getTitle());
         realEstate.setDescription(realEstateDto.getDescription());
@@ -140,7 +143,8 @@ public class RealEstateService {
             // 파일을 지정된 경로에 저장
             Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            throw new IOException("이미지 파일 업로드에 실패했습니다. " + e.getMessage());
+            logger.error("이미지 파일 업로드에 실패했습니다.", e);
+            throw new RuntimeException();
         }
         // 파일의 이름 반환
         return fileName;

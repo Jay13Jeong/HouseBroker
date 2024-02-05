@@ -1,5 +1,6 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.dto;
 
+import com.jjeong.kiwi.model.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

@@ -1,4 +1,4 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.dto;
 
 import lombok.Getter;
 import lombok.Setter;

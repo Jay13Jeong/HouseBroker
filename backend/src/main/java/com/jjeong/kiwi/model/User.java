@@ -1,4 +1,4 @@
-package com.jjeong.kiwi.domain;
+package com.jjeong.kiwi.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

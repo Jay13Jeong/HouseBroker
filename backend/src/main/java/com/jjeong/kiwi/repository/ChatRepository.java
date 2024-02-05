@@ -1,7 +1,7 @@
 package com.jjeong.kiwi.repository;
 
-import com.jjeong.kiwi.domain.Chat;
-import com.jjeong.kiwi.domain.ChatRoom;
+import com.jjeong.kiwi.model.Chat;
+import com.jjeong.kiwi.model.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

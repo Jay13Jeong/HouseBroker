@@ -1,9 +1,12 @@
 package com.jjeong.kiwi.config;
 
-import com.jjeong.kiwi.domain.StompPrincipal;
+import com.jjeong.kiwi.dto.StompPrincipal;
+import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.SocketService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
@@ -18,10 +21,10 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
 
     private final UserService userService;
     private final SocketService socketService;
+    private static final Logger logger = LoggerFactory.getLogger(CustomHandshakeHandler.class);
 
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-//        System.out.println("@@@@@@ determineUser start");
         // JWT 토큰을 헤더에서 추출하고 유저 ID를 얻어옵니다.
         List<String> cookieHeaders = request.getHeaders().get("Cookie");
         String userPrincipalId = UUID.randomUUID().toString();
@@ -31,19 +34,17 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                 for (String cookie : cookies) {
                     String[] parts = cookie.trim().split("=");
                     if (parts.length == 2 && "jwt".equals(parts[0])) {
-//                        System.out.println("^^^^^^^^^^^ determineUser ^^^^^^^^^^^^^^^^^");
                         String jwtValue = parts[1];
                         long userPk = -1;
                         try {
                             userPk = userService.getUserPrimaryKeyByJwt(jwtValue);
                             if (userService.getUserById(userPk).isDormant()) break; //휴면 검사.
-                        }catch (Exception e){ break; }
+                        }catch (Exception e){
+                            logger.error("determineUser", e);
+                            break;
+                        }
                         String clientIp = request.getRemoteAddress().getHostString();
                         socketService.addSocketAndUserIp(userPrincipalId,clientIp);
-//                        attributes.put("ip", clientIp);
-//                        System.out.println("$$$$$$$$$$ " + clientIp);
-//                        userPrincipalId = String.valueOf(userPk);
-//                        attributes.put("jwt", jwtValue);
                         attributes.put("session-id", userPrincipalId);
                         socketService.addSocketAndUserPkMap(userPrincipalId,userPk);
                         socketService.addUserPkAndSocketMap(userPk, userPrincipalId);
@@ -53,7 +54,6 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
             }
         }
         // Principal 객체에 유저 ID 저장
-//        System.out.println("@@@@@@ determineUser " + userPrincipalId);
         return new StompPrincipal(userPrincipalId);
     }
 

@@ -1,18 +1,19 @@
 package com.jjeong.kiwi.controller;
 
-import com.jjeong.kiwi.domain.RealEstate;
-import com.jjeong.kiwi.domain.RealEstateDto;
-import com.jjeong.kiwi.repository.UserRepository;
+import com.jjeong.kiwi.config.CustomHandshakeHandler;
+import com.jjeong.kiwi.model.RealEstate;
+import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.service.RealEstateService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ public class RealEstateController {
     private final RealEstateService realEstateService;
     private final UserService userService;
     private final int allowLevel = 10;
+    private static final Logger logger = LoggerFactory.getLogger(RealEstateController.class);
 
     @GetMapping("/")
     public List<RealEstate> getRealEstates(Model model) {
@@ -52,6 +54,7 @@ public class RealEstateController {
 
             return ResponseEntity.ok().headers(headers).body(resource);
         } catch (IOException e) {
+            logger.error("getRealEstateImage", e);
             return ResponseEntity.notFound().build();
         }
     }
@@ -65,6 +68,7 @@ public class RealEstateController {
             Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
             return ResponseEntity.ok(realEstateId.toString());
         } catch (Exception e) {
+            logger.error("createRealEstate", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
         }
     }
@@ -95,6 +99,7 @@ public class RealEstateController {
             this.realEstateService.modifyRealEstate(id, realEstateDto);
             return ResponseEntity.ok("부동산이 수정되었습니다.");
         } catch ( Exception e) {
+            logger.error("updateRealEstate", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
         }
     }
@@ -108,6 +113,7 @@ public class RealEstateController {
             this.realEstateService.modifySequence(id);
             return ResponseEntity.ok("부동산이 순서가 수정되었습니다.");
         } catch ( Exception e) {
+            logger.error("updateSequence", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("부동산 순서 Failed");
         }
     }
@@ -123,6 +129,7 @@ public class RealEstateController {
             this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
             return ResponseEntity.ok("거래여부가 수정되었습니다.");
         } catch ( Exception e) {
+            logger.error("updateRealEstateIsSoldOut", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
         }
     }

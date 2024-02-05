@@ -1,12 +1,14 @@
 package com.jjeong.kiwi.service;
 
-import com.jjeong.kiwi.domain.Password;
-import com.jjeong.kiwi.domain.SignupRequest;
-import com.jjeong.kiwi.domain.User;
-import com.jjeong.kiwi.domain.UserDto;
+import com.jjeong.kiwi.model.Password;
+import com.jjeong.kiwi.dto.SignupRequest;
+import com.jjeong.kiwi.model.User;
+import com.jjeong.kiwi.dto.UserDto;
 import com.jjeong.kiwi.repository.PasswordRepository;
 import com.jjeong.kiwi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,7 @@ public class UserService {
     private final AuthService authService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final Set<String> adminEmails = new HashSet<>(Arrays.asList(System.getenv("ADMIN_EMAIL").split(",")));
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -40,8 +43,6 @@ public class UserService {
             pwd.setEmail(signupRequest.getEmail());
             pwd.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         }
-//        user.setConnectCount(0);
-//        user.setSocketId("");
         if ((!signupRequest.getEmail().isEmpty()) && (signupRequest.getEmail() != null) &&
                 adminEmails.contains(signupRequest.getEmail()) == true) {
             user.setPermitLevel(10);
@@ -51,6 +52,7 @@ public class UserService {
             if (isNomalSignup && pwd != null) passwordRepository.save(pwd);
             return true;
         } catch (Exception e) {
+            logger.error("createUser", e);
             return false;
         }
     }
@@ -120,8 +122,10 @@ public class UserService {
 
         id = Long.parseLong(payload.substring(startIndex, endIndex));
 
-        if (id == 0)
-            throw new RuntimeException("user not found");
+        if (id == 0) {
+            logger.error("getUserPrimaryKeyByJwt:user not found");
+            throw new RuntimeException();
+        }
         return  id;
     }
 
@@ -156,7 +160,8 @@ public class UserService {
                 }
             }
         } else {
-            throw new RuntimeException("user not found");
+            logger.error("getParsedToken:user not found");
+            throw new RuntimeException();
         }
 
         return token;
@@ -185,6 +190,7 @@ public class UserService {
             if (!passwordEncoder.matches(signupRequest.getPassword(), pwd.getPassword())) return null;
             return userRepository.findByEmail(signupRequest.getEmail());
         } catch (Exception e){
+            logger.error("getUserByEmailAndPwd", e);
             return null;
         }
     }

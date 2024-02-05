@@ -2,15 +2,17 @@ package com.jjeong.kiwi.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jjeong.kiwi.domain.SignupRequest;
-import com.jjeong.kiwi.domain.User;
-import com.jjeong.kiwi.domain.UserInfoResponse;
+import com.jjeong.kiwi.dto.SignupRequest;
+import com.jjeong.kiwi.model.User;
+import com.jjeong.kiwi.dto.UserInfoResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,7 +25,6 @@ import org.springframework.web.client.RestTemplate;
 import javax.crypto.SecretKey;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,6 +38,7 @@ public class AuthService {
     private static final String TOKEN_SERVER_URL = "https://oauth2.googleapis.com/token";
     private static final String REDIRECT_URI = System.getenv("GOOGLE_AUTH_CALLBACK_URL");
     private static final String CONFIRM_MAIL_TITLE = System.getenv("CONFIRM_MAIL_TITLE");
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private static final Map<String, List> emailAuthList = new HashMap<>();
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -51,8 +53,6 @@ public class AuthService {
         String authId = user.getAuthid();
         String name = user.getUsername();
 
-//        System.out.println("generateToken ===========");
-//        System.out.println(user);
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("authId", authId);
         claims.put("name", name);
@@ -90,7 +90,6 @@ public class AuthService {
         params.add("redirect_uri", redirectUri);
         params.add("grant_type", grantType);
 
-//        System.out.println("InfoByCode part 1 =======");
 
         // access token 요청
         RestTemplate restTemplate = new RestTemplate();
@@ -99,14 +98,9 @@ public class AuthService {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(params, headers);
         ResponseEntity<String> responseEntity = restTemplate.exchange(accessTokenUrl, HttpMethod.POST, requestEntity, String.class);
 
-//        System.out.println(responseEntity.getBody());
-//        System.out.println("InfoByCode part 2 =======");
-
         // access token과 함께 이메일 및 아이디 가져오기
         String accessToken = responseEntity.getBody();
         User user = this.getUserInfo(accessToken);
-
-//        System.out.println("InfoByCode part 3 =======");
 
         return user;
     }
@@ -123,6 +117,7 @@ public class AuthService {
             JsonNode jsonNode = objectMapper.readTree(accessToken);
             accessTokenValue = jsonNode.get("access_token").asText();
         } catch (Exception e) {
+            logger.error("getUserInfo", e);
             throw new RuntimeException();
         }
 
@@ -132,9 +127,6 @@ public class AuthService {
         }
 
         headers.setBearerAuth(accessTokenValue);
-
-//        System.out.println("EmailAndUserId part 1 =======");
-//        System.out.println(headers);
 
         // 이메일 및 아이디 요청
         RestTemplate restTemplate = new RestTemplate();
@@ -146,10 +138,6 @@ public class AuthService {
                 UserInfoResponse.class
         );
         UserInfoResponse userInfoResponse = responseEntity.getBody();
-
-//        System.out.println("EmailAndUserId part 2 =======");
-//        System.out.println(responseEntity.getBody());
-
 
         User user = new User();
         user.setAuthid(userInfoResponse.getId());
@@ -177,7 +165,7 @@ public class AuthService {
             javaMailSender.send(message);
             return true;
         } catch (MessagingException e) {
-            e.printStackTrace();
+            logger.error("sendConfirmMail", e);
             return false;
         }
     }
@@ -199,7 +187,7 @@ public class AuthService {
                 return false;
             }
         } catch (Exception e){
-            e.printStackTrace();
+            logger.error("confirmEmail", e);
             return false;
         }
         return true;
@@ -220,6 +208,7 @@ public class AuthService {
                     emailAuthList.remove(key);
                 }
             } catch (Exception e){
+                logger.error("removeOldEmailcode", e);
                 emailAuthList.remove((key));
             }
         }
