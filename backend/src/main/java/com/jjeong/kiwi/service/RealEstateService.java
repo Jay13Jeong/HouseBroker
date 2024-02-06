@@ -43,10 +43,19 @@ public class RealEstateService {
     }
 
     public RealEstate createRealEstate(RealEstateDto realEstateDto) throws IOException {
-        if (this.checkMimeType(realEstateDto) == false){
-            logger.error("허용하지않은 이미지 Mime파일");
+        if (!checkMimeType(realEstateDto)) {
+            logger.error("허용하지 않은 이미지 Mime 파일");
             throw new RuntimeException();
         }
+
+        RealEstate realEstate = mapDtoToEntity(realEstateDto);
+        List<String> images = uploadImages(realEstateDto);
+        setImagesAndSlotState(realEstate, images);
+
+        return realEstateRepository.save(realEstate);
+    }
+
+    private RealEstate mapDtoToEntity(RealEstateDto realEstateDto) {
         RealEstate realEstate = new RealEstate();
         realEstate.setTitle(realEstateDto.getTitle());
         realEstate.setDescription(realEstateDto.getDescription());
@@ -64,51 +73,64 @@ public class RealEstateService {
         realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
         realEstate.setLatitude(realEstateDto.getLatitude());
         realEstate.setLongitude(realEstateDto.getLongitude());
-        List<Integer> newImgSlotState = new ArrayList<>();
-        if (realEstateDto.getImage() != null){
-            newImgSlotState.add(1);
-            realEstate.setImage(uploadImage(realEstateDto.getImage()));
-        } else realEstate.setImage(NO_IMG);
-        if (realEstateDto.getImage2() != null){
-            newImgSlotState.add(2);
-            realEstate.setImage2(uploadImage(realEstateDto.getImage2()));
-        } else realEstate.setImage2(NO_IMG);
-        if (realEstateDto.getImage3() != null){
-            newImgSlotState.add(3);
-            realEstate.setImage3(uploadImage(realEstateDto.getImage3()));
-        } else realEstate.setImage3(NO_IMG);
-        if (realEstateDto.getImage4() != null){
-            newImgSlotState.add(4);
-            realEstate.setImage4(uploadImage(realEstateDto.getImage4()));
-        } else realEstate.setImage4(NO_IMG);
-        if (realEstateDto.getImage5() != null){
-            newImgSlotState.add(5);
-            realEstate.setImage5(uploadImage(realEstateDto.getImage5()));
-        } else realEstate.setImage5(NO_IMG);
-        if (realEstateDto.getImage6() != null){
-            newImgSlotState.add(6);
-            realEstate.setImage6(uploadImage(realEstateDto.getImage6()));
-        } else realEstate.setImage6(NO_IMG);
-        if (realEstateDto.getImage7() != null){
-            newImgSlotState.add(7);
-            realEstate.setImage7(uploadImage(realEstateDto.getImage7()));
-        } else realEstate.setImage7(NO_IMG);
-        if (realEstateDto.getImage8() != null){
-            newImgSlotState.add(8);
-            realEstate.setImage8(uploadImage(realEstateDto.getImage8()));
-        } else realEstate.setImage8(NO_IMG);
-        if (realEstateDto.getImage9() != null){
-            newImgSlotState.add(9);
-            realEstate.setImage9(uploadImage(realEstateDto.getImage9()));
-        } else realEstate.setImage9(NO_IMG);
-        if (realEstateDto.getImage10() != null){
-            newImgSlotState.add(10);
-            realEstate.setImage10(uploadImage(realEstateDto.getImage10()));
-        } else realEstate.setImage10(NO_IMG);
-        realEstate.setImageSlotState(newImgSlotState);
-        return realEstateRepository.save(realEstate);
+
+        return realEstate;
     }
 
+    private List<String> uploadImages(RealEstateDto realEstateDto) throws IOException {
+        List<String> images = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            MultipartFile image = getImageByIndex(realEstateDto, i);
+            if (image != null) {
+                images.add(uploadImage(image));
+            } else {
+                images.add(NO_IMG);
+            }
+        }
+        return images;
+    }
+
+    private MultipartFile getImageByIndex(RealEstateDto realEstateDto, int index) {
+        switch (index) {
+            case 1: return realEstateDto.getImage();
+            case 2: return realEstateDto.getImage2();
+            case 3: return realEstateDto.getImage3();
+            case 4: return realEstateDto.getImage4();
+            case 5: return realEstateDto.getImage5();
+            case 6: return realEstateDto.getImage6();
+            case 7: return realEstateDto.getImage7();
+            case 8: return realEstateDto.getImage8();
+            case 9: return realEstateDto.getImage9();
+            case 10: return realEstateDto.getImage10();
+            default: return null;
+        }
+    }
+
+    private void setImagesAndSlotState(RealEstate realEstate, List<String> images) {
+        List<Integer> imageSlotState = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            if (!NO_IMG.equals(images.get(i - 1))) {
+                imageSlotState.add(i);
+            }
+            setRealEstateImageByIndex(realEstate, i, images.get(i - 1));
+        }
+        realEstate.setImageSlotState(imageSlotState);
+    }
+
+    private void setRealEstateImageByIndex(RealEstate realEstate, int index, String imageName) {
+        switch (index) {
+            case 1: realEstate.setImage(imageName); break;
+            case 2: realEstate.setImage2(imageName); break;
+            case 3: realEstate.setImage3(imageName); break;
+            case 4: realEstate.setImage4(imageName); break;
+            case 5: realEstate.setImage5(imageName); break;
+            case 6: realEstate.setImage6(imageName); break;
+            case 7: realEstate.setImage7(imageName); break;
+            case 8: realEstate.setImage8(imageName); break;
+            case 9: realEstate.setImage9(imageName); break;
+            case 10: realEstate.setImage10(imageName); break;
+        }
+    }
 
     public void deleteRealEstate(Long id) {
         RealEstate realEstate = this.getRealEstateById(id);
