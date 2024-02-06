@@ -1,5 +1,9 @@
 package com.jjeong.kiwi.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jjeong.kiwi.dto.ChatDto;
+import com.jjeong.kiwi.dto.ChatRoomDto;
 import com.jjeong.kiwi.model.Chat;
 import com.jjeong.kiwi.model.ChatRoom;
 import com.jjeong.kiwi.model.User;
@@ -9,9 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -21,6 +28,7 @@ public class SocketService {
     private static final Map<Long, Set<String>> userPkAndSocketMap = new HashMap<>();
     private static final Map<String, String> socketAndUserIp = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(SocketService.class);
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final UserService userService;
 
@@ -28,23 +36,53 @@ public class SocketService {
 
     private final ChatRepository chatRepository;
 
-    public void addSocketAndUserPkMap(String socketId, Long userPk){
+    @Async
+    public synchronized void putToSocketAndUserPkMap(String socketId, Long userPk){
         socketAndUserPkMap.put(socketId, userPk);
+    }
+
+    @Async
+    public synchronized void delToSocketAndUserPkMap(String socketId){
+        socketAndUserPkMap.remove(socketId);
+    }
+
+    @Async
+    public synchronized void putToSocketAndUserIp(String socketId, String ip){
+        socketAndUserIp.put(socketId, ip);
+    }
+
+    @Async
+    public synchronized void delToSocketAndUserIp(String socketId){
+        socketAndUserIp.remove(socketId);
+    }
+
+    @Async
+    public synchronized void putToUserPkAndSocketMap(Long userPk, Set<String> socketIds){
+        userPkAndSocketMap.put(userPk, socketIds);
+    }
+
+    @Async
+    public synchronized void delToUserPkAndSocketMap(Long userPk){
+        userPkAndSocketMap.remove(userPk);
+    }
+
+    public void addSocketAndUserPkMap(String socketId, Long userPk){
+        this.putToSocketAndUserPkMap(socketId, userPk);
         this.addUserPkAndSocketMap(userPk,socketId);
     }
 
     public void delSocketAndUserPkMap(String socketId){
         Long userPk = this.getUserPkBySocketId(socketId);
         if (userPk != -1L) this.delUserPkAndSocketMap(userPk, socketId);
-        socketAndUserPkMap.remove(socketId);
+        this.delToSocketAndUserPkMap(socketId);
     }
 
     public void addSocketAndUserIp(String socketId, String ip){
-        socketAndUserIp.put(socketId, ip);
+        this.putToSocketAndUserIp(socketId, ip);
     }
 
     public void delSocketAndUserIp(String socketId){
-        socketAndUserIp.remove(socketId);
+        this.delToSocketAndUserIp(socketId);
     }
 
     public String getIpBySocketId(String socketId){
@@ -70,25 +108,25 @@ public class SocketService {
         try{
             tmp = userPkAndSocketMap.get(userPk);
             tmp.add(socketId);
-            userPkAndSocketMap.put(userPk, tmp);
+            this.putToUserPkAndSocketMap(userPk, tmp);
         }catch (Exception e){
             logger.error("addUserPkAndSocketMap", e);
             tmp = new HashSet<>();
             tmp.add(socketId);
-            userPkAndSocketMap.put(userPk, tmp);
+            this.putToUserPkAndSocketMap(userPk, tmp);
         }
     }
 
     public  void delUserPkAndSocketMap(Long userPk, String socketId){
         Set<String> tmp = null;
         try{
-            tmp = userPkAndSocketMap.get(userPk);
+            tmp = userPkAndSocketMap.get(userPk); // 얕은 복사처리.
             if (tmp.size() <= 1) {
-                userPkAndSocketMap.remove(userPk);
+                this.delToUserPkAndSocketMap(userPk);
                 return;
             }
             tmp.remove(socketId);
-            userPkAndSocketMap.put(userPk, tmp);
+            this.putToUserPkAndSocketMap(userPk, tmp);
         }catch (Exception e){
             logger.error("fail:delUserPkAndSocketMap", e);
         }
@@ -229,5 +267,34 @@ public class SocketService {
 
     public void deleteChatRoom(Long roomId) {
         chatRoomRepository.deleteById(roomId);
+    }
+
+    public String convertChat2ChatJson(Chat chat) throws JsonProcessingException {
+        ChatDto chatDto = new ChatDto();
+        ChatRoomDto chatRoomDto = new ChatRoomDto();
+        chatRoomDto.setId(chat.getChatRoom().getId());
+        chatDto.setChatRoom(chatRoomDto);
+        chatDto.setId(chat.getId());
+        chatDto.setMessage(chat.getMessage());
+        User sender = chat.getSender();
+        User recver = chat.getReceiver();
+        if (sender != null) sender.setChatRooms(null);
+        if (recver != null) recver.setChatRooms(null);
+        chatDto.setSender(sender);
+        chatDto.setReceiver(recver);
+        chatDto.setTimestamp(chat.getTimestamp());
+
+        return objectMapper.writeValueAsString(chatDto);
+    }
+
+    public boolean checkSender(Principal principal, SimpMessagingTemplate messagingTemplate) throws JsonProcessingException {
+        if (this.getUserPkBySocketId(principal.getName()) == null){
+            ChatDto chatDto = new ChatDto();
+            chatDto.setMessage("로그인 후 가능합니다.");
+            String chatJson = objectMapper.writeValueAsString(chatDto);
+            messagingTemplate.convertAndSendToUser(principal.getName(), "/topic/message", chatJson);
+            return false;
+        }
+        return true;
     }
 }

@@ -33,7 +33,6 @@ public class SocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final SocketService socketService;
     private final UserService userService;
-    private final static ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger logger = LoggerFactory.getLogger(SocketController.class);
 
     @MessageMapping("/hello")
@@ -48,7 +47,7 @@ public class SocketController {
             @DestinationVariable Long roomId,
             Principal principal,
             String message) throws JsonProcessingException {
-        if (!this.checkSender(principal)) return;
+        if (!socketService.checkSender(principal, messagingTemplate)) return;
         String clientIp = this.getClientIp(principal.getName());
         ChatRoom chatRoom = socketService.loadChatRoomById(roomId);
         if (chatRoom == null) {
@@ -67,7 +66,7 @@ public class SocketController {
             Set<String> socketSet = socketService.getSocketSetByUserPk(recver.getId());
             if (socketSet == null) continue;
             chat.setReceiver(recver);
-            String chatJson = convertChat2ChatJson(chat);
+            String chatJson = socketService.convertChat2ChatJson(chat);
             for (String target : socketSet){
                 messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
             }
@@ -83,7 +82,7 @@ public class SocketController {
             Principal principal,
             String message,
             MessageHeaders headers) throws JsonProcessingException {
-        if (!this.checkSender(principal)) return;
+        if (!socketService.checkSender(principal, messagingTemplate)) return;
         System.out.println(headers.toString());
         String clientIp = this.getClientIp(principal.getName());
         Long senderId = socketService.getUserPkBySocketId(principal.getName());
@@ -110,40 +109,11 @@ public class SocketController {
             if (socketSet == null)
                 continue;
             chat.setReceiver(recver);
-            String chatJson = convertChat2ChatJson(chat);
+            String chatJson = socketService.convertChat2ChatJson(chat);
             for (String target : socketSet){
                 messagingTemplate.convertAndSendToUser(target, "/topic/message", chatJson);
             }
         }
-    }
-
-    private String convertChat2ChatJson(Chat chat) throws JsonProcessingException {
-        ChatDto chatDto = new ChatDto();
-        ChatRoomDto chatRoomDto = new ChatRoomDto();
-        chatRoomDto.setId(chat.getChatRoom().getId());
-        chatDto.setChatRoom(chatRoomDto);
-        chatDto.setId(chat.getId());
-        chatDto.setMessage(chat.getMessage());
-        User sender = chat.getSender();
-        User recver = chat.getReceiver();
-        if (sender != null) sender.setChatRooms(null);
-        if (recver != null) recver.setChatRooms(null);
-        chatDto.setSender(sender);
-        chatDto.setReceiver(recver);
-        chatDto.setTimestamp(chat.getTimestamp());
-
-        return objectMapper.writeValueAsString(chatDto);
-    }
-
-    private boolean checkSender(Principal principal) throws JsonProcessingException {
-        if (socketService.getUserPkBySocketId(principal.getName()) == null){
-            ChatDto chatDto = new ChatDto();
-            chatDto.setMessage("로그인 후 가능합니다.");
-            String chatJson = objectMapper.writeValueAsString(chatDto);
-            messagingTemplate.convertAndSendToUser(principal.getName(), "/topic/message", chatJson);
-            return false;
-        }
-        return true;
     }
 
     @GetMapping("/chat/{roomId}")

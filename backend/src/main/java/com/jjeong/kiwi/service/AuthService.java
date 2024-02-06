@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,8 +26,13 @@ import org.springframework.web.client.RestTemplate;
 import javax.crypto.SecretKey;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +44,8 @@ public class AuthService {
     private static final String TOKEN_SERVER_URL = "https://oauth2.googleapis.com/token";
     private static final String REDIRECT_URI = System.getenv("GOOGLE_AUTH_CALLBACK_URL");
     private static final String CONFIRM_MAIL_TITLE = System.getenv("CONFIRM_MAIL_TITLE");
+    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private static final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private static final Map<String, List> emailAuthList = new HashMap<>();
@@ -157,7 +165,7 @@ public class AuthService {
 //        Date parsedDate = sdf.parse(dateStr);
         codeAndCreateTime.add(code);
         codeAndCreateTime.add(createTime);
-        emailAuthList.put(email, codeAndCreateTime);
+        this.putToEmailAuthList(email, codeAndCreateTime);
         try {
             helper.setTo(email);
             helper.setSubject(CONFIRM_MAIL_TITLE);
@@ -180,7 +188,7 @@ public class AuthService {
             long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
             long minutesDifference = timeDifferenceMillis / (60 * 1000);
             if (minutesDifference >= 5) { //5분경과하면 실패.
-                emailAuthList.remove(signupRequest.getEmail());
+                this.delToEmailAuthList(signupRequest.getEmail());
                 return false;
             }
             if (!code.equals(signupRequest.getEmailcode()) ){
@@ -193,8 +201,31 @@ public class AuthService {
         return true;
     }
 
+    public boolean emailValidate(final String email) {
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
+    public void responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
+
+        // JWT 생성 및 설정
+        String token = this.generateToken( (User) request.getAttribute("user") );
+
+        // JWT cookie
+        Cookie jwtCookie = new Cookie("jwt", token);
+        jwtCookie.setPath("/");
+        jwtCookie.setMaxAge(24 * 60 * 60); // 쿠키 만료시간
+        jwtCookie.setSecure(true);
+        jwtCookie.setHttpOnly(true);
+        response.addCookie(jwtCookie);
+
+        // 리다이렉트 설정
+        response.setStatus(HttpServletResponse.SC_FOUND);
+        response.setHeader("Location", "/auth/callback");
+    }
+
     @Scheduled(fixedRate = 60000) // 60 seconds
-    private void removeOldEmailcode() {
+    private void removeOldEmailCode() {
         Date currentDate = new Date();
         for (Map.Entry<String, List> entry : emailAuthList.entrySet()) {
             String key = entry.getKey();
@@ -205,12 +236,22 @@ public class AuthService {
                 long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
                 long minutesDifference = timeDifferenceMillis / (60 * 1000);
                 if (minutesDifference >= 5) { //5분경과하면 제거.
-                    emailAuthList.remove(key);
+                    this.delToEmailAuthList(key);
                 }
             } catch (Exception e){
-                logger.error("removeOldEmailcode", e);
-                emailAuthList.remove((key));
+                logger.error("removeOldEmailCode", e);
+                this.delToEmailAuthList(key);
             }
         }
+    }
+
+    @Async
+    public synchronized void putToEmailAuthList(String email, List<String> codeAndCreateTime){
+        emailAuthList.put(email, codeAndCreateTime);
+    }
+
+    @Async
+    public synchronized void delToEmailAuthList(String key){
+        emailAuthList.remove(key);
     }
 }

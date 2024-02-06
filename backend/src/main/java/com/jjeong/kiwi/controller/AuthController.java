@@ -11,11 +11,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,9 +21,6 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
-
-    private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-    private static final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
 
     private static final String SECRET_KEY = System.getenv("JWTKEY");
 
@@ -55,7 +49,7 @@ public class AuthController {
         // 요청에 사용자 객체를 추가합니다.
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         request.setAttribute("user", user);
-        this.responseWithJWT(response, request);
+        authService.responseWithJWT(response, request);
     }
 
     @GetMapping("/logout")
@@ -73,14 +67,14 @@ public class AuthController {
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         request.setAttribute("user", user);
-        this.responseWithJWT(response, request);
+        authService.responseWithJWT(response, request);
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
     @PostMapping("/email/code")
     public void sendConfirmMail(@RequestBody SignupRequest signupRequest, HttpServletResponse response) {
         String email = signupRequest.getEmail();
-        if (!emailValidate(email)){
+        if (!authService.emailValidate(email)){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -95,26 +89,5 @@ public class AuthController {
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
-    private boolean emailValidate(final String email) {
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
 
-    private void responseWithJWT(HttpServletResponse response, HttpServletRequest request) {
-
-        // JWT 생성 및 설정
-        String token = authService.generateToken( (User) request.getAttribute("user") );
-
-        // JWT cookie
-        Cookie jwtCookie = new Cookie("jwt", token);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(24 * 60 * 60); // 쿠키 만료시간
-        jwtCookie.setSecure(true);
-        jwtCookie.setHttpOnly(true);
-        response.addCookie(jwtCookie);
-
-        // 리다이렉트 설정
-        response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", "/auth/callback");
-    }
 }
