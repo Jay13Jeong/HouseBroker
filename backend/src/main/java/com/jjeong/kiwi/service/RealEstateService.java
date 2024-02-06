@@ -196,163 +196,94 @@ public class RealEstateService {
     }
 
     public void modifyRealEstate(Long id, RealEstateDto realEstateDto) throws IOException {
-        if (this.checkMimeType(realEstateDto) == false)
+        if (!checkMimeType(realEstateDto)) {
             throw new IOException("허용하지않은 이미지 Mime파일");
+        }
         // 해당 ID를 가진 부동산 가져오기
-        RealEstate realEstate = this.getRealEstateById(id);
+        RealEstate realEstate = getRealEstateById(id);
         if (realEstate == null) {
             throw new IOException("게시글 id로 찾기 실패");
         }
+
+        // 부동산 이미지 정보 업데이트
+        updateImages(realEstate, realEstateDto);
         // 부동산 정보 업데이트
-        if (!(realEstateDto.getImage() == null)) {
-            //기존 이미지 삭제 및 새로운 이미지 저장.
-            File file = new File(uploadPath + realEstate.getImage());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage().isEmpty() || realEstateDto.getImage().getSize() == 0)){
-                realEstate.setImage(uploadImage(realEstateDto.getImage()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),1,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),1,false));
-            }
+        realEstate.setTitle(realEstateDto.getTitle());
+        realEstate.setDescription(realEstateDto.getDescription());
+        realEstate.setPrice(realEstateDto.getPrice());
+        realEstate.setRelay_object_type(realEstateDto.getRelay_object_type());
+        realEstate.setLocation(realEstateDto.getLocation());
+        realEstate.setArea(realEstateDto.getArea());
+        realEstate.setTransaction_type(realEstateDto.getTransaction_type());
+        realEstate.setResidence_availability_date(realEstateDto.getResidence_availability_date());
+        realEstate.setAdministrative_agency_approval_date(realEstateDto.getAdministrative_agency_approval_date());
+        realEstate.setNumber_of_cars_parked(realEstateDto.getNumber_of_cars_parked());
+        realEstate.setDirection(realEstateDto.getDirection());
+        realEstate.setAdministration_cost(realEstateDto.getAdministration_cost());
+        realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
+        realEstate.setLatitude(realEstateDto.getLatitude());
+        realEstate.setLongitude(realEstateDto.getLongitude());
 
-
-        }
-        if (!(realEstateDto.getImage2() == null)) {
-            File file = new File(uploadPath + realEstate.getImage2());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage2().isEmpty() || realEstateDto.getImage2().getSize() == 0)){
-                realEstate.setImage2(uploadImage(realEstateDto.getImage2()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),2,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),2,false));
-            }
-        }
-        if (!(realEstateDto.getImage3() == null)) {
-            File file = new File(uploadPath + realEstate.getImage3());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage3().isEmpty() || realEstateDto.getImage3().getSize() == 0)){
-                realEstate.setImage3(uploadImage(realEstateDto.getImage3()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),3,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),3,false));
-            }
-        }
-        if (!(realEstateDto.getImage4() == null)) {
-            File file = new File(uploadPath + realEstate.getImage4());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage4().isEmpty() || realEstateDto.getImage4().getSize() == 0)){
-                realEstate.setImage4(uploadImage(realEstateDto.getImage4()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),4,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),4,false));
-            }
-        }
-        if (!(realEstateDto.getImage5() == null)) {
-            File file = new File(uploadPath + realEstate.getImage5());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage5().isEmpty() || realEstateDto.getImage5().getSize() == 0)){
-                realEstate.setImage5(uploadImage(realEstateDto.getImage5()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),5,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),5,false));
-            }
-        }
-        if (!(realEstateDto.getImage6() == null)) {
-            File file = new File(uploadPath + realEstate.getImage6());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage6().isEmpty() || realEstateDto.getImage6().getSize() == 0)){
-                realEstate.setImage6(uploadImage(realEstateDto.getImage6()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),6,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),6,false));
-            }
-        }
-        if (!(realEstateDto.getImage7() == null)) {
-            File file = new File(uploadPath + realEstate.getImage7());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage7().isEmpty() || realEstateDto.getImage7().getSize() == 0)){
-                realEstate.setImage7(uploadImage(realEstateDto.getImage7()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),7,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),7,false));
-            }
-        }
-        if (!(realEstateDto.getImage8() == null)) {
-            File file = new File(uploadPath + realEstate.getImage8());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage8().isEmpty() || realEstateDto.getImage8().getSize() == 0)){
-                realEstate.setImage8(uploadImage(realEstateDto.getImage8()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),8,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),8,false));
-            }
-        }
-        if (!(realEstateDto.getImage9() == null)) {
-            File file = new File(uploadPath + realEstate.getImage9());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage9().isEmpty() || realEstateDto.getImage9().getSize() == 0)){
-                realEstate.setImage9(uploadImage(realEstateDto.getImage9()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),9,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),9,false));
-            }
-        }
-        if (!(realEstateDto.getImage10() == null)) {
-            File file = new File(uploadPath + realEstate.getImage10());
-            if (file.exists()) file.delete();
-            if (!(realEstateDto.getImage10().isEmpty() || realEstateDto.getImage10().getSize() == 0)){
-                realEstate.setImage10(uploadImage(realEstateDto.getImage10()));
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),10,true));
-            }else{
-                realEstate.setImageSlotState(this.imgSlotManager(realEstate.getImageSlotState(),10,false));
-            }
-        }
-        if (!(realEstateDto.getTitle() == null)) {
-            realEstate.setTitle(realEstateDto.getTitle());
-        }
-        if (!(realEstateDto.getDescription() == null)) {
-            realEstate.setDescription(realEstateDto.getDescription());
-        }
-        if (!(realEstateDto.getPrice() == null)) {
-            realEstate.setPrice(realEstateDto.getPrice());
-        }
-        if (!(realEstateDto.getRelay_object_type() == null)) {
-            realEstate.setRelay_object_type(realEstateDto.getRelay_object_type());
-        }
-        if (!(realEstateDto.getLocation() == null)) {
-            realEstate.setLocation(realEstateDto.getLocation());
-        }
-        if (!(realEstateDto.getArea() == null)) {
-            realEstate.setArea(realEstateDto.getArea());
-        }
-        if (!(realEstateDto.getTransaction_type() == null)) {
-            realEstate.setTransaction_type(realEstateDto.getTransaction_type());
-        }
-        if (!(realEstateDto.getResidence_availability_date() == null)) {
-            realEstate.setResidence_availability_date(realEstateDto.getResidence_availability_date());
-        }
-        if (!(realEstateDto.getAdministrative_agency_approval_date() == null)) {
-            realEstate.setAdministrative_agency_approval_date(realEstateDto.getAdministrative_agency_approval_date());
-        }
-        if (!(realEstateDto.getNumber_of_cars_parked() == null)) {
-            realEstate.setNumber_of_cars_parked(realEstateDto.getNumber_of_cars_parked());
-        }
-        if (!(realEstateDto.getDirection() == null)) {
-            realEstate.setDirection(realEstateDto.getDirection());
-        }
-        if (!(realEstateDto.getAdministration_cost() == null)) {
-            realEstate.setAdministration_cost(realEstateDto.getAdministration_cost());
-        }
-        if (!(realEstateDto.getAdministration_cost2() == null)) {
-            realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
-        }
-        if (!(realEstateDto.getLatitude() == null)) {
-            realEstate.setLatitude(realEstateDto.getLatitude());
-        }
-        if (!(realEstateDto.getLongitude() == null)) {
-            realEstate.setLongitude(realEstateDto.getLongitude());
-        }
         realEstateRepository.save(realEstate);
+    }
+
+    private void updateImages(RealEstate realEstate, RealEstateDto realEstateDto) throws IOException {
+        List<MultipartFile> imageList = Arrays.asList(
+                realEstateDto.getImage(), realEstateDto.getImage2(), realEstateDto.getImage3(),
+                realEstateDto.getImage4(), realEstateDto.getImage5(), realEstateDto.getImage6(),
+                realEstateDto.getImage7(), realEstateDto.getImage8(), realEstateDto.getImage9(),
+                realEstateDto.getImage10()
+        );
+
+        for (int i = 0; i < imageList.size(); i++) {
+            MultipartFile image = imageList.get(i);
+            String existingImage = getImageByIndex(realEstate, i);
+
+            if (existingImage != null) {
+                File file = new File(uploadPath + existingImage);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+
+            if (!(image == null || image.isEmpty() || image.getSize() == 0)) {
+                setImageByIndex(realEstate, i, uploadImage(image));
+                realEstate.setImageSlotState(imgSlotManager(realEstate.getImageSlotState(), i + 1, true));
+            } else {
+                realEstate.setImageSlotState(imgSlotManager(realEstate.getImageSlotState(), i + 1, false));
+            }
+        }
+    }
+
+    private String getImageByIndex(RealEstate realEstate, int index) {
+        switch (index) {
+            case 0: return realEstate.getImage();
+            case 1: return realEstate.getImage2();
+            case 2: return realEstate.getImage3();
+            case 3: return realEstate.getImage4();
+            case 4: return realEstate.getImage5();
+            case 5: return realEstate.getImage6();
+            case 6: return realEstate.getImage7();
+            case 7: return realEstate.getImage8();
+            case 8: return realEstate.getImage9();
+            case 9: return realEstate.getImage10();
+            default: return null;
+        }
+    }
+
+    private void setImageByIndex(RealEstate realEstate, int index, String image) {
+        switch (index) {
+            case 0: realEstate.setImage(image); break;
+            case 1: realEstate.setImage2(image); break;
+            case 2: realEstate.setImage3(image); break;
+            case 3: realEstate.setImage4(image); break;
+            case 4: realEstate.setImage5(image); break;
+            case 5: realEstate.setImage6(image); break;
+            case 6: realEstate.setImage7(image); break;
+            case 7: realEstate.setImage8(image); break;
+            case 8: realEstate.setImage9(image); break;
+            case 9: realEstate.setImage10(image); break;
+        }
     }
 
     public void modifyRealEstateIsSoldOut(Long id, boolean soldout) throws IOException {
