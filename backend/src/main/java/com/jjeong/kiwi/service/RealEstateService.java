@@ -29,7 +29,7 @@ public class RealEstateService {
     private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RealEstateService.class);
 
-    static {
+    static { // 한번만 실행하도록.
         allowedMimeTypes.put("image/jpeg", true);
         allowedMimeTypes.put("image/png", true);
         allowedMimeTypes.put("image/gif", true);
