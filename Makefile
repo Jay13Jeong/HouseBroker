@@ -12,11 +12,8 @@ clean :
 	docker compose -f docker-compose.yaml down
 	rm -rf ${HOME}/kiwi_data
 
-mariadb :
+develop : dir
 	docker compose -f develop.yaml up --build 
-
-develop :
-	docker compose -f develop2.yaml up --build 
 
 fclean : clean
 	docker rmi -f $(shell docker images -a -q)
