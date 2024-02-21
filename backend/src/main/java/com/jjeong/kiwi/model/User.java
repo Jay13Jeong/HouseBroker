@@ -15,6 +15,7 @@ import java.util.Set;
 @Setter
 @RequiredArgsConstructor
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,9 +28,9 @@ public class User {
 
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
-            name = "user_chatroom",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "chatroom_id")
+        name = "user_chatroom",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "chatroom_id")
     )
     private Set<ChatRoom> chatRooms = new HashSet<>();
 

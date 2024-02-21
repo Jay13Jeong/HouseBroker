@@ -24,17 +24,17 @@ public class ChatRoom {
 
     @ManyToMany
     @JoinTable(
-            name = "chatroom_user",
-            joinColumns = @JoinColumn(name = "chatroom_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
+        name = "chatroom_user",
+        joinColumns = @JoinColumn(name = "chatroom_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> users = new HashSet<>();
 
-    public void addUser(User user){
+    public void addUser(User user) {
         this.users.add(user);
     }
 
-    public void addChat(Chat chat){
+    public void addChat(Chat chat) {
         this.chats.add(chat);
     }
 
@@ -44,5 +44,7 @@ public class ChatRoom {
         this.timestamp = new Date();
     }
 
-    public boolean haveUser(User user) { return this.users.contains(user); }
+    public boolean haveUser(User user) {
+        return this.users.contains(user);
+    }
 }

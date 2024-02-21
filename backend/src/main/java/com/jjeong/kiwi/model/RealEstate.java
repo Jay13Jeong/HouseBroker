@@ -13,7 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class RealEstate{
+public class RealEstate {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +34,7 @@ public class RealEstate{
 
     private String title;
 
-    @Column(length=5000)
+    @Column(length = 5000)
     private String description;
 
     private Long price;

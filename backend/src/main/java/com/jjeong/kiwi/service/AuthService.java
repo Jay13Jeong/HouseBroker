@@ -65,6 +65,9 @@ public class AuthService {
         claims.put("authId", authId);
         claims.put("name", name);
         claims.put("id",user.getId());
+        claims.put("email", email);
+        claims.put("permitLevel", user.getPermitLevel());
+        claims.put("dormant", user.isDormant());
 
         return Jwts.builder()
                 .setSubject(claims.toString())

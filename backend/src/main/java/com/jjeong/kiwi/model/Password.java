@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Setter
 @RequiredArgsConstructor
 public class Password {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
