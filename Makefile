@@ -4,16 +4,20 @@ all : dir
 fore : dir
 	docker compose up --build
 
+develop : dir down
+	docker compose -f develop.yaml up --build 
+
 dir :
 	mkdir -p $(HOME)/kiwi_data/upload_images
 	mkdir -p $(HOME)/kiwi_data/DB
+	mkdir -p $(HOME)/kiwi_data/DB2
 
-clean :
-	docker compose -f docker-compose.yaml down
+clean : down
 	rm -rf ${HOME}/kiwi_data
 
-develop : dir
-	docker compose -f develop.yaml up --build 
+down : 
+	docker compose -f develop.yaml down
+	docker compose -f docker-compose.yaml down
 
 fclean : clean
 	docker rmi -f $(shell docker images -a -q)
@@ -21,4 +25,4 @@ fclean : clean
 
 re : clean all
 
-.PHONY: all clean fclean re
+.PHONY: all fore develop dir down clean fclean re

@@ -10,7 +10,7 @@ services:
       MARIADB_USER:  ${DB_USER}
       MARIADB_PASSWORD:  ${DB_PASSWORD}
     ports:
-      - 3307:3306
+      - 3306:3306
     volumes:
       - type: bind
         source: $HOME/kiwi_data/DB
@@ -18,8 +18,25 @@ services:
     networks:
       - test
 
+  test_postgresql:
+    image: postgres:16.2-alpine3.19
+    restart: always
+    # shm_size: 128mb # for gui memory
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mydb
+    ports:
+      - 5432:5432
+    volumes:
+      - type: bind
+        source: $HOME/kiwi_data/DB2
+        target: /var/lib/postgresql/data
+    networks:
+      - test
+
   jaeger:
-    image: "jaegertracing/all-in-one:1.6"
+    image: jaegertracing/all-in-one:1.54
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
       - COLLECTOR_OTLP_ENABLED=true
