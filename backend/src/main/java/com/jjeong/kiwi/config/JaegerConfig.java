@@ -14,5 +14,4 @@ public class JaegerConfig {
             .withSampler(new SamplerConfiguration().withType("const").withParam(1)) // 100% 샘플링.
             .getTracer();
     }
-
 }

@@ -1,6 +1,5 @@
 package com.jjeong.kiwi.controller;
 
-import com.jjeong.kiwi.config.CustomHandshakeHandler;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.service.RealEstateService;

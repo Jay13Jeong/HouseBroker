@@ -140,13 +140,17 @@
 <!--			<artifactId>spring-boot-admin-starter-client</artifactId>-->
 <!--			<version>2.7.12</version>-->
 <!--		</dependency>-->
-		<!-- https://mvnrepository.com/artifact/io.jaegertracing/jaeger-client -->
 		<dependency>
-			<groupId>io.jaegertracing</groupId>
-			<artifactId>jaeger-client</artifactId>
-			<version>1.6.0</version>
+			<groupId>io.opentracing.contrib</groupId>
+			<artifactId>opentracing-spring-jaeger-cloud-starter</artifactId>
+			<version>3.3.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework</groupId>
+					<artifactId>spring-websocket</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-
 
 	</dependencies>
 

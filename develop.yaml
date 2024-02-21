@@ -51,6 +51,9 @@ services:
       - "14268:14268" # accept jaeger.thrift directly from clients
       - "14269:14269"
       - "9411:9411" # Zipkin compatible endpoint
+    depends_on:
+      - test_postgresql
+      - test_mariadb
     networks:
       - test
 
