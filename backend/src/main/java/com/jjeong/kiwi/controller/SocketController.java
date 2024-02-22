@@ -2,6 +2,7 @@ package com.jjeong.kiwi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jjeong.kiwi.annotaion.LoginCheck;
 import com.jjeong.kiwi.dto.ChatDto;
 import com.jjeong.kiwi.dto.ChatRoomDto;
 import com.jjeong.kiwi.model.*;
@@ -116,20 +117,10 @@ public class SocketController {
         }
     }
 
+    @LoginCheck
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<List<Chat>> getChatsByUserId(HttpServletRequest request, @PathVariable Long roomId) {
-        long myId = -1;
-        User user = null;
-
-        try {
-            myId = userService.getIdByCookies(request.getCookies());
-            user = userService.getUserById(myId);
-            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }catch (Exception e){
-            logger.error("getChatsByUserId", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        return new ResponseEntity<List<Chat>>(socketService.getChatsByRoomId(roomId), HttpStatus.OK);
+    public ResponseEntity<List<Chat>> getChatsByUserId(@PathVariable Long roomId) {
+        return new ResponseEntity<>(socketService.getChatsByRoomId(roomId), HttpStatus.OK);
     }
 
     @GetMapping("/chat/general")
@@ -164,18 +155,9 @@ public class SocketController {
         return new ResponseEntity<List<ChatRoom>>(socketService.getChatRooms(myId), HttpStatus.OK);
     }
 
+    @LoginCheck
     @DeleteMapping("/chatroom/delete/{roomId}")
     public ResponseEntity<String> deleteChatRoom(HttpServletRequest request,@PathVariable Long roomId) {
-        long myId = -1;
-        User user = null;
-        try {
-            myId = userService.getIdByCookies(request.getCookies());
-            user = userService.getUserById(myId);
-            if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }catch (Exception e){
-            logger.error("deleteChatRoom", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
         socketService.deleteChatRoom(roomId);
         return ResponseEntity.ok("채팅방 해산 성공");
     }

@@ -41,6 +41,7 @@ services:
       SERVER_HOST: ${SERVER_HOST}
       DOMAIN: ${DOMAIN}
       UPLOAD_DIR: "/uploadImages/" #volumes랑 의존됨.
+      ADMIN_LEVEL: ${ADMIN_LEVEL}
     volumes:
       - type: bind
         source: ./backend/src

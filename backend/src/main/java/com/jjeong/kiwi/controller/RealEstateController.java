@@ -1,9 +1,9 @@
 package com.jjeong.kiwi.controller;
 
+import com.jjeong.kiwi.annotaion.PermitCheck;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.service.RealEstateService;
-import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.io.Resource;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +24,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RealEstateController {
     private final RealEstateService realEstateService;
-    private final UserService userService;
-    private final int allowLevel = 10;
     private static final Logger logger = LoggerFactory.getLogger(RealEstateController.class);
 
     @GetMapping("/")
@@ -58,12 +55,10 @@ public class RealEstateController {
         }
     }
 
+    @PermitCheck
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto, HttpServletRequest request) {
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
         try {
-//            System.out.println(realEstateDto);
             Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
             return ResponseEntity.ok(realEstateId.toString());
         } catch (Exception e) {
@@ -72,28 +67,24 @@ public class RealEstateController {
         }
     }
 
+    @PermitCheck
     @DeleteMapping("/image/{id}/{index}")
-    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index, HttpServletRequest request) {
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index) {
         realEstateService.deleteImage(id, index);
         return ResponseEntity.ok("부동산 이미지가 삭제되었습니다.");
     }
 
+    @PermitCheck
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRealEstate(@PathVariable Long id, HttpServletRequest request) {
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+    public ResponseEntity<String> deleteRealEstate(@PathVariable Long id) {
         realEstateService.deleteRealEstate(id);
         return ResponseEntity.ok("부동산 정보가 삭제되었습니다.");
     }
 
+    @PermitCheck
     @PatchMapping("/{id}")
     public ResponseEntity<String> updateRealEstate(@PathVariable Long id,
-                                                   @ModelAttribute RealEstateDto realEstateDto,
-                                                   HttpServletRequest request){
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+                                                   @ModelAttribute RealEstateDto realEstateDto){
         try {
             this.realEstateService.modifyRealEstate(id, realEstateDto);
             return ResponseEntity.ok("부동산이 수정되었습니다.");
@@ -103,11 +94,9 @@ public class RealEstateController {
         }
     }
 
+    @PermitCheck
     @PatchMapping("/sequence/{id}")
-    public ResponseEntity<String> updateSequence(@PathVariable Long id,
-                                                   HttpServletRequest request){
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+    public ResponseEntity<String> updateSequence(@PathVariable Long id){
         try {
             this.realEstateService.modifySequence(id);
             return ResponseEntity.ok("부동산이 순서가 수정되었습니다.");
@@ -117,12 +106,10 @@ public class RealEstateController {
         }
     }
 
+    @PermitCheck
     @PatchMapping("/soldout/{id}")
     public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id,
-                                                            @RequestBody Map<String, Boolean> requestBody,
-                                                            HttpServletRequest request){
-        if (!userService.isAdminLevelUser(request.getCookies(), allowLevel))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access deny");
+                                                            @RequestBody Map<String, Boolean> requestBody){
         try {
             boolean soldout = requestBody.get("soldout");
             this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
