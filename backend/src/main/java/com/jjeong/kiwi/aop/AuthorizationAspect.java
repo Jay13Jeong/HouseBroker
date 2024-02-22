@@ -36,8 +36,7 @@ public class AuthorizationAspect {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
         try {
-            long myId = userService.getIdByCookies(request.getCookies());
-            User user = userService.getUserById(myId);
+            User user = userService.getUserByCookies(request.getCookies());
             if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
             logger.error("authorizationAspect", e);

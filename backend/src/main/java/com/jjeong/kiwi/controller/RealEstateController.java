@@ -40,7 +40,7 @@ public class RealEstateController {
         return new ResponseEntity<>(realEstate, HttpStatus.OK);
     }
 
-    @GetMapping("/image/{id}/{index}")
+    @GetMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.
     public ResponseEntity<Resource> getRealEstateImage(@PathVariable Long id, @PathVariable Long index) {
         try {
             Resource resource = realEstateService.getImageResource(id, index);
@@ -68,7 +68,7 @@ public class RealEstateController {
     }
 
     @PermitCheck
-    @DeleteMapping("/image/{id}/{index}")
+    @DeleteMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.
     public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index) {
         realEstateService.deleteImage(id, index);
         return ResponseEntity.ok("부동산 이미지가 삭제되었습니다.");
@@ -95,7 +95,7 @@ public class RealEstateController {
     }
 
     @PermitCheck
-    @PatchMapping("/sequence/{id}")
+    @PatchMapping("/sequence/{id}") // "/{id}/sequence"로 순서변경 예정.
     public ResponseEntity<String> updateSequence(@PathVariable Long id){
         try {
             this.realEstateService.modifySequence(id);

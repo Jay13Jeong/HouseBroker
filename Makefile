@@ -1,4 +1,4 @@
-all : dir
+all : dir down
 	docker compose up --build -d
 
 fore : dir

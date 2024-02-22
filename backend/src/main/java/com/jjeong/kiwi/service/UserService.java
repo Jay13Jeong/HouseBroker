@@ -98,8 +98,39 @@ public class UserService {
     }
 
     public User getUserByCookies(Cookie[] cookies) {
-        long userPkId = this.getIdByCookies(cookies);
-        return this.getUserById(userPkId);
+        String token = this.getParsedToken(cookies);
+        if (token.isEmpty())
+            throw new RuntimeException("404 getUserPrimaryKeyByJwt : ");
+        return (this.getUserByJwt(token));
+    }
+
+    private String getValueByKey(String payload, String key){
+        String value;
+        int startIndex = payload.indexOf(key + "=") + 3;  // "id=" 다음 문자의 인덱스를 구합니다.
+        int endIndex = payload.indexOf(",", startIndex);  // 쉼표 이전의 인덱스를 구합니다.
+
+        if (endIndex == -1)
+            endIndex = payload.length() - 1;
+        try {
+            value = payload.substring(startIndex, endIndex);
+        } catch (Exception e){
+            logger.info("getValueByKey: invalid key-value", e);
+            throw new RuntimeException("getValueByKey: invalid key-value");
+        }
+        return  value;
+    }
+
+    private User getUserByJwt(String token) {
+        User user = new User();
+
+        String payload = authService.extractSubject(token).getSubject();
+        user.setId(Long.parseLong(getValueByKey(payload, "id")));
+        user.setDormant(Boolean.parseBoolean(getValueByKey(payload, "dormant")));
+        user.setPermitLevel(Integer.parseInt(getValueByKey(payload, "permitLevel")));
+        user.setEmail(getValueByKey(payload, "email"));
+        user.setUsername(getValueByKey(payload, "name"));
+
+        return  user;
     }
 
     public Map<String, String> getUserInfoMapByCookies(Cookie[] cookies) {
@@ -109,7 +140,7 @@ public class UserService {
 
     public long getUserPrimaryKeyByJwt(String token){
         if (token.isEmpty())
-            throw new RuntimeException();
+            throw new RuntimeException("404 getUserPrimaryKeyByJwt : ");
 
         String payload = authService.extractSubject(token).getSubject();
 
