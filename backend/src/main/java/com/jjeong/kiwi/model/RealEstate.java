@@ -7,6 +7,8 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 @Entity
 @ToString
@@ -30,6 +32,8 @@ public class RealEstate {
     private String image10;
 
     @ElementCollection
+    @Fetch(FetchMode.SUBSELECT)
+    @CollectionTable(name = "real_estate_image_slot_state", joinColumns = @JoinColumn(name = "real_estate_id"))
     private List<Integer> imageSlotState;
 
     private String title;

@@ -1,5 +1,6 @@
 package com.jjeong.kiwi.controller;
 
+import com.jjeong.kiwi.annotaion.Hateoasify;
 import com.jjeong.kiwi.annotaion.PermitCheck;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
@@ -7,11 +8,14 @@ import com.jjeong.kiwi.service.RealEstateService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.io.Resource;
 
@@ -27,17 +31,17 @@ public class RealEstateController {
     private static final Logger logger = LoggerFactory.getLogger(RealEstateController.class);
 
     @GetMapping("/")
-    public List<RealEstate> getRealEstates(Model model) {
+    public ResponseEntity<List<RealEstate>> getRealEstates() {
         List<RealEstate> realEstates = realEstateService.getAllRealEstates();
-        model.addAttribute("realEstates", realEstates);
-        return realEstates;
+        return new ResponseEntity<>(realEstates, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RealEstate> getRealEstateById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<RealEstate>> getRealEstateById(@PathVariable Long id) {
         RealEstate realEstate = realEstateService.getRealEstates(id);
-
-        return new ResponseEntity<>(realEstate, HttpStatus.OK);
+        Link selfLink = WebMvcLinkBuilder.linkTo(getClass()).slash(id).withSelfRel();
+        EntityModel<RealEstate> entityModel = EntityModel.of(realEstate, selfLink);
+        return new ResponseEntity<>(entityModel, HttpStatus.OK);
     }
 
     @GetMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.

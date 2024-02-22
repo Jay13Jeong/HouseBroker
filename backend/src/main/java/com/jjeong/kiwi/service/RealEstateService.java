@@ -39,7 +39,7 @@ public class RealEstateService {
     private String uploadPath;
 
     public List<RealEstate> getAllRealEstates() {
-        return realEstateRepository.findAll();
+        return realEstateRepository.findAllWithImageSlotStates();
     }
 
     public RealEstate createRealEstate(RealEstateDto realEstateDto) throws IOException {

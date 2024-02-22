@@ -106,7 +106,7 @@ public class UserService {
 
     private String getValueByKey(String payload, String key){
         String value;
-        int startIndex = payload.indexOf(key + "=") + 3;  // "id=" 다음 문자의 인덱스를 구합니다.
+        int startIndex = payload.indexOf(key + "=") + key.length() + 1;  // "id=" 다음 문자의 인덱스를 구합니다.
         int endIndex = payload.indexOf(",", startIndex);  // 쉼표 이전의 인덱스를 구합니다.
 
         if (endIndex == -1)
