@@ -1,6 +1,5 @@
 package com.jjeong.kiwi.controller;
 
-import com.jjeong.kiwi.annotaion.Hateoasify;
 import com.jjeong.kiwi.annotaion.PermitCheck;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
@@ -8,9 +7,7 @@ import com.jjeong.kiwi.service.RealEstateService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.io.Resource;
-
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +30,14 @@ public class RealEstateController {
     @GetMapping("/")
     public ResponseEntity<List<RealEstate>> getRealEstates() {
         List<RealEstate> realEstates = realEstateService.getAllRealEstates();
+        realEstates.forEach(re -> appendsHATEOAS(re, re.getId()));
         return new ResponseEntity<>(realEstates, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<RealEstate>> getRealEstateById(@PathVariable Long id) {
+    public ResponseEntity<RealEstate> getRealEstateById(@PathVariable Long id) {
         RealEstate realEstate = realEstateService.getRealEstates(id);
-        Link selfLink = WebMvcLinkBuilder.linkTo(getClass()).slash(id).withSelfRel();
-        EntityModel<RealEstate> entityModel = EntityModel.of(realEstate, selfLink);
-        return new ResponseEntity<>(entityModel, HttpStatus.OK);
+        return new ResponseEntity<>(appendsHATEOAS(realEstate, id), HttpStatus.OK);
     }
 
     @GetMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.
@@ -51,8 +47,7 @@ public class RealEstateController {
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_PNG);
-
-            return ResponseEntity.ok().headers(headers).body(resource);
+            return new ResponseEntity<>(resource,headers,HttpStatus.OK);
         } catch (IOException e) {
             logger.error("getRealEstateImage", e);
             return ResponseEntity.notFound().build();
@@ -124,4 +119,19 @@ public class RealEstateController {
         }
     }
 
+    private RealEstate appendsHATEOAS(RealEstate realEstate, Long id){
+        realEstate.add(linkTo(methodOn(RealEstateController.class).getRealEstateById(id)).withSelfRel());
+        realEstate.add(WebMvcLinkBuilder.linkTo(RealEstateController.class).slash(id).slash("image/1").withRel("image"));
+        realEstate.add(linkTo(methodOn(RealEstateController.class).getRealEstates()).withRel("collection"));
+
+        return realEstate;
+    }
+
+//    private EntityModel<?> appendsHateoasEntityModel(Object inst, Long id){
+//        return  EntityModel.of(inst,
+//            linkTo(methodOn(RealEstateController.class).getRealEstateById(id)).withSelfRel(),
+//            WebMvcLinkBuilder.linkTo(RealEstateController.class).slash(id).slash("image/1").withRel("image"),
+//            linkTo(methodOn(RealEstateController.class).getRealEstates()).withRel("collection")
+//        );
+//    }
 }

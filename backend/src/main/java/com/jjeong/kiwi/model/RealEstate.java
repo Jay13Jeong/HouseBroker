@@ -9,13 +9,14 @@ import javax.persistence.*;
 import java.util.List;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.hateoas.RepresentationModel;
 
 @Entity
 @ToString
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class RealEstate {
+public class RealEstate extends RepresentationModel<RealEstate> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
