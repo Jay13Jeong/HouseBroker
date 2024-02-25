@@ -11,6 +11,7 @@ dir :
 	mkdir -p $(HOME)/kiwi_data/upload_images
 	mkdir -p $(HOME)/kiwi_data/DB
 	mkdir -p $(HOME)/kiwi_data/DB2
+	mkdir -p ${HOME}/kiwi_data/jenkins
 
 clean : down
 	rm -rf ${HOME}/kiwi_data
