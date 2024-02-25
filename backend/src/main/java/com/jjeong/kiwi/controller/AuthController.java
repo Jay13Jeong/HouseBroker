@@ -79,11 +79,11 @@ public class AuthController {
             return;
         }
         if (userService.getUserByEmail(email) != null){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setStatus(HttpServletResponse.SC_CONFLICT);
             return;
         }
         if (!authService.sendConfirmMail(email)){
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             return;
         }
         response.setStatus(HttpServletResponse.SC_OK);
