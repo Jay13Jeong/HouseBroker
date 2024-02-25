@@ -49,41 +49,20 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-## deploy
-  deploy:
+# ## deploy
+#   deploy:
 
-    runs-on: ubuntu-latest
+#     runs-on: ubuntu-latest
 
-    needs: build
+#     needs: build
 
-    steps:
-      # - name: Set up SSH
-      #   uses: webfactory/ssh-agent@v0.8.0
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+#     steps:
 
-      - name: Connect to EC2 and pull code and make
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
-          chmod 400 mykey.pem
-          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-          'cd ${{ secrets.REPO_NAME }} && git pull origin main && sudo make'
-#          ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
-#          'cd ${{ secrets.REPO_NAME }} && \
-#          git config --global user.email "Jay13Jeong@github.com" && \
-#          git config --global user.name "Jay13Jeong" && \
-#          git pull https://${{ secrets.GITHUB_TOKEN }}@github.com/Jay13Jeong/${{ secrets.REPO_NAME }}.git main' || exit 1           
-#          ssh -o StrictHostKeyChecking=no -i /dev/shm/ssh-key/id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} 'cd ${{ secrets.REPO_NAME }} && git pull origin main'
-      
-      # - name: Build with make
-      #   run: |
-      #     cd /home/ubuntu/${{ secrets.REPO_NAME }}
-      #     sudo make
-      
-      # - name: Build with make
-      #   run: |
-      #     cd ~
-      #     mkdir -p ${{ secrets.REPO_NAME }}
-      #     cd ${{ secrets.REPO_NAME }}
-      #     git pull origin main && make
+#       - name: Connect to EC2 and pull code and make
+#         run: |
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
+#           chmod 400 mykey.pem
+#           ssh -o StrictHostKeyChecking=no -i mykey.pem ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} \
+#           'cd ${{ secrets.REPO_NAME }} && git pull origin main && sudo make'
+    
 
