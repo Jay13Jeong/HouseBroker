@@ -56,49 +56,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON) //페이로드타입 json으로 표현
             .content(new ObjectMapper().writeValueAsString(signupRequest))) //페이로드 넣기.
         .andExpect(status().isOk()); // 기대값은 200.
-//        try {
-//            System.out.println("Status Code: " + resultActions.andReturn().getResponse().getStatus());
-//            System.out.println("Headers: " + resultActions.andReturn().getResponse().getHeaderNames());
-//            String cookie = resultActions.andReturn().getResponse().getHeader("Set-Cookie");
-//            assert cookie != null;
-//            String jwt = extractJwtValue(cookie);
-//            Map<String, String> jwtMap = userService.getUserInfoMapByJwt(jwt);
-//            if (!testJWTinfo(jwtMap, signupRequest)){
-//                throw new AssertionError("invalid jwt");
-//            } else {
-//                throw new AssertionError("valid jwt");
-//            }
-//        } catch (NullPointerException e){
-//            System.out.println("not found jwt : " + e);
-//        }
   }
-
-//    private String extractJwtValue(String setCookieHeader) {
-//        String[] cookieParts = setCookieHeader.split(";")[0].split("="); // 쿠키 형식에서 JWT 값 추출
-//        if (cookieParts.length == 2 && cookieParts[0].trim().equals("jwt")) {
-//            return cookieParts[1].trim();
-//        } else {
-//            throw new RuntimeException("JWT not found in Set-Cookie header");
-//        }
-//    }
-//
-//    /**
-//     * @param tokenMap
-//     * @param signupRequest
-//     * @return
-//     */
-//    @Contract(pure = true)
-//    private boolean testJWTinfo(Map<String, String> tokenMap, SignupRequest signupRequest){
-//        try {
-//            if (!tokenMap.get("name").equals(signupRequest.getUsername())){
-//                return false;
-//            }
-//        } catch (Exception e){
-//            return false;
-//        }
-//
-//        return true;
-//    }
 
   @Test
   void signInInvalidUserReturnsNotFound() throws Exception {
@@ -115,6 +73,69 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(new ObjectMapper().writeValueAsString(signupRequest)))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void OkTestSendConfirmMailTest() throws Exception {
+    SignupRequest signupRequest = new SignupRequest();
+    signupRequest.setEmail("exam@example.com");
+
+    when(authService.emailValidate(any(String.class))).thenReturn(true);
+    when(userService.getUserByEmail(any(String.class))).thenReturn(null);
+    when(authService.sendConfirmMail(any(String.class))).thenReturn(true);
+
+    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    mockMvc.perform(post("/auth/email/code")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(new ObjectMapper().writeValueAsString(signupRequest)))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void emailInvalidateSendConfirmMailTest() throws Exception {
+    SignupRequest signupRequest = new SignupRequest();
+    signupRequest.setEmail("exam123456789");
+
+    when(authService.emailValidate(any(String.class))).thenReturn(false);
+
+    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    mockMvc.perform(post("/auth/email/code")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(signupRequest)))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void alreadyUseEmailSendConfirmMailTest() throws Exception {
+    SignupRequest signupRequest = new SignupRequest();
+    signupRequest.setEmail("exam@example.com");
+
+    User user = new User();
+
+    when(authService.emailValidate(any(String.class))).thenReturn(true);
+    when(userService.getUserByEmail(any(String.class))).thenReturn(user);
+
+    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    mockMvc.perform(post("/auth/email/code")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(signupRequest)))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void failConfirmMailSendConfirmMailTest() throws Exception {
+    SignupRequest signupRequest = new SignupRequest();
+    signupRequest.setEmail("exam@example.com");
+
+    when(authService.emailValidate(any(String.class))).thenReturn(true);
+    when(userService.getUserByEmail(any(String.class))).thenReturn(null);
+    when(authService.sendConfirmMail(any(String.class))).thenReturn(false);
+
+    MockMvc mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    mockMvc.perform(post("/auth/email/code")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(new ObjectMapper().writeValueAsString(signupRequest)))
+        .andExpect(status().isServiceUnavailable());
   }
 
 }
