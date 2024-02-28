@@ -5,7 +5,6 @@ import com.jjeong.kiwi.dto.SignupRequest;
 import com.jjeong.kiwi.model.User;
 import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
-import org.jetbrains.annotations.Contract;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,15 +15,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Map;
-import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class) // junit5에서 모키토 사용 선언.
 class AuthControllerTest {
 
   @Mock

@@ -18,6 +18,16 @@ services:
     networks:
       - jg
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - $HOME/kiwi_data/redis:/data
+    networks:
+      - jg
+
   backend:
     container_name: backend
     build:

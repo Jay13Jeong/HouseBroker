@@ -35,8 +35,19 @@ services:
     networks:
       - test
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - $HOME/kiwi_data/redis:/data
+    networks:
+      - test
+
   jaeger:
     image: jaegertracing/all-in-one:1.54
+    restart: always
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
       - COLLECTOR_OTLP_ENABLED=true
@@ -59,6 +70,7 @@ services:
 
   jenkins:
     image: jenkins/jenkins:lts-jdk17
+    restart: always
     environment:
       JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
     restart: always
@@ -74,6 +86,7 @@ services:
 
   gocd-server:
     image: gocd/gocd-server:v23.5.0
+    restart: always
     ports:
       - "8153:8153"
       - "8154:8154"
@@ -91,6 +104,7 @@ services:
 
   gocd-agent:
     image: gocd/gocd-agent-docker-dind:v23.5.0
+    restart: always
     environment:
       - GO_SERVER_URL=http://gocd-server:8153/go
     depends_on:
