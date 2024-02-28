@@ -1,5 +1,6 @@
 package com.jjeong.kiwi.model;
 
+import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.hateoas.RepresentationModel;
 
-@Entity
+@javax.persistence.Entity
 @ToString
 @Getter
 @Setter
@@ -56,4 +57,5 @@ public class RealEstate extends RepresentationModel<RealEstate> {
     private Long administration_cost2; //관리비
     private Double latitude; //위도
     private Double longitude; //경도
+
 }

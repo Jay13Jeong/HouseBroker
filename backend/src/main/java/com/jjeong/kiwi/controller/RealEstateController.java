@@ -97,7 +97,7 @@ public class RealEstateController {
     @PatchMapping("/sequence/{id}") // "/{id}/sequence"로 순서변경 예정.
     public ResponseEntity<String> updateSequence(@PathVariable Long id){
         try {
-            this.realEstateService.modifySequence(id);
+            this.realEstateService.modifySequenceToLatest(id);
             return ResponseEntity.ok("부동산이 순서가 수정되었습니다.");
         } catch ( Exception e) {
             logger.error("updateSequence", e);
