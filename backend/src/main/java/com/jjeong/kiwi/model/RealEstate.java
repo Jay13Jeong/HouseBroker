@@ -12,12 +12,12 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.springframework.hateoas.RepresentationModel;
 
-@javax.persistence.Entity
+@Entity
 @ToString
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class RealEstate extends RepresentationModel<RealEstate> {
+public class RealEstate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +32,6 @@ public class RealEstate extends RepresentationModel<RealEstate> {
     private String image8;
     private String image9;
     private String image10;
-
-    @ElementCollection
-    @Fetch(FetchMode.SUBSELECT)
-    @CollectionTable(name = "real_estate_image_slot_state", joinColumns = @JoinColumn(name = "real_estate_id"))
-    private List<Integer> imageSlotState;
 
     private String title;
 

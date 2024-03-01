@@ -1,14 +1,15 @@
 package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.annotaion.PermitCheck;
+import com.jjeong.kiwi.dto.RealEstateWithImgPathDto;
+import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.service.RealEstateService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,19 +29,28 @@ public class RealEstateController {
     private static final Logger logger = LoggerFactory.getLogger(RealEstateController.class);
 
     @GetMapping("/")
-    public ResponseEntity<List<RealEstate>> getRealEstates() {
-        List<RealEstate> realEstates = realEstateService.getAllRealEstates();
+    public ResponseEntity<List<RealEstateWithImgPathDto>> getRealEstates() {
+        List<RealEstateWithImgPathDto> realEstates = realEstateService.getAllRealEstates();
         realEstates.forEach(re -> appendsHATEOAS(re, re.getId()));
         return new ResponseEntity<>(realEstates, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RealEstate> getRealEstateById(@PathVariable Long id) {
-        RealEstate realEstate = realEstateService.getRealEstates(id);
-        return new ResponseEntity<>(appendsHATEOAS(realEstate, id), HttpStatus.OK);
+    public ResponseEntity<RealEstateWithoutImgDto> getRealEstateById(@PathVariable Long id) {
+        RealEstateWithoutImgDto realEstate = realEstateService.getRealEstateWithoutImg(id);
+        appendsHATEOAS(realEstate, id);
+        return new ResponseEntity<>(realEstate, HttpStatus.OK);
     }
 
-    @GetMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<RealEstateWithImgPathDto> getRealEstateDetailById(@PathVariable Long id) {
+        RealEstate realEstate = realEstateService.getRealEstateById(id);
+        RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(realEstate);
+        appendsHATEOAS(dto, id);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/image/{index}")
     public ResponseEntity<Resource> getRealEstateImage(@PathVariable Long id, @PathVariable Long index) {
         try {
             Resource resource = realEstateService.getImageResource(id, index);
@@ -56,82 +66,80 @@ public class RealEstateController {
 
     @PermitCheck
     @PostMapping("/")
-    public ResponseEntity<String> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
+    public ResponseEntity<RealEstateWithImgPathDto> createRealEstate(@ModelAttribute RealEstateDto realEstateDto) {
         try {
-            Long realEstateId = realEstateService.createRealEstate(realEstateDto).getId();
-            return ResponseEntity.ok(realEstateId.toString());
+            RealEstate realEstate = realEstateService.createRealEstate(realEstateDto);
+            RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(realEstate);
+            appendsHATEOAS(dto, dto.getId());
+            return new ResponseEntity<>(dto, HttpStatus.CREATED);
         } catch (Exception e) {
             logger.error("createRealEstate", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create real estate.");
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PermitCheck
-    @DeleteMapping("/image/{id}/{index}") // "/{id}/image/{index}"로 순서변경 예정.
-    public ResponseEntity<String> deleteImage(@PathVariable Long id, @PathVariable Long index) {
+    @DeleteMapping("/{id}/image/{index}")
+    public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long index) {
         realEstateService.deleteImage(id, index);
-        return ResponseEntity.ok("부동산 이미지가 삭제되었습니다.");
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @PermitCheck
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRealEstate(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRealEstate(@PathVariable Long id) {
         realEstateService.deleteRealEstate(id);
-        return ResponseEntity.ok("부동산 정보가 삭제되었습니다.");
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     @PermitCheck
     @PatchMapping("/{id}")
-    public ResponseEntity<String> updateRealEstate(@PathVariable Long id,
+    public ResponseEntity<RealEstateWithImgPathDto> updateRealEstate(@PathVariable Long id,
                                                    @ModelAttribute RealEstateDto realEstateDto){
         try {
-            this.realEstateService.modifyRealEstate(id, realEstateDto);
-            return ResponseEntity.ok("부동산이 수정되었습니다.");
+            RealEstate realEstate = this.realEstateService.modifyRealEstate(id, realEstateDto);
+            RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(realEstate);
+            appendsHATEOAS(dto, dto.getId());
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         } catch ( Exception e) {
-            logger.error("updateRealEstate", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PermitCheck
-    @PatchMapping("/sequence/{id}") // "/{id}/sequence"로 순서변경 예정.
-    public ResponseEntity<String> updateSequence(@PathVariable Long id){
+    @PatchMapping("/{id}/sequence")
+    public ResponseEntity<RealEstateWithoutImgDto> updateSequence(@PathVariable Long id){
         try {
-            this.realEstateService.modifySequenceToLatest(id);
-            return ResponseEntity.ok("부동산이 순서가 수정되었습니다.");
+            RealEstate realEstate = this.realEstateService.modifySequenceToLatest(id);
+            RealEstateWithoutImgDto dto = new RealEstateWithoutImgDto(realEstate);
+            appendsHATEOAS(dto, dto.getId());
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         } catch ( Exception e) {
             logger.error("updateSequence", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("부동산 순서 Failed");
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PermitCheck
-    @PatchMapping("/soldout/{id}")
-    public ResponseEntity<String> updateRealEstateIsSoldOut(@PathVariable Long id,
+    @PatchMapping("/{id}/sold-out")
+    public ResponseEntity<RealEstateWithoutImgDto> updateRealEstateIsSoldOut(@PathVariable Long id,
                                                             @RequestBody Map<String, Boolean> requestBody){
         try {
             boolean soldout = requestBody.get("soldout");
-            this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
-            return ResponseEntity.ok("거래여부가 수정되었습니다.");
+            RealEstate realEstate = this.realEstateService.modifyRealEstateIsSoldOut(id, soldout);
+            RealEstateWithoutImgDto dto = new RealEstateWithoutImgDto(realEstate);
+            appendsHATEOAS(dto, dto.getId());
+            return new ResponseEntity<>(dto,HttpStatus.OK);
         } catch ( Exception e) {
             logger.error("updateRealEstateIsSoldOut", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed");
+            return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private RealEstate appendsHATEOAS(RealEstate realEstate, Long id){
-        realEstate.add(linkTo(methodOn(RealEstateController.class).getRealEstateById(id)).withSelfRel());
-        realEstate.add(WebMvcLinkBuilder.linkTo(RealEstateController.class).slash(id).slash("image/1").withRel("image"));
-        realEstate.add(linkTo(methodOn(RealEstateController.class).getRealEstates()).withRel("collection"));
-
-        return realEstate;
+    private void appendsHATEOAS(RepresentationModel inst, Long id, Long... imageIdx){
+//        Long imgIdx = imageIdx.length > 0 ? imageIdx[0] : 1;
+        inst.add(linkTo(methodOn(RealEstateController.class).getRealEstateById(id)).withSelfRel());
+//        inst.add(WebMvcLinkBuilder.linkTo(RealEstateController.class).slash(id).slash("image/" + imgIdx).withRel("image"));
+        inst.add(linkTo(methodOn(RealEstateController.class).getRealEstates()).withRel("collection"));
     }
-
-//    private EntityModel<?> appendsHateoasEntityModel(Object inst, Long id){
-//        return  EntityModel.of(inst,
-//            linkTo(methodOn(RealEstateController.class).getRealEstateById(id)).withSelfRel(),
-//            WebMvcLinkBuilder.linkTo(RealEstateController.class).slash(id).slash("image/1").withRel("image"),
-//            linkTo(methodOn(RealEstateController.class).getRealEstates()).withRel("collection")
-//        );
-//    }
 }

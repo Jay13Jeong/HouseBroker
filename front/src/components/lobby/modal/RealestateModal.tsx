@@ -49,7 +49,7 @@ const RealestateModal: React.FC = () => {
   const fetchRealEstateInfo = async () => {
     try {
       const res = await axios.get<types.RealEstate>(
-        `/api/realestate/${showModal.realestateId}`,
+        `/api/realestate/${showModal.realestateId}/detail`,
         { withCredentials: true }
       );
       setRealEstateInfo(res.data);
@@ -115,7 +115,7 @@ const RealestateModal: React.FC = () => {
     e.preventDefault();
     try {
       const response = await axios.patch(
-        `/api/realestate/sequence/${showModal.realestateId}`,
+        `/api/realestate/${showModal.realestateId}/sequence`,
         {},
         { withCredentials: true, }
       );
@@ -140,7 +140,7 @@ const RealestateModal: React.FC = () => {
 
   const getImageData = async (id: number, index: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/image/' + id + '/' + index, {
+      const imgDataRes = await axios.get('/api/realestate/' + id + '/image/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });

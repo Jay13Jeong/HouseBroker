@@ -2,19 +2,27 @@ version: '3.9'
 services:
   test_mariadb:
     container_name: mariadb2
+    # build: ./database
+    # command: [ "bash", "-c", "/tmp/testData.sh"]
     image: mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD:   ${DB_ROOT_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MARIADB_DATABASE: mydb
       MARIADB_USER:  ${DB_USER}
       MARIADB_PASSWORD:  ${DB_PASSWORD}
+      # TEST_DATA_GEN_MODE: "true"
+      # TEST_DATA_AMOUNT: 1
     ports:
       - 3306:3306
     volumes:
       - type: bind
         source: $HOME/kiwi_data/DB
         target: /var/lib/mysql
+    # volumes:
+    #   - type: bind
+    #     source: ./database/insertDataToMariaDB.sh
+    #     target: /tmp/testData.sh
     networks:
       - test
 
@@ -68,49 +76,49 @@ services:
     networks:
       - test
 
-  jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    restart: always
-    environment:
-      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
-    restart: always
-    ports:
-      - 8765:8080
-      - 50000:50000
-    volumes:
-      - type: bind
-        source: $HOME/kiwi_data/jenkins
-        target: /var/jenkins_home
-    networks:
-      - test
+  # jenkins:
+  #   image: jenkins/jenkins:lts-jdk17
+  #   restart: always
+  #   environment:
+  #     JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD}
+  #   restart: always
+  #   ports:
+  #     - 8765:8080
+  #     - 50000:50000
+  #   volumes:
+  #     - type: bind
+  #       source: $HOME/kiwi_data/jenkins
+  #       target: /var/jenkins_home
+  #   networks:
+  #     - test
 
-  gocd-server:
-    image: gocd/gocd-server:v23.5.0
-    restart: always
-    ports:
-      - "8153:8153"
-      - "8154:8154"
-    environment:
-      - GOCD_PLUGIN_INSTALL_kubernetes-elastic-agents=https://github.com/gocd-contrib/docker-elastic-agents-plugin/releases/download/v3.2.4-427/docker-elastic-agents-3.2.4-427.jar
-      - AGENT_AUTO_REGISTER_KEY=${AGENT_AUTO_REGISTER_KEY}
-      - AGENT_AUTO_REGISTER_RESOURCES=docker
-      - AGENT_AUTO_REGISTER_ENVIRONMENTS=production
-      - AGENT_AUTO_REGISTER_HOSTNAME=gocd-agent
-      - AGENT_AUTO_REGISTER_DOCKER_MOUNTS=/var/run/docker.sock:/var/run/docker.sock
-    depends_on:
-      - jenkins
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  # gocd-server:
+  #   image: gocd/gocd-server:v23.5.0
+  #   restart: always
+  #   ports:
+  #     - "8153:8153"
+  #     - "8154:8154"
+  #   environment:
+  #     - GOCD_PLUGIN_INSTALL_kubernetes-elastic-agents=https://github.com/gocd-contrib/docker-elastic-agents-plugin/releases/download/v3.2.4-427/docker-elastic-agents-3.2.4-427.jar
+  #     - AGENT_AUTO_REGISTER_KEY=${AGENT_AUTO_REGISTER_KEY}
+  #     - AGENT_AUTO_REGISTER_RESOURCES=docker
+  #     - AGENT_AUTO_REGISTER_ENVIRONMENTS=production
+  #     - AGENT_AUTO_REGISTER_HOSTNAME=gocd-agent
+  #     - AGENT_AUTO_REGISTER_DOCKER_MOUNTS=/var/run/docker.sock:/var/run/docker.sock
+  #   depends_on:
+  #     - jenkins
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
 
-  gocd-agent:
-    image: gocd/gocd-agent-docker-dind:v23.5.0
-    restart: always
-    environment:
-      - GO_SERVER_URL=http://gocd-server:8153/go
-    depends_on:
-      - gocd-server
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  # gocd-agent:
+  #   image: gocd/gocd-agent-docker-dind:v23.5.0
+  #   restart: always
+  #   environment:
+  #     - GO_SERVER_URL=http://gocd-server:8153/go
+  #   depends_on:
+  #     - gocd-server
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   test:
