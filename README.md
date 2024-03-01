@@ -51,7 +51,8 @@ Google api발급하기 >>> [google](https://console.cloud.google.com/apis/creden
 이 프로젝트는 크롬브라우저에서 테스트되었습니다.
 
 ## Screenshot
-<img width="1712" alt="스크린샷 2024-01-20 오후 6 22 21" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/c0a0e6fe-ba88-4588-915a-7e421f03fe6a">
-<img width="1723" alt="스크린샷 2024-01-20 오후 6 22 53" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/4d8fa769-835a-43ee-a983-ba40a6e368c2">
-<img width="1590" alt="스크린샷 2024-01-20 오후 6 23 24" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/2a21c3e7-ec5e-4f61-b224-bd9e25309ca9">
-<img width="1574" alt="스크린샷 2024-01-20 오후 6 23 12" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/fb3a5da3-4494-424e-9db6-adef511f81f2">
+
+<img width="1712" alt="298273474-c0a0e6fe-ba88-4588-915a-7e421f03fe6a" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/8fa7a33a-a2b0-4da1-bb08-d03499f8c38b">
+<img width="1723" alt="298273491-4d8fa769-835a-43ee-a983-ba40a6e368c2" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/13c0bc17-2f58-4168-a2bb-b90e2f2968cb">
+<img width="1590" alt="298273495-2a21c3e7-ec5e-4f61-b224-bd9e25309ca9" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/c1f24c32-f328-478a-85ae-ddb05a706bd3">
+<img width="1574" alt="298273493-fb3a5da3-4494-424e-9db6-adef511f81f2" src="https://github.com/Jay13Jeong/HouseBroker/assets/63899204/78f6aec1-3793-44d9-8cef-63879efdcb9c">
