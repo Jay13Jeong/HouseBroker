@@ -11,21 +11,33 @@ import java.util.Set;
 
 @Entity
 @ToString
-@Getter
-@Setter
 @RequiredArgsConstructor
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
+    @Setter
     private Long id;
 
-    private String authid;
+    @Getter
+    @Setter
     private String username;
+
+    @Getter
+    @Setter
     private String email;
+
+    @Getter
+    @Setter
     private String password;
+
+    @Getter
+    @Setter
     private int permitLevel;
 
+    @Getter
+    @Setter
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
         name = "user_chatroom",
@@ -34,5 +46,7 @@ public class User {
     )
     private Set<ChatRoom> chatRooms = new HashSet<>();
 
+    @Getter
+    @Setter
     private boolean dormant = false;
 }

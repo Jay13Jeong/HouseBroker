@@ -58,11 +58,9 @@ public class AuthService {
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
 
         String email = user.getEmail();
-        String authId = user.getAuthid();
         String name = user.getUsername();
 
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("authId", authId);
         claims.put("name", name);
         claims.put("id",user.getId());
         claims.put("email", email);
@@ -151,7 +149,6 @@ public class AuthService {
         UserInfoResponse userInfoResponse = responseEntity.getBody();
 
         User user = new User();
-        user.setAuthid(userInfoResponse.getId());
         user.setUsername(userInfoResponse.getName());
         user.setEmail(userInfoResponse.getEmail());
 

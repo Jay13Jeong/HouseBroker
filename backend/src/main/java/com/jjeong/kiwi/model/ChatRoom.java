@@ -8,20 +8,25 @@ import javax.persistence.*;
 import java.util.*;
 
 @ToString
-@Getter
-@Setter
 @Entity
 public class ChatRoom {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
+    @Getter
+    @Setter
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
     private List<Chat> chats = new ArrayList<>();
 
+    @Getter
+    @Setter
     private String roomName;
 
+    @Getter
+    @Setter
     @ManyToMany
     @JoinTable(
         name = "chatroom_user",
