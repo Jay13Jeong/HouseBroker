@@ -19,10 +19,11 @@ services:
       - jg
 
   redis:
+    container_name: redis7
     image: redis:7-alpine
     restart: always
-    ports:
-      - "6379:6379"
+    expose:
+      - 6379
     volumes:
       - $HOME/kiwi_data/redis:/data
     networks:
@@ -52,6 +53,7 @@ services:
       DOMAIN: ${DOMAIN}
       UPLOAD_DIR: "/uploadImages/" #volumes랑 의존됨.
       ADMIN_LEVEL: ${ADMIN_LEVEL}
+      REDIS_HOST: ${REDIS_HOST}
     volumes:
       - type: bind
         source: ./backend/src

@@ -103,3 +103,6 @@ replay_pid*
 
 # docker
 .env
+
+# testfile
+/database/

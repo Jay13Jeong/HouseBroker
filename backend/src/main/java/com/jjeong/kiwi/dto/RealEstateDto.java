@@ -24,7 +24,6 @@ public class RealEstateDto{
     private MultipartFile image8;
     private MultipartFile image9;
     private MultipartFile image10;
-    private List<Integer> imageSlotState; //매물 사진 슬롯 상태
     private Long id; //매물 번호
     private String title; // 매물이름
     private String description; //매물 설명

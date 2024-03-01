@@ -1,18 +1,16 @@
 package com.jjeong.kiwi.service;
 
 import com.jjeong.kiwi.dto.RealEstateImgPathDto;
+import com.jjeong.kiwi.dto.RealEstateWithImgPathDto;
+import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.repository.RealEstateQueryRepository;
 import com.jjeong.kiwi.repository.RealEstateRepository;
 import lombok.RequiredArgsConstructor;
-import net.bytebuddy.implementation.bytecode.Throw;
-import org.hibernate.Hibernate;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,10 +35,8 @@ public class RealEstateService {
     private final String NO_IMG = "NO_IMG";
     private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RealEstateService.class);
-//    private final RedisTemplate<String, RealEstate> redisRealEstateTemp;
-//    private final RedisTemplate<String, List<RealEstate>> redisRealEstatesTemp;
     private final RedisTemplate<String, Object> redisTemp;
-    private final String REAL_ESTATES_REDIS_KEY = "real_estates";
+//    private final String REAL_ESTATES_REDIS_KEY = "realEstates";
 
     static { // 한번만 실행하도록.
         allowedMimeTypes.put("image/jpeg", true);
@@ -48,25 +44,23 @@ public class RealEstateService {
         allowedMimeTypes.put("image/gif", true);
     }
 
-    @Value("${upload.path}") // 파일 업로드 경로 설정
-    private static String uploadPath;
+    private static String UPLOAD_DIR_PATH = System.getenv("UPLOAD_DIR");
 
-//    @Cacheable(cacheNames = "getAllRealEstates", key = "#root.target + #root.methodName", sync = false, cacheManager = "redisCacheMgr")
-    public List<RealEstate> getAllRealEstates() {
+//    @Cacheable(cacheNames = "getAllRealEst ates", key = "#root.target + #root.methodName", sync = false, cacheManager = "redisCacheMgr")
+    public List<RealEstateWithImgPathDto> getAllRealEstates() {
 
-        List<RealEstate> realEstates = (List<RealEstate>) redisTemp.opsForValue().get(REAL_ESTATES_REDIS_KEY);
-        if (realEstates != null)
-            return realEstates;
-        realEstates = realEstateRepository.findAllWithImageSlotStates();
-        redisTemp.opsForValue().set(REAL_ESTATES_REDIS_KEY, realEstates);
+//        List<RealEstateWithImgPathDto> realEstatesCached = (List<RealEstateWithImgPathDto>) redisTemp.opsForValue().get(REAL_ESTATES_REDIS_KEY);
+//        if (realEstatesCached != null)
+//            return realEstatesCached;
+        List<RealEstate> realEstatesModel = realEstateRepository.findAll();
+        if (realEstatesModel == null) {
+            throw new RuntimeException("getAllRealEstates:not found");
+        }
+        List<RealEstateWithImgPathDto> realEstates = new ArrayList<>();
+        realEstatesModel.forEach(model -> realEstates.add(new RealEstateWithImgPathDto(model)));
+//        redisTemp.opsForValue().set(REAL_ESTATES_REDIS_KEY, realEstates);
         return realEstates;
 
-//        List<RealEstate> realEstates = redisRealEstatesTemp.opsForValue().get(REAL_ESTATES_REDIS_KEY);
-//        if (realEstates != null)
-//            return realEstates;
-//        realEstates = realEstateRepository.findAllWithImageSlotStates();
-//        redisRealEstatesTemp.opsForValue().set(REAL_ESTATES_REDIS_KEY, realEstates);
-//        return realEstates;
     }
 
     @Transactional
@@ -78,14 +72,11 @@ public class RealEstateService {
 
         RealEstate realEstate = mapDtoToEntity(realEstateDto);
         List<String> images = uploadImages(realEstateDto);
-        setImagesAndSlotState(realEstate, images);
+        setImageNames(realEstate, images);
 
-        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
+//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.delete("real_estate:id:" + realEstate.getId());
-//        redisRealEstatesTemp.delete(REAL_ESTATES_REDIS_KEY);
-//        realEstate = realEstateRepository.save(realEstate);
-//        redisRealEstateTemp.delete("real_estate:id:" + realEstate.getId());
+        redisTemp.delete("realEstate:id:" + realEstate.getId());
 
         return realEstate;
     }
@@ -142,15 +133,10 @@ public class RealEstateService {
         }
     }
 
-    private void setImagesAndSlotState(RealEstate realEstate, List<String> images) {
-        List<Integer> imageSlotState = new ArrayList<>();
+    private void setImageNames(RealEstate realEstate, List<String> images) {
         for (int i = 1; i <= 10; i++) {
-            if (!NO_IMG.equals(images.get(i - 1))) {
-                imageSlotState.add(i);
-            }
             setRealEstateImageByIndex(realEstate, i, images.get(i - 1));
         }
-        realEstate.setImageSlotState(imageSlotState);
     }
 
     private void setRealEstateImageByIndex(RealEstate realEstate, int index, String imageName) {
@@ -174,49 +160,48 @@ public class RealEstateService {
             this.deleteImageByIndex(realEstateImgPathDto, i);
         }
 
-        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
-        redisTemp.delete("real_estate:id:" + id);
-//        redisRealEstatesTemp.delete(REAL_ESTATES_REDIS_KEY);
-//        redisRealEstateTemp.delete("real_estate:id:" + id);
+//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
+        redisTemp.delete("realEstate:id:" + id);
 
         realEstateRepository.deleteById(id);
     }
 
     public RealEstate getRealEstateById(Long id) {
-        String redisKey = "real_estate:id:" + id;
-        redisTemp.delete(redisKey);
-        RealEstate realEstate = (RealEstate) redisTemp.opsForValue().get(redisKey);
-        if (realEstate != null)
-            return realEstate;
-        Optional<RealEstate> realEstateOptional = realEstateRepository.findByIdWithImageSlotStates(id);
+        String redisKey = "realEstate:id:" + id;
+//        redisTemp.delete(redisKey);
+        RealEstate realEstateCached = (RealEstate) redisTemp.opsForValue().get(redisKey);
+        if (realEstateCached != null)
+            return realEstateCached;
+        Optional<RealEstate> realEstateOptional = realEstateRepository.findById(id);
         if (realEstateOptional == null){
-            throw new RuntimeException("부동산을 찾을 수 없습니다.");
+            throw new RuntimeException("getRealEstateById:부동산을 찾을 수 없습니다.");
         }
-        realEstate = realEstateOptional.get();
-        Hibernate.initialize(realEstate.getImageSlotState());
+        RealEstate realEstate = realEstateOptional.get();
         redisTemp.opsForValue().set(redisKey, realEstate);
         return realEstateOptional.get();
-//        String redisKey = "real_estate:id:" + id;
-//        RealEstate realEstate = redisRealEstateTemp.opsForValue().get(redisKey);
-//        if (realEstate != null)
-//            return realEstate;
-//        realEstate = realEstateRepository.findById(id)
-//            .orElseThrow(() -> new RuntimeException("부동산을 찾을 수 없습니다."));
-//        redisRealEstateTemp.opsForValue().set(redisKey, realEstate);
-//        return realEstate;
     }
 
-    public RealEstate getRealEstates(Long id) {
-        return getRealEstateById(id);
+    public RealEstateWithoutImgDto getRealEstateWithoutImg(Long id) {
+        String redisKey = "ealEstateWithoutImgDto:id:" + id;
+//        redisTemp.delete(redisKey);
+        RealEstateWithoutImgDto cachedDto = (RealEstateWithoutImgDto) redisTemp.opsForValue().get(redisKey);
+        if (cachedDto != null)
+            return cachedDto;
+        RealEstateWithoutImgDto result = this.realEstateQueryRepository.findByIdWithoutImg(id);
+        if (result == null){
+            throw new RuntimeException("getRealEstates:notfound");
+        }
+        redisTemp.opsForValue().set(redisKey, result);
+        return result;
     }
 
-    public String uploadImage(MultipartFile imageFile) throws IOException {
+    public String uploadImage(MultipartFile imageFile) {
         // 업로드할 디렉토리 경로 생성
-        File uploadDirectory = new File(uploadPath);
+        File uploadDirectory = new File(UPLOAD_DIR_PATH);
         if (!uploadDirectory.exists()) {
             uploadDirectory.mkdirs();
         }
-        System.out.println(imageFile);
+//        System.out.println(imageFile);
         // 파일명 중복 방지를 위한 UUID 생성
         String fileName = UUID.randomUUID().toString() + "-" + StringUtils.cleanPath(imageFile.getOriginalFilename());
         // 파일 저장 경로 생성
@@ -225,7 +210,7 @@ public class RealEstateService {
             // 파일을 지정된 경로에 저장
             Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            logger.error("이미지 파일 업로드에 실패했습니다.", e);
+            logger.error("uploadImage:이미지 파일 업로드에 실패했습니다.", e);
             throw new RuntimeException();
         }
         // 파일의 이름 반환
@@ -233,34 +218,28 @@ public class RealEstateService {
     }
 
     public Resource getImageResource(Long realEstateId, Long index) throws IOException {
-        RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(realEstateId);
-        Path imagePath = Paths.get(uploadPath, this.getImgNameByIndex(realEstateImgPathDto, index));
+        RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(realEstateId, index);
+        Path imagePath = Paths.get(UPLOAD_DIR_PATH, this.getImgNameByIndex(realEstateImgPathDto, index));
+        if (imagePath == null){
+            logger.error("getImageResource:Image Path not found:" + realEstateId + ":idx:" + index);
+            throw new RuntimeException();
+        }
         Resource resource = new UrlResource(imagePath.toUri());
-
         if (!resource.exists()) {
-            throw new IOException("Image not found for ID: " + realEstateId);
+            logger.error("getImageResource:Image not found for ID:" + realEstateId + ":idx:" + index);
+            throw new IOException();
         }
 
         return resource;
     }
 
-    private RealEstateImgPathDto getRealEstateImgPathDtoById(Long realEstateId) {
-        List<RealEstateImgPathDto> result = realEstateQueryRepository.findRealEstateImgPathDtoById(realEstateId);
-        if (result.size() == 0){
-            throw new RuntimeException("getRealEstateImgPathDtoById : not found") {};
+    private RealEstateImgPathDto getRealEstateImgPathDtoById(Long realEstateId, Long... idxList) {
+        RealEstateImgPathDto result = realEstateQueryRepository.findReImgPathDtoByIdAndIdxList(realEstateId, idxList);
+        if (false){ //exists 추가 필요.
+            logger.error("getRealEstateImgPathDtoById:not found");
+            throw new RuntimeException("getRealEstateImgPathDtoById:not found") {};
         }
-        return result.get(0);
-    }
-
-    private List<Integer> imgSlotManager(List<Integer> slot, int index, boolean isAdd){
-        if (isAdd){
-            if (!slot.contains(index))
-                slot.add(index);
-        } else {
-            if (slot.contains(index))
-                slot.remove(index);
-        }
-        return slot;
+        return result;
     }
 
     public RealEstate modifyRealEstate(Long id, RealEstateDto realEstateDto) throws IOException {
@@ -293,10 +272,8 @@ public class RealEstateService {
         realEstate.setLongitude(realEstateDto.getLongitude());
 
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
-        redisTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
-//        redisRealEstatesTemp.delete(REAL_ESTATES_REDIS_KEY);
-//        redisRealEstateTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
+//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
+        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }
@@ -314,7 +291,7 @@ public class RealEstateService {
             String existingImage = getImageByIndex(realEstate, i);
 
             if (existingImage != null) {
-                File file = new File(uploadPath + existingImage);
+                File file = new File(UPLOAD_DIR_PATH + existingImage);
                 if (file.exists()) {
                     file.delete();
                 }
@@ -322,9 +299,6 @@ public class RealEstateService {
 
             if (!(image == null || image.isEmpty() || image.getSize() == 0)) {
                 setImageByIndex(realEstate, i, uploadImage(image));
-                realEstate.setImageSlotState(imgSlotManager(realEstate.getImageSlotState(), i + 1, true));
-            } else {
-                realEstate.setImageSlotState(imgSlotManager(realEstate.getImageSlotState(), i + 1, false));
             }
         }
     }
@@ -345,18 +319,18 @@ public class RealEstateService {
         }
     }
 
-    private void setImageByIndex(RealEstate realEstate, int index, String image) {
+    private void setImageByIndex(RealEstate realEstate, int index, String imageName) {
         switch (index) {
-            case 0: realEstate.setImage(image); break;
-            case 1: realEstate.setImage2(image); break;
-            case 2: realEstate.setImage3(image); break;
-            case 3: realEstate.setImage4(image); break;
-            case 4: realEstate.setImage5(image); break;
-            case 5: realEstate.setImage6(image); break;
-            case 6: realEstate.setImage7(image); break;
-            case 7: realEstate.setImage8(image); break;
-            case 8: realEstate.setImage9(image); break;
-            case 9: realEstate.setImage10(image); break;
+            case 0: realEstate.setImage(imageName); break;
+            case 1: realEstate.setImage2(imageName); break;
+            case 2: realEstate.setImage3(imageName); break;
+            case 3: realEstate.setImage4(imageName); break;
+            case 4: realEstate.setImage5(imageName); break;
+            case 5: realEstate.setImage6(imageName); break;
+            case 6: realEstate.setImage7(imageName); break;
+            case 7: realEstate.setImage8(imageName); break;
+            case 8: realEstate.setImage9(imageName); break;
+            case 9: realEstate.setImage10(imageName); break;
         }
     }
 
@@ -367,10 +341,8 @@ public class RealEstateService {
         }
         realEstate.setSoldout(soldout);
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
-        redisTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
-//        redisRealEstatesTemp.delete(REAL_ESTATES_REDIS_KEY);
-//        redisRealEstateTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
+//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
+        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }
@@ -382,7 +354,7 @@ public class RealEstateService {
 
     private void deleteImageByIndex(RealEstateImgPathDto realEstate, Long index) {
         String imgName = getImgNameByIndex(realEstate, index);
-        File file = new File(uploadPath + imgName);
+        File file = new File(UPLOAD_DIR_PATH + imgName);
         if (file.exists()) {
             file.delete();
         }
@@ -470,18 +442,14 @@ public class RealEstateService {
         newEstate = realEstateRepository.save(newEstate);
         Long newId = newEstate.getId();
         realEstateRepository.delete(newEstate);
-        List<Integer> slotTmp = new ArrayList<>();
-        slotTmp.addAll(realEstate.getImageSlotState());
         realEstateRepository.delete(realEstate);
         realEstate.setId(newId);
-        realEstate.setImageSlotState(slotTmp);
 
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
-        redisTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
-//        redisRealEstatesTemp.delete(REAL_ESTATES_REDIS_KEY);
-//        redisRealEstateTemp.opsForValue().set("real_estate:id:" + realEstate.getId(), realEstate);
+//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
+        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }
+
 }

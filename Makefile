@@ -5,7 +5,7 @@ fore : dir
 	docker compose up --build
 
 develop : dir down
-	docker compose -f develop.yaml up --build 
+	docker compose -f develop.yaml up --build
 
 dir :
 	mkdir -p $(HOME)/kiwi_data/upload_images

@@ -34,7 +34,7 @@ function PatchREPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.put<types.RealEstate>(`/api/realestate/${id}`, {
+      const response = await axios.patch<types.RealEstate>(`/api/realestate/${id}`, {
         title,
         description,
         price,

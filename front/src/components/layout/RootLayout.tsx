@@ -161,7 +161,7 @@ function RootLayout() {
 
   const getImageData = async (id: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/image/' + id + '/1', {
+      const imgDataRes = await axios.get('/api/realestate/' + id + '/image/1', {
         withCredentials: true,
         responseType: 'blob'
       });
