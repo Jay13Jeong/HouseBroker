@@ -8,31 +8,42 @@ import javax.persistence.*;
 import java.util.Date;
 
 @ToString
-@Getter
-@Setter
 @Entity
 public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
+    @Getter
+    @Setter
     private String message;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "chatroom_id")
     private ChatRoom chatRoom;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private User sender;
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     private User receiver;
 
+    @Getter
+    @Setter
     private Date timestamp;
 
+    @Getter
+    @Setter
     private String senderIp;
 
     public Chat() {

@@ -63,9 +63,9 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public User getUserByAuthId(String authId) {
-        return userRepository.findUserByAuthid(authId);
-    }
+//    public User getUserByAuthId(String authId) {
+//        return userRepository.findUserByAuthid(authId);
+//    }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

@@ -9,15 +9,19 @@ import javax.persistence.*;
 
 @Entity
 @ToString
-@Getter
-@Setter
 @RequiredArgsConstructor
 public class Password {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
+    @Getter
+    @Setter
     private String email;
+
+    @Getter
+    @Setter
     private String password;
 }
