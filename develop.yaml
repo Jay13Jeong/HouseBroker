@@ -2,8 +2,6 @@ version: '3.9'
 services:
   test_mariadb:
     container_name: mariadb2
-    # build: ./database
-    # command: [ "bash", "-c", "/tmp/testData.sh"]
     image: mariadb
     restart: always
     environment:
@@ -11,18 +9,15 @@ services:
       MARIADB_DATABASE: mydb
       MARIADB_USER:  ${DB_USER}
       MARIADB_PASSWORD:  ${DB_PASSWORD}
-      # TEST_DATA_GEN_MODE: "true"
-      # TEST_DATA_AMOUNT: 1
+      TEST_DATA_GEN_MODE: "true"
+      TEST_DATA_AMOUNT: 99600000
     ports:
       - 3306:3306
     volumes:
       - type: bind
         source: $HOME/kiwi_data/DB
         target: /var/lib/mysql
-    # volumes:
-    #   - type: bind
-    #     source: ./database/insertDataToMariaDB.sh
-    #     target: /tmp/testData.sh
+      - ./database/insertDataToMariaDB.sh:/tmp/t.sh
     networks:
       - test
 
