@@ -49,11 +49,4 @@ public class RealEstateWithoutImgDto extends RepresentationModel<RealEstateWitho
         this.setRelay_object_type(model.getRelay_object_type());
         this.setResidence_availability_date(model.getResidence_availability_date());
     }
-
-    @JsonIgnore
-    @Override
-    public Links getLinks() {
-        return super.getLinks();
-    }
-
 }

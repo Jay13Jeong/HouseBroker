@@ -39,10 +39,4 @@ public class RealEstateImgPathDto extends RepresentationModel<RealEstateImgPathD
         if (!image9.isEmpty() && !image9.equals("NO_IMG")) this.imageSlotState.add(9);
         if (!image10.isEmpty() && !image10.equals("NO_IMG")) this.imageSlotState.add(10);
     }
-
-    @JsonIgnore
-    @Override
-    public Links getLinks() {
-        return super.getLinks();
-    }
 }
