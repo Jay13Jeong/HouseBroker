@@ -4,6 +4,7 @@ import static com.jjeong.kiwi.model.QRealEstate.realEstate;
 
 import com.jjeong.kiwi.dto.RealEstateImgPathDto;
 import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
+import com.jjeong.kiwi.model.RealEstate;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
@@ -99,32 +100,21 @@ public class RealEstateQueryRepository {
             .fetchOne();
     }
 
-//    public List<RealEstateWithoutImgDto> findAllWithoutImg() {
-//        return queryFactory
-//            .select(Projections.fields(RealEstateWithoutImgDto.class,
-//                realEstate.id,
-//                realEstate.administration_cost,
-//                realEstate.administration_cost2,
-//                realEstate.administrative_agency_approval_date,
-//                realEstate.area,
-//                realEstate.transaction_type,
-//                realEstate.title,
-//                realEstate.soldout,
-//                realEstate.residence_availability_date,
-//                realEstate.relay_object_type,
-//                realEstate.price,
-//                realEstate.number_of_cars_parked,
-//                realEstate.longitude,
-//                realEstate.location,
-//                realEstate.latitude,
-//                realEstate.direction,
-//                realEstate.description,
-//                realEstate.imageSlotState
-//            ))
-//            .from(realEstate)
-//            .innerJoin(realEstate.imageSlotState)
-//            .on(realEstate.id.eq(realEstate.imageSlotState.id))
-//            .fetch();
-//    }
+    public List<RealEstate> findByOffset(Long offset, Long limit) {
+        return queryFactory
+            .selectFrom(realEstate)
+            .from(realEstate)
+            .offset(offset)
+            .limit(limit)
+            .fetch();
+    }
+
+    public List<RealEstate> findByKeySetRange(Long begin, Long end) {
+        return queryFactory
+            .selectFrom(realEstate)
+            .from(realEstate)
+            .where(realEstate.id.between(begin, end))
+            .fetch();
+    }
 
 }

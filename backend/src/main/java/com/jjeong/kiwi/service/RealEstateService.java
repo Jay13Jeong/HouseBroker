@@ -10,7 +10,6 @@ import com.jjeong.kiwi.repository.RealEstateRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,7 +19,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +34,6 @@ public class RealEstateService {
     private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RealEstateService.class);
     private final RedisTemplate<String, Object> redisTemp;
-//    private final String REAL_ESTATES_REDIS_KEY = "realEstates";
 
     static { // 한번만 실행하도록.
         allowedMimeTypes.put("image/jpeg", true);
@@ -46,35 +43,37 @@ public class RealEstateService {
 
     private static String UPLOAD_DIR_PATH = System.getenv("UPLOAD_DIR");
 
-//    @Cacheable(cacheNames = "getAllRealEst ates", key = "#root.target + #root.methodName", sync = false, cacheManager = "redisCacheMgr")
-    public List<RealEstateWithImgPathDto> getAllRealEstates() {
-
-//        List<RealEstateWithImgPathDto> realEstatesCached = (List<RealEstateWithImgPathDto>) redisTemp.opsForValue().get(REAL_ESTATES_REDIS_KEY);
-//        if (realEstatesCached != null)
-//            return realEstatesCached;
-        List<RealEstate> realEstatesModel = realEstateRepository.findAll();
+    public List<RealEstateWithImgPathDto> getRealEstatesByOffset(Long offset, Long limit) {
+        List<RealEstate> realEstatesModel = realEstateQueryRepository.findByOffset(offset, limit);
         if (realEstatesModel == null) {
-            throw new RuntimeException("getAllRealEstates:not found");
+            throw new RuntimeException("404:getAllRealEstates:not found");
         }
         List<RealEstateWithImgPathDto> realEstates = new ArrayList<>();
         realEstatesModel.forEach(model -> realEstates.add(new RealEstateWithImgPathDto(model)));
-//        redisTemp.opsForValue().set(REAL_ESTATES_REDIS_KEY, realEstates);
         return realEstates;
+    }
 
+    public List<RealEstateWithImgPathDto> getRealEstatesByKeySet(Long start, Long end) {
+        List<RealEstate> realEstatesModel = realEstateQueryRepository.findByKeySetRange(start, end);
+        if (realEstatesModel == null) {
+            throw new RuntimeException("404:getAllRealEstates:not found");
+        }
+        List<RealEstateWithImgPathDto> realEstates = new ArrayList<>();
+        realEstatesModel.forEach(model -> realEstates.add(new RealEstateWithImgPathDto(model)));
+        return realEstates;
     }
 
     @Transactional
-    public RealEstate createRealEstate(RealEstateDto realEstateDto) throws IOException {
+    public RealEstate createRealEstate(RealEstateDto realEstateDto) {
         if (!checkMimeType(realEstateDto)) {
-            logger.error("허용하지 않은 이미지 Mime 파일");
-            throw new RuntimeException();
+            logger.error("createRealEstate:허용하지 않은 이미지 Mime 파일");
+            throw new RuntimeException("403:createRealEstate");
         }
 
         RealEstate realEstate = mapDtoToEntity(realEstateDto);
         List<String> images = uploadImages(realEstateDto);
         setImageNames(realEstate, images);
 
-//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         realEstate = realEstateRepository.save(realEstate);
         redisTemp.delete("realEstate:id:" + realEstate.getId());
 
@@ -104,7 +103,7 @@ public class RealEstateService {
         return realEstate;
     }
 
-    private List<String> uploadImages(RealEstateDto realEstateDto) throws IOException {
+    private List<String> uploadImages(RealEstateDto realEstateDto) {
         List<String> images = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
             MultipartFile image = getImageByIndex(realEstateDto, i);
@@ -156,11 +155,10 @@ public class RealEstateService {
 
     public void deleteRealEstate(Long id) {
         RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(id);
-        for (Long i = 1L; i <= 10L; i++){
+        for (long i = 1L; i <= 10L; i++){
             this.deleteImageByIndex(realEstateImgPathDto, i);
         }
 
-//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         redisTemp.delete("realEstate:id:" + id);
 
         realEstateRepository.deleteById(id);
@@ -173,8 +171,8 @@ public class RealEstateService {
         if (realEstateCached != null)
             return realEstateCached;
         Optional<RealEstate> realEstateOptional = realEstateRepository.findById(id);
-        if (realEstateOptional == null){
-            throw new RuntimeException("getRealEstateById:부동산을 찾을 수 없습니다.");
+        if (!realEstateOptional.isPresent()){
+            throw new RuntimeException("404:getRealEstateById:부동산을 찾을 수 없습니다.");
         }
         RealEstate realEstate = realEstateOptional.get();
         redisTemp.opsForValue().set(redisKey, realEstate);
@@ -189,7 +187,7 @@ public class RealEstateService {
             return cachedDto;
         RealEstateWithoutImgDto result = this.realEstateQueryRepository.findByIdWithoutImg(id);
         if (result == null){
-            throw new RuntimeException("getRealEstates:notfound");
+            throw new RuntimeException("404:getRealEstates:notfound");
         }
         redisTemp.opsForValue().set(redisKey, result);
         return result;
@@ -201,7 +199,6 @@ public class RealEstateService {
         if (!uploadDirectory.exists()) {
             uploadDirectory.mkdirs();
         }
-//        System.out.println(imageFile);
         // 파일명 중복 방지를 위한 UUID 생성
         String fileName = UUID.randomUUID().toString() + "-" + StringUtils.cleanPath(imageFile.getOriginalFilename());
         // 파일 저장 경로 생성
@@ -209,25 +206,29 @@ public class RealEstateService {
         try {
             // 파일을 지정된 경로에 저장
             Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("uploadImage:이미지 파일 업로드에 실패했습니다.", e);
-            throw new RuntimeException();
+            throw new RuntimeException("500:uploadImage");
         }
         // 파일의 이름 반환
         return fileName;
     }
 
-    public Resource getImageResource(Long realEstateId, Long index) throws IOException {
+    public Resource getImageResource(Long realEstateId, Long index) {
+        Resource resource;
+
         RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(realEstateId, index);
         Path imagePath = Paths.get(UPLOAD_DIR_PATH, this.getImgNameByIndex(realEstateImgPathDto, index));
         if (imagePath == null){
             logger.error("getImageResource:Image Path not found:" + realEstateId + ":idx:" + index);
-            throw new RuntimeException();
+            throw new RuntimeException("404:getImageResource");
         }
-        Resource resource = new UrlResource(imagePath.toUri());
-        if (!resource.exists()) {
+        try {
+            resource = new UrlResource(imagePath.toUri());
+            if (!resource.exists()) throw new RuntimeException("500:getImageResource");
+        }catch (Exception e){
             logger.error("getImageResource:Image not found for ID:" + realEstateId + ":idx:" + index);
-            throw new IOException();
+            throw new RuntimeException(e.getMessage());
         }
 
         return resource;
@@ -237,19 +238,19 @@ public class RealEstateService {
         RealEstateImgPathDto result = realEstateQueryRepository.findReImgPathDtoByIdAndIdxList(realEstateId, idxList);
         if (false){ //exists 추가 필요.
             logger.error("getRealEstateImgPathDtoById:not found");
-            throw new RuntimeException("getRealEstateImgPathDtoById:not found") {};
+            throw new RuntimeException("404:getRealEstateImgPathDtoById:not found") {};
         }
         return result;
     }
 
-    public RealEstate modifyRealEstate(Long id, RealEstateDto realEstateDto) throws IOException {
+    public RealEstate modifyRealEstate(Long id, RealEstateDto realEstateDto) {
         if (!checkMimeType(realEstateDto)) {
-            throw new IOException("허용하지않은 이미지 Mime파일");
+            throw new RuntimeException("403:허용하지않은 이미지 Mime파일");
         }
         // 해당 ID를 가진 부동산 가져오기
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new IOException("게시글 id로 찾기 실패");
+            throw new RuntimeException("404:게시글 id로 찾기 실패");
         }
 
         // 부동산 이미지 정보 업데이트
@@ -272,13 +273,12 @@ public class RealEstateService {
         realEstate.setLongitude(realEstateDto.getLongitude());
 
         realEstate = realEstateRepository.save(realEstate);
-//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }
 
-    private void updateImages(RealEstate realEstate, RealEstateDto realEstateDto) throws IOException {
+    private void updateImages(RealEstate realEstate, RealEstateDto realEstateDto) {
         List<MultipartFile> imageList = Arrays.asList(
                 realEstateDto.getImage(), realEstateDto.getImage2(), realEstateDto.getImage3(),
                 realEstateDto.getImage4(), realEstateDto.getImage5(), realEstateDto.getImage6(),
@@ -334,14 +334,13 @@ public class RealEstateService {
         }
     }
 
-    public RealEstate modifyRealEstateIsSoldOut(Long id, boolean soldout) throws IOException {
+    public RealEstate modifyRealEstateIsSoldOut(Long id, boolean soldout) {
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new IOException("게시글 id로 찾기 실패");
+            throw new RuntimeException("404:게시글 id로 찾기 실패");
         }
         realEstate.setSoldout(soldout);
         realEstate = realEstateRepository.save(realEstate);
-//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
@@ -433,10 +432,10 @@ public class RealEstateService {
         return  true;
     }
 
-    public RealEstate modifySequenceToLatest(Long id) throws IOException {
+    public RealEstate modifySequenceToLatest(Long id) {
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new IOException("게시글 id로 찾기 실패");
+            throw new RuntimeException("404:게시글 id로 찾기 실패");
         }
         RealEstate newEstate = new RealEstate();
         newEstate = realEstateRepository.save(newEstate);
@@ -446,7 +445,6 @@ public class RealEstateService {
         realEstate.setId(newId);
 
         realEstate = realEstateRepository.save(realEstate);
-//        redisTemp.delete(REAL_ESTATES_REDIS_KEY);
         redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
