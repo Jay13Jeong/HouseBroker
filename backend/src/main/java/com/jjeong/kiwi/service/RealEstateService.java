@@ -53,8 +53,9 @@ public class RealEstateService {
         return realEstates;
     }
 
-    public List<RealEstateWithImgPathDto> getRealEstatesByKeySet(Long start, Long end) {
-        List<RealEstate> realEstatesModel = realEstateQueryRepository.findByKeySetRange(start, end);
+    public List<RealEstateWithImgPathDto> getRealEstatesByKeySet(Long start, Long range) {
+        List<RealEstate> realEstatesModel =
+            realEstateQueryRepository.findByKeySetRange(start, start + range - 1);
         if (realEstatesModel == null) {
             throw new RuntimeException("404:getAllRealEstates:not found");
         }
