@@ -46,7 +46,7 @@ function MapPage() {
 
   async function getRealEstate() {
     try {
-      const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
+      const res = await axios.get<types.RealEstate[]>('/api/real-estates/', { withCredentials: true });
       setRealEstates(res.data);
       setSearchResults(res.data);
     } catch (err: any) {

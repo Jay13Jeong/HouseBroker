@@ -125,7 +125,7 @@ const RealestateEditModal: React.FC = () => {
   const fetchRealEstateInfo = async () => {
     try {
       const res = await axios.get<types.RealEstate>(
-        `/api/realestate/${showModal.realestateId}/detail`,
+        `/api/real-estates/${showModal.realestateId}/detail`,
         { withCredentials: true }
       );
       setRealEstateInfo(res.data);
@@ -164,7 +164,7 @@ const RealestateEditModal: React.FC = () => {
       if (await handleEmptySubmit() === true){
         try {
           const response = await axios.delete(
-            `/api/realestate/${showModal.realestateId}/image/${index}`,
+            `/api/real-estates/${showModal.realestateId}/image/${index}`,
             { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
           );
           toast.success("내리기 성공");
@@ -179,7 +179,7 @@ const RealestateEditModal: React.FC = () => {
     if (await handleConfirmSubmit('') === false) return;
     try {
       const response = await axios.patch<types.RealEstate>(
-        `/api/realestate/${showModal.realestateId}`,
+        `/api/real-estates/${showModal.realestateId}`,
         {
           [target]: newImg,
         },
@@ -212,7 +212,7 @@ const RealestateEditModal: React.FC = () => {
     }
     try {
       const response = await axios.patch<types.RealEstate>(
-        `/api/realestate/${showModal.realestateId}`,
+        `/api/real-estates/${showModal.realestateId}`,
         uploadData,
         { withCredentials: true, headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -307,7 +307,7 @@ const RealestateEditModal: React.FC = () => {
     if (realEstateInfo === null) return;
     try {
       const response = await axios.patch(
-        `/api/realestate/${showModal.realestateId}/sold-out`,
+        `/api/real-estates/${showModal.realestateId}/sold-out`,
         {
           soldout: soldout,
         },
@@ -409,7 +409,7 @@ const RealestateEditModal: React.FC = () => {
 
   const getImageData = async (id: number, index: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/' + id + '/image/' + index, {
+      const imgDataRes = await axios.get('/api/real-estates/' + id + '/image/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });

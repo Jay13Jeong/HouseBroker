@@ -106,7 +106,7 @@ function RootLayout() {
 
   async function getRealEstate() {
     try {
-      const res = await axios.get<types.RealEstate[]>('/api/realestate/', { withCredentials: true });
+      const res = await axios.get<types.RealEstate[]>('/api/real-estates/', { withCredentials: true });
       setRealEstates(res.data.reverse());
       setSearchResults(res.data);
     } catch (err: any) {
@@ -161,7 +161,7 @@ function RootLayout() {
 
   const getImageData = async (id: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/' + id + '/image/1', {
+      const imgDataRes = await axios.get('/api/real-estates/' + id + '/image/1', {
         withCredentials: true,
         responseType: 'blob'
       });

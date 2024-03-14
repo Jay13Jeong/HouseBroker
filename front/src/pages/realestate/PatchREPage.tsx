@@ -20,7 +20,7 @@ function PatchREPage() {
 
   const getRealEstate = async () => {
     try {
-      const response = await axios.get<types.RealEstate>(`/api/realestate/${id}`);
+      const response = await axios.get<types.RealEstate>(`/api/real-estates/${id}`);
       const { title, description, price } = response.data;
       setTitle(title);
       setDescription(description);
@@ -34,7 +34,7 @@ function PatchREPage() {
     e.preventDefault();
 
     try {
-      const response = await axios.patch<types.RealEstate>(`/api/realestate/${id}`, {
+      const response = await axios.patch<types.RealEstate>(`/api/real-estates/${id}`, {
         title,
         description,
         price,

@@ -49,7 +49,7 @@ const RealestateModal: React.FC = () => {
   const fetchRealEstateInfo = async () => {
     try {
       const res = await axios.get<types.RealEstate>(
-        `/api/realestate/${showModal.realestateId}/detail`,
+        `/api/real-estates/${showModal.realestateId}/detail`,
         { withCredentials: true }
       );
       setRealEstateInfo(res.data);
@@ -115,7 +115,7 @@ const RealestateModal: React.FC = () => {
     e.preventDefault();
     try {
       const response = await axios.patch(
-        `/api/realestate/${showModal.realestateId}/sequence`,
+        `/api/real-estates/${showModal.realestateId}/sequence`,
         {},
         { withCredentials: true, }
       );
@@ -129,7 +129,7 @@ const RealestateModal: React.FC = () => {
   const deleteRealEstate = async () => {
     try {
       const res = await axios.delete(
-        `/api/realestate/${showModal.realestateId}`,
+        `/api/real-estates/${showModal.realestateId}`,
         { withCredentials: true }
       );
       toast.success("삭제 요청 완료");
@@ -140,7 +140,7 @@ const RealestateModal: React.FC = () => {
 
   const getImageData = async (id: number, index: number) => {
     try {
-      const imgDataRes = await axios.get('/api/realestate/' + id + '/image/' + index, {
+      const imgDataRes = await axios.get('/api/real-estates/' + id + '/image/' + index, {
         withCredentials: true,
         responseType: 'blob'
       });
