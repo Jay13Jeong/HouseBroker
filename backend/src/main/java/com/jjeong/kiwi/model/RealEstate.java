@@ -1,23 +1,20 @@
 package com.jjeong.kiwi.model;
 
-import com.querydsl.core.annotations.QueryEntity;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.springframework.hateoas.RepresentationModel;
 
 @Entity
-@ToString
+@Table(name = "real_estate")
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class RealEstate {
+public class RealEstate implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +29,14 @@ public class RealEstate {
     private String image8;
     private String image9;
     private String image10;
+
+    @ManyToMany
+    @JoinTable(
+        name = "real_estate_image",
+        joinColumns = @JoinColumn(name = "real_estate_id"),
+        inverseJoinColumns = @JoinColumn(name = "image_id")
+    )
+    private Set<Image> images = new HashSet<>();
 
     private String title;
 

@@ -1,7 +1,6 @@
 package com.jjeong.kiwi.controller;
 
 import com.jjeong.kiwi.annotaion.CommonResponseHeader;
-import com.jjeong.kiwi.annotaion.ExceptionHandling;
 import com.jjeong.kiwi.annotaion.PermitCheck;
 import com.jjeong.kiwi.dto.RealEstateWithImgPathDto;
 import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
@@ -25,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/realestate")
+@RequestMapping("/real-estates")
+@CommonResponseHeader
 @RequiredArgsConstructor
 public class RealEstateController {
 
@@ -33,9 +33,8 @@ public class RealEstateController {
     private static final Logger logger = LoggerFactory.getLogger(RealEstateController.class);
     private final Long defaultPageLimit = 40L;
 
+
     @GetMapping("/")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<List<RealEstateWithImgPathDto>> getRealEstates() {
         List<RealEstateWithImgPathDto> realEstates =
             realEstateService.getRealEstatesByOffset(0L, defaultPageLimit);
@@ -44,10 +43,9 @@ public class RealEstateController {
     }
 
     @GetMapping("/key-set/{nextStartRealEstateId}")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<List<RealEstateWithImgPathDto>> getRealEstatesByKeySet(
         @PathVariable Long nextStartRealEstateId) {
+//        openTelemetry
         List<RealEstateWithImgPathDto> realEstates =
             realEstateService.getRealEstatesByKeySet(nextStartRealEstateId, defaultPageLimit);
         realEstates.forEach(re -> appendsHATEOAS(re, re.getId()));
@@ -55,8 +53,7 @@ public class RealEstateController {
     }
 
     @GetMapping("/{id}")
-    @ExceptionHandling
-    @CommonResponseHeader
+//    @ExceptionHandling
     public ResponseEntity<RealEstateWithoutImgDto> getRealEstateById(@PathVariable Long id) {
         RealEstateWithoutImgDto realEstate = realEstateService.getRealEstateWithoutImg(id);
         appendsHATEOAS(realEstate, id);
@@ -64,8 +61,6 @@ public class RealEstateController {
     }
 
     @GetMapping("/{id}/detail")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<RealEstateWithImgPathDto> getRealEstateDetailById(@PathVariable Long id) {
         RealEstate realEstate = realEstateService.getRealEstateById(id);
         RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(realEstate);
@@ -74,8 +69,6 @@ public class RealEstateController {
     }
 
     @GetMapping("/{id}/image/{index}")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<Resource> getRealEstateImage(
         @PathVariable Long id,
         @PathVariable Long index) {
@@ -87,8 +80,6 @@ public class RealEstateController {
 
     @PermitCheck
     @PostMapping("/")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<RealEstateWithImgPathDto> createRealEstate(
         @ModelAttribute RealEstateDto realEstateDto) {
         RealEstate realEstate = realEstateService.createRealEstate(realEstateDto);
@@ -99,8 +90,6 @@ public class RealEstateController {
 
     @PermitCheck
     @DeleteMapping("/{id}/image/{index}")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<Void> deleteImage(@PathVariable Long id, @PathVariable Long index) {
         realEstateService.deleteImage(id, index);
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
@@ -108,8 +97,6 @@ public class RealEstateController {
 
     @PermitCheck
     @DeleteMapping("/{id}")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<Void> deleteRealEstate(@PathVariable Long id) {
         realEstateService.deleteRealEstate(id);
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
@@ -117,8 +104,6 @@ public class RealEstateController {
 
     @PermitCheck
     @PatchMapping("/{id}")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<RealEstateWithImgPathDto> updateRealEstate(@PathVariable Long id,
         @ModelAttribute RealEstateDto realEstateDto) {
         RealEstate realEstate = this.realEstateService.modifyRealEstate(id, realEstateDto);
@@ -129,8 +114,6 @@ public class RealEstateController {
 
     @PermitCheck
     @PatchMapping("/{id}/sequence")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<RealEstateWithoutImgDto> updateSequence(@PathVariable Long id) {
         RealEstate realEstate = this.realEstateService.modifySequenceToLatest(id);
         RealEstateWithoutImgDto dto = new RealEstateWithoutImgDto(realEstate);
@@ -140,8 +123,6 @@ public class RealEstateController {
 
     @PermitCheck
     @PatchMapping("/{id}/sold-out")
-    @ExceptionHandling
-    @CommonResponseHeader
     public ResponseEntity<RealEstateWithoutImgDto> updateRealEstateIsSoldOut(
         @PathVariable Long id,
         @RequestBody Map<String, Boolean> requestBody) {

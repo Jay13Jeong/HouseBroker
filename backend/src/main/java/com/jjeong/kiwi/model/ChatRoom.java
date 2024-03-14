@@ -2,13 +2,12 @@ package com.jjeong.kiwi.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.*;
 
-@ToString
 @Entity
+@Table(name = "chat_room")
 public class ChatRoom {
 
     @Id

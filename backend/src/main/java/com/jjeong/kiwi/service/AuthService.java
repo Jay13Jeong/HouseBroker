@@ -10,6 +10,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class AuthService {
     private static final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    private static final Map<String, List> emailAuthList = new HashMap<>();
+    private static final Map<String, List> emailAuthList = new ConcurrentHashMap<>();
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private final JavaMailSender javaMailSender;

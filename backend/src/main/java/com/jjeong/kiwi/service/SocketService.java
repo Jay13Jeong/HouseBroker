@@ -9,24 +9,26 @@ import com.jjeong.kiwi.model.ChatRoom;
 import com.jjeong.kiwi.model.User;
 import com.jjeong.kiwi.repository.ChatRepository;
 import com.jjeong.kiwi.repository.ChatRoomRepository;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class SocketService {
-    private static final Map<String, Long> socketAndUserPkMap = new HashMap<>();
-    private static final Map<Long, Set<String>> userPkAndSocketMap = new HashMap<>();
-    private static final Map<String, String> socketAndUserIp = new HashMap<>();
+    private static final Map<String, Long> socketAndUserPkMap = new ConcurrentHashMap<>();
+    private static final Map<Long, Set<String>> userPkAndSocketMap = new ConcurrentHashMap<>();
+    private static final Map<String, String> socketAndUserIp = new ConcurrentHashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(SocketService.class);
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -35,34 +37,29 @@ public class SocketService {
     private final ChatRoomRepository chatRoomRepository;
 
     private final ChatRepository chatRepository;
+    private final RedisTemplate<String, Object> redisTemp;
 
-    @Async
-    public synchronized void putToSocketAndUserPkMap(String socketId, Long userPk){
+    public void putToSocketAndUserPkMap(String socketId, Long userPk){
         socketAndUserPkMap.put(socketId, userPk);
     }
 
-    @Async
-    public synchronized void delToSocketAndUserPkMap(String socketId){
+    public void delToSocketAndUserPkMap(String socketId){
         socketAndUserPkMap.remove(socketId);
     }
 
-    @Async
-    public synchronized void putToSocketAndUserIp(String socketId, String ip){
+    public void putToSocketAndUserIp(String socketId, String ip){
         socketAndUserIp.put(socketId, ip);
     }
 
-    @Async
-    public synchronized void delToSocketAndUserIp(String socketId){
+    public void delToSocketAndUserIp(String socketId){
         socketAndUserIp.remove(socketId);
     }
 
-    @Async
-    public synchronized void putToUserPkAndSocketMap(Long userPk, Set<String> socketIds){
+    public void putToUserPkAndSocketMap(Long userPk, Set<String> socketIds){
         userPkAndSocketMap.put(userPk, socketIds);
     }
 
-    @Async
-    public synchronized void delToUserPkAndSocketMap(Long userPk){
+    public void delToUserPkAndSocketMap(Long userPk){
         userPkAndSocketMap.remove(userPk);
     }
 
@@ -165,6 +162,7 @@ public class SocketService {
         return chatRoom;
     }
 
+    @Transactional
     public Chat saveChat(Long senderId, Long receiverId, String message, ChatRoom chatRoom, String senderIp) {
         User sender = userService.getUserById(senderId);
         User receiver = userService.getUserById(receiverId);
@@ -177,6 +175,7 @@ public class SocketService {
         return chatRepository.save(chat);
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> getChatsByRoomId(Long roomId) {
         ChatRoom commonChatRooms = chatRoomRepository.findChatRoomById(roomId);
 
@@ -195,6 +194,7 @@ public class SocketService {
         return newMessages;
     }
 
+    @Transactional(readOnly = true)
     public List<ChatRoom> getChatRooms(long myId) {
         User me = userService.getUserById(myId);
         List<User> users = new ArrayList<>();
@@ -218,10 +218,12 @@ public class SocketService {
         return newChatRooms;
     }
 
+    @Transactional(readOnly = true)
     public ChatRoom getChatRoomById(Long roomId) {
         return chatRoomRepository.findChatRoomById(roomId);
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> getChatsByUserId(long myId) {
         List<ChatRoom> commonChatRooms = this.getChatRooms(myId);
         if (commonChatRooms.isEmpty()){
@@ -238,7 +240,7 @@ public class SocketService {
         return newMessages;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ChatRoom loadChatRoomById(Long roomId) {
         ChatRoom chatRoom = chatRoomRepository.findChatRoomById(roomId);
         if (chatRoom != null){
@@ -247,6 +249,7 @@ public class SocketService {
         return chatRoom;
     }
 
+    @Transactional
     public ChatRoom loadChatRoomByRoomName(String roomName) {
             List<ChatRoom> chatRooms = chatRoomRepository.findChatRoomByRoomName(roomName);
             ChatRoom chatRoom = null;
@@ -265,6 +268,7 @@ public class SocketService {
             return chatRoom;
     }
 
+    @Transactional
     public void deleteChatRoom(Long roomId) {
         chatRoomRepository.deleteById(roomId);
     }

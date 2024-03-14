@@ -3,12 +3,10 @@ package com.jjeong.kiwi.model;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
-@ToString
 @RequiredArgsConstructor
 public class Password {
 

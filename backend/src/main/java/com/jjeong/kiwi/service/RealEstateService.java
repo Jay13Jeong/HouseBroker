@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,6 @@ public class RealEstateService {
     private final String NO_IMG = "NO_IMG";
     private static final Map<String, Boolean> allowedMimeTypes = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(RealEstateService.class);
-    private final RedisTemplate<String, Object> redisTemp;
 
     static { // 한번만 실행하도록.
         allowedMimeTypes.put("image/jpeg", true);
@@ -43,21 +43,23 @@ public class RealEstateService {
 
     private static String UPLOAD_DIR_PATH = System.getenv("UPLOAD_DIR");
 
+    @Transactional(readOnly = true)
     public List<RealEstateWithImgPathDto> getRealEstatesByOffset(Long offset, Long limit) {
         List<RealEstate> realEstatesModel = realEstateQueryRepository.findByOffset(offset, limit);
         if (realEstatesModel == null) {
-            throw new RuntimeException("404:getAllRealEstates:not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getAllRealEstates");
         }
         List<RealEstateWithImgPathDto> realEstates = new ArrayList<>();
         realEstatesModel.forEach(model -> realEstates.add(new RealEstateWithImgPathDto(model)));
         return realEstates;
     }
 
+    @Transactional(readOnly = true)
     public List<RealEstateWithImgPathDto> getRealEstatesByKeySet(Long start, Long range) {
         List<RealEstate> realEstatesModel =
-            realEstateQueryRepository.findByKeySetRange(start, start + range - 1);
+            realEstateQueryRepository.findByOffsetWidthKeySet(start, 0L, range);
         if (realEstatesModel == null) {
-            throw new RuntimeException("404:getAllRealEstates:not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getAllRealEstates");
         }
         List<RealEstateWithImgPathDto> realEstates = new ArrayList<>();
         realEstatesModel.forEach(model -> realEstates.add(new RealEstateWithImgPathDto(model)));
@@ -68,7 +70,7 @@ public class RealEstateService {
     public RealEstate createRealEstate(RealEstateDto realEstateDto) {
         if (!checkMimeType(realEstateDto)) {
             logger.error("createRealEstate:허용하지 않은 이미지 Mime 파일");
-            throw new RuntimeException("403:createRealEstate");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "createRealEstate");
         }
 
         RealEstate realEstate = mapDtoToEntity(realEstateDto);
@@ -76,7 +78,7 @@ public class RealEstateService {
         setImageNames(realEstate, images);
 
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.delete("realEstate:id:" + realEstate.getId());
+//        redisTemp.delete("realEstate:id:" + realEstate.getId());
 
         return realEstate;
     }
@@ -154,43 +156,44 @@ public class RealEstateService {
         }
     }
 
+    @Transactional
     public void deleteRealEstate(Long id) {
         RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(id);
         for (long i = 1L; i <= 10L; i++){
             this.deleteImageByIndex(realEstateImgPathDto, i);
         }
-
-        redisTemp.delete("realEstate:id:" + id);
-
+//        redisTemp.delete("realEstate:id:" + id);
         realEstateRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public RealEstate getRealEstateById(Long id) {
         String redisKey = "realEstate:id:" + id;
 //        redisTemp.delete(redisKey);
-        RealEstate realEstateCached = (RealEstate) redisTemp.opsForValue().get(redisKey);
-        if (realEstateCached != null)
-            return realEstateCached;
+//        RealEstate realEstateCached = (RealEstate) redisTemp.opsForValue().get(redisKey);
+//        if (realEstateCached != null)
+//            return realEstateCached;
         Optional<RealEstate> realEstateOptional = realEstateRepository.findById(id);
         if (!realEstateOptional.isPresent()){
-            throw new RuntimeException("404:getRealEstateById:부동산을 찾을 수 없습니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getRealEstateById:부동산을 찾을 수 없습니다.");
         }
         RealEstate realEstate = realEstateOptional.get();
-        redisTemp.opsForValue().set(redisKey, realEstate);
+//        redisTemp.opsForValue().set(redisKey, realEstate);
         return realEstateOptional.get();
     }
 
+    @Transactional(readOnly = true)
     public RealEstateWithoutImgDto getRealEstateWithoutImg(Long id) {
         String redisKey = "ealEstateWithoutImgDto:id:" + id;
 //        redisTemp.delete(redisKey);
-        RealEstateWithoutImgDto cachedDto = (RealEstateWithoutImgDto) redisTemp.opsForValue().get(redisKey);
-        if (cachedDto != null)
-            return cachedDto;
+//        RealEstateWithoutImgDto cachedDto = (RealEstateWithoutImgDto) redisTemp.opsForValue().get(redisKey);
+//        if (cachedDto != null)
+//            return cachedDto;
         RealEstateWithoutImgDto result = this.realEstateQueryRepository.findByIdWithoutImg(id);
         if (result == null){
-            throw new RuntimeException("404:getRealEstates:notfound");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getRealEstates");
         }
-        redisTemp.opsForValue().set(redisKey, result);
+//        redisTemp.opsForValue().set(redisKey, result);
         return result;
     }
 
@@ -209,7 +212,7 @@ public class RealEstateService {
             Files.copy(imageFile.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             logger.error("uploadImage:이미지 파일 업로드에 실패했습니다.", e);
-            throw new RuntimeException("500:uploadImage");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "uploadImage");
         }
         // 파일의 이름 반환
         return fileName;
@@ -218,40 +221,48 @@ public class RealEstateService {
     public Resource getImageResource(Long realEstateId, Long index) {
         Resource resource;
 
-        RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(realEstateId, index);
-        Path imagePath = Paths.get(UPLOAD_DIR_PATH, this.getImgNameByIndex(realEstateImgPathDto, index));
+        RealEstateImgPathDto realEstateImgPathDto =
+            this.getRealEstateImgPathDtoById(realEstateId, index);
+        Path imagePath =
+            Paths.get(UPLOAD_DIR_PATH, this.getImgNameByIndex(realEstateImgPathDto, index));
         if (imagePath == null){
             logger.error("getImageResource:Image Path not found:" + realEstateId + ":idx:" + index);
-            throw new RuntimeException("404:getImageResource");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getImageResource");
         }
         try {
             resource = new UrlResource(imagePath.toUri());
-            if (!resource.exists()) throw new RuntimeException("500:getImageResource");
-        }catch (Exception e){
-            logger.error("getImageResource:Image not found for ID:" + realEstateId + ":idx:" + index);
-            throw new RuntimeException(e.getMessage());
+            if (!resource.exists()) throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "getImageResource");
+        } catch (ResponseStatusException rse){
+            logger.error("getImageResource:ID:" + realEstateId + ":idx:" + index);
+            throw new ResponseStatusException(rse.getStatus(), rse.getMessage());
+        } catch (Exception e){
+            logger.error("getImageResource", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR ,e.getMessage());
         }
 
         return resource;
     }
 
-    private RealEstateImgPathDto getRealEstateImgPathDtoById(Long realEstateId, Long... idxList) {
+    @Transactional(readOnly = true)
+    public RealEstateImgPathDto getRealEstateImgPathDtoById(Long realEstateId, Long... idxList) {
         RealEstateImgPathDto result = realEstateQueryRepository.findReImgPathDtoByIdAndIdxList(realEstateId, idxList);
-        if (false){ //exists 추가 필요.
+        if (result == null){
             logger.error("getRealEstateImgPathDtoById:not found");
-            throw new RuntimeException("404:getRealEstateImgPathDtoById:not found") {};
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getRealEstateImgPathDtoById") {};
         }
         return result;
     }
 
+    @Transactional
     public RealEstate modifyRealEstate(Long id, RealEstateDto realEstateDto) {
         if (!checkMimeType(realEstateDto)) {
-            throw new RuntimeException("403:허용하지않은 이미지 Mime파일");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "modifyRealEstate:허용하지않은 이미지 Mime파일");
         }
         // 해당 ID를 가진 부동산 가져오기
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new RuntimeException("404:게시글 id로 찾기 실패");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifyRealEstate:id로 찾기");
         }
 
         // 부동산 이미지 정보 업데이트
@@ -274,8 +285,7 @@ public class RealEstateService {
         realEstate.setLongitude(realEstateDto.getLongitude());
 
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
-
+//        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
         return realEstate;
     }
 
@@ -335,14 +345,15 @@ public class RealEstateService {
         }
     }
 
+    @Transactional
     public RealEstate modifyRealEstateIsSoldOut(Long id, boolean soldout) {
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new RuntimeException("404:게시글 id로 찾기 실패");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifyRealEstateIsSoldOut:id로 찾기");
         }
         realEstate.setSoldout(soldout);
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
+//        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }
@@ -433,10 +444,11 @@ public class RealEstateService {
         return  true;
     }
 
+    @Transactional
     public RealEstate modifySequenceToLatest(Long id) {
         RealEstate realEstate = this.getRealEstateById(id);
         if (realEstate == null) {
-            throw new RuntimeException("404:게시글 id로 찾기 실패");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifySequenceToLatest:id로 찾기");
         }
         RealEstate newEstate = new RealEstate();
         newEstate = realEstateRepository.save(newEstate);
@@ -446,7 +458,7 @@ public class RealEstateService {
         realEstate.setId(newId);
 
         realEstate = realEstateRepository.save(realEstate);
-        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
+//        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
 
         return realEstate;
     }

@@ -22,8 +22,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class AuthorizationAspect {
 
     private final UserService userService;
-    private final static int allowLevel = Integer.parseInt(System.getenv("ADMIN_LEVEL"));
     private final static Logger logger = LoggerFactory.getLogger(AuthorizationAspect.class);
+    private static int allowLevel = 10;
+    static {
+        String initAllowLevel = System.getenv("ADMIN_LEVEL");
+        if (initAllowLevel != null && !initAllowLevel.isEmpty()){
+            allowLevel = Integer.parseInt(initAllowLevel);
+        }
+    }
 
     @Pointcut("@annotation(com.jjeong.kiwi.annotaion.LoginCheck)")
     public void targetedEndpoints() {}

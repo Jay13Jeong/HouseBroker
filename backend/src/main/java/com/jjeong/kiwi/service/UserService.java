@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import java.util.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,13 +23,23 @@ public class UserService {
     private final PasswordRepository passwordRepository;
     private final AuthService authService;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    private final Set<String> adminEmails = new HashSet<>(Arrays.asList(System.getenv("ADMIN_EMAIL").split(",")));
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static Set<String> adminEmails = new HashSet<>();
+    static {
+        String mailList = System.getenv("ADMIN_EMAIL");
+        if (mailList != null && !mailList.isEmpty()){
+            for(String email : mailList.split(",")){
+                adminEmails.add(email);
+            }
+        }
+    }
 
+    @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
+    @Transactional
     public boolean createUser(SignupRequest signupRequest, boolean isNomalSignup) {
         User user = new User();
         Password pwd = null;
@@ -57,8 +68,7 @@ public class UserService {
         }
     }
 
-
-
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -67,14 +77,17 @@ public class UserService {
 //        return userRepository.findUserByAuthid(authId);
 //    }
 
+    @Transactional
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public User getUserById(Long id) {
         return userRepository.findUserById(id);
     }
 
+    @Transactional(readOnly = true)
     public UserDto getUserDtoById(Long id) {
         User user = userRepository.findUserById(id);
         UserDto userDto = new UserDto();
@@ -84,10 +97,12 @@ public class UserService {
         return userDto;
     }
 
+    @Transactional(readOnly = true)
     public int getUserPermit(long id) {
         return userRepository.findUserById(id).getPermitLevel();
     }
 
+    @Transactional
     public User saveUser(User user) {
         return userRepository.save(user);
     }
@@ -202,18 +217,21 @@ public class UserService {
         return this.adminEmails;
     }
 
+    @Transactional
     public void dormantUser(long id) {
         User user = userRepository.findUserById(id);
         user.setDormant(true);
         userRepository.save(user);
     }
 
+    @Transactional
     public void returningUser(long id) {
         User user = userRepository.findUserById(id);
         user.setDormant(false);
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public User getUserByEmailAndPwd(SignupRequest signupRequest) {
         try {
             Password pwd = passwordRepository.findByEmail(signupRequest.getEmail());
