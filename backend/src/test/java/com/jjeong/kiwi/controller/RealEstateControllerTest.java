@@ -93,7 +93,6 @@ public class RealEstateControllerTest {
         Long additionalIdx = i;
         Set<Long> resFinishChk = ConcurrentHashMap.newKeySet();
 
-        System.out.println("size: " + i + ", " + additionalIdx);
         for (; i < threadSize + additionalIdx; i++){
             Long currIdx = i;
             es.submit(() -> {
