@@ -1,14 +1,14 @@
 version: '3'
 services:
   mariadb:
-    container_name: mariadb
+    container_name: ${DB_HOST}
     image: mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD:   ${DB_ROOT_PASSWORD}
-      MARIADB_DATABASE: mydb
-      MARIADB_USER:  ${DB_USER}
-      MARIADB_PASSWORD:  ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
     expose:
       - 3306
     volumes:
@@ -19,7 +19,7 @@ services:
       - jg
 
   redis:
-    container_name: redis7
+    container_name: ${REDIS_HOST}
     image: redis:7-alpine
     restart: always
     expose:
@@ -37,23 +37,28 @@ services:
     restart: always
     depends_on:
       - mariadb
+      - redis
+      - jaeger
     environment:
-      GOOGLE_MAIL_UNAME: ${GOOGLE_MAIL_UNAME}
-      GOOGLE_MAIL_PWD: ${GOOGLE_MAIL_PWD}
-      CONFIRM_MAIL_TITLE: "[부동산] 인증코드 입니다"
+      SERVER_HOST: ${SERVER_HOST}
+      CONFIRM_MAIL_TITLE: ${CONFIRM_MAIL_TITLE}
+      DOMAIN: ${FINAL_URL}
+      UPLOAD_DIR: /uploadImages/
+      ADMIN_LEVEL: ${ADMIN_PERMIT_LEVEL}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
-      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/mydb
+      SPRING_DATASOURCE_URL: ${DB_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      GOOGLE_MAIL_UNAME: ${GOOGLE_MAIL_UNAME}
+      GOOGLE_MAIL_PWD: ${GOOGLE_MAIL_PWD}
       GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID}
       GOOGLE_ACCESS_SECRET: ${GOOGLE_ACCESS_SECRET}
       GOOGLE_AUTH_CALLBACK_URL: ${GOOGLE_AUTH_CALLBACK_URL}
-      JWTKEY: ${JWT_SECRET}
-      SERVER_HOST: ${SERVER_HOST}
-      DOMAIN: ${DOMAIN}
-      UPLOAD_DIR: "/uploadImages/" #volumes랑 의존됨.
-      ADMIN_LEVEL: ${ADMIN_LEVEL}
       REDIS_HOST: ${REDIS_HOST}
+      OTEL_METRICS_EXPORTER: none
+      OTEL_SERVICE_NAME: ${APP_NAME}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${JAEGER_ENDPOINT}
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
     volumes:
       - type: bind
         source: ./backend/src
@@ -70,17 +75,17 @@ services:
     container_name: frontend
     restart: always
     environment:
-      - REACT_APP_MY_LOCATE_X=${MY_LOCATE_X}
-      - REACT_APP_MY_LOCATE_Y=${MY_LOCATE_Y}
-      - REACT_APP_KAKAO_MAP_KEY=${KAKAO_MAP_KEY}
-      - REACT_APP_PHONE_NUMBER=${APP_PHONE_NUMBER}
-      - REACT_APP_PHONE_INFO=${APP_PHONE_INFO}
-      - REACT_APP_LOCATION=${APP_LOCATION}
-      - REACT_APP_NAME=${APP_NAME}
-      - REACT_APP_HOST=${SERVER_HOST}
-      - NODE_ENV=production
-      - CHOKIDAR_USEPOLLING=true
-      - WDS_SOCKET_PORT=0
+      NODE_ENV: ${FRONT_MODE}
+      REACT_APP_MY_LOCATE_X: ${MY_LOCATE_X}
+      REACT_APP_MY_LOCATE_Y: ${MY_LOCATE_Y}
+      REACT_APP_KAKAO_MAP_KEY: ${KAKAO_MAP_KEY}
+      REACT_APP_PHONE_NUMBER: ${APP_PHONE_NUMBER}
+      REACT_APP_PHONE_INFO: ${APP_PHONE_INFO}
+      REACT_APP_LOCATION: ${APP_LOCATION}
+      REACT_APP_NAME: ${APP_NAME}
+      REACT_APP_HOST: ${SERVER_HOST}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+      WDS_SOCKET_PORT: ${WDS_SOCKET_PORT}
     build:
       context: ./front
       dockerfile: Dockerfile
@@ -101,14 +106,35 @@ services:
       - backend
       - frontend
     environment:
-      - DOMAIN=${DOMAIN}
-      - SERVER_HOST=${SERVER_HOST}
+      FINAL_URL: ${FINAL_URL}
+      SERVER_HOST: ${SERVER_HOST}
     build: ./proxy
     networks:
       - jg
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./proxy/templates:/templates:ro
+
+  jaeger:
+    container_name: ${JAEGER_HOST}
+    image: jaegertracing/all-in-one:1.54
+    restart: always
+    environment:
+      # - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "6831/udp" # accept jaeger.thrift over compact thrift protocol
+      - "6832/udp" # accept jaeger.thrift over binary thrift protocol
+      - "5778" # serve configs
+      - "16686:16686" # serve frontend
+      - "4317" # accept OpenTelemetry Protocol (OTLP) over gRPC, if enabled
+      - "4318" # accept OpenTelemetry Protocol (OTLP) over HTTP, if enabled
+      - "14250" # accept model.proto
+      - "14268" # accept jaeger.thrift directly from clients
+      - "14269"
+      - "9411" # Zipkin compatible endpoint
+    networks:
+      - jg
 
 networks:
   jg:

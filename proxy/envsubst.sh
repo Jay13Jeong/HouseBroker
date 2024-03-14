@@ -4,6 +4,6 @@
 set -eu
 
 # envsubst '${SERVER_HOST} ${DOMAIN}' < /templates/localhost.conf.template > /etc/nginx/conf.d/default.conf
-envsubst '${SERVER_HOST} ${DOMAIN}' < /templates/nginx.conf > /etc/nginx/conf.d/default.conf
+envsubst '${SERVER_HOST} ${FINAL_URL}' < /templates/nginx.conf > /etc/nginx/conf.d/default.conf
 
 exec "$@"
