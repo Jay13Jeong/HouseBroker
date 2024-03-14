@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class) // junit5에서 모키토 사용 선언.
+@ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 
   @Mock
