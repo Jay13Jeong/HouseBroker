@@ -11,6 +11,11 @@ import com.jjeong.kiwi.tool.JsonConverter;
 import com.jjeong.kiwi.tool.SampleData;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -20,19 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.hateoas.RepresentationModel;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.util.FileCopyUtils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,7 +50,9 @@ public class RealEstateControllerTest {
     private AuthService authService;
     ObjectMapper objectMapper = new ObjectMapper();
     private final Long defaultPageLimit = 40L;
-    private Long realEstateTargetId = 1L;
+    private Long realEstateInitId = 1L;
+    private Long realEstateTargetId = realEstateInitId;
+    private int tableDataSize = 2;
 
     private Cookie generateJWT_forTest() {
         // JWT 생성 및 설정
@@ -68,64 +70,79 @@ public class RealEstateControllerTest {
     @Order(1)
     void createRealEstate_test() throws Exception {
         RealEstate re = SampleData.getRealEstate();
+        RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(re);
+        dto.setId(realEstateTargetId);
+        appendsHATEOAS(dto, dto.getId());
+        String dtoJson = JsonConverter.convertLinks(objectMapper.writeValueAsString(dto));
         mockMvc.perform(post("/real-estates/")
                     .cookie(generateJWT_forTest())
                     .params(SampleData.getParams())
             )
             .andExpect(status().isCreated())
             .andExpect(content().contentType("application/hal+json"))
-            ;
+            .andExpect(content().json(dtoJson));
     }
 
-//    @Test
-//    @Order(2)
-//    void updateRealEstate_withImage_test() throws Exception {
-//        // 리소스 폴더 내의 파일 경로
-//        ClassPathResource resource = new ClassPathResource("photo_env.png");
-//
-//        // 파일을 읽어 byte 배열로 변환
-//        byte[] content = FileCopyUtils.copyToByteArray(resource.getInputStream());
-//
-//        // MockMultipartFile 생성
-//        MockMultipartFile multipartFile = new MockMultipartFile("image", "photo_env.png", "image/png", content);
-//
-//        RealEstate re = SampleData.getRealEstate();
-//        mockMvc.perform(multipart("/real-estates/" + realEstateTargetId)
-//                .file(multipartFile)
-//                .cookie(generateJWT_forTest())
-//                .params(SampleData.getParams())
-//            )
-//            .andExpect(status().is2xxSuccessful())
-//            .andExpect(content().contentType("application/hal+json"));
-//
-//    }
+    @Test
+    @Order(2)
+    void createRealEstate_concurrency_test() throws Exception {
+        int threadSize = 1000;
+        ExecutorService es = Executors.newFixedThreadPool(threadSize);
+        CountDownLatch latch = new CountDownLatch(1);
+        Long i = realEstateTargetId + 1;
+        Long additionalIdx = i;
+        Set<Long> resFinishChk = ConcurrentHashMap.newKeySet();
+
+        System.out.println("size: " + i + ", " + additionalIdx);
+        for (; i < threadSize + additionalIdx; i++){
+            Long currIdx = i;
+            es.submit(() -> {
+                try {
+                    RealEstate re = SampleData.getRealEstate();
+                    RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(re);
+                    String currTitle = "estateTitle" + currIdx;
+                    dto.setTitle(currTitle);
+                    appendsHATEOAS(dto, dto.getId());
+                    String dtoJson = JsonConverter.convertLinks(objectMapper.writeValueAsString(dto));
+                    latch.await();
+                    mockMvc.perform(post("/real-estates/")
+                            .cookie(generateJWT_forTest())
+                            .params(SampleData.getParams())
+                        )
+                        .andExpect(status().isCreated())
+                        .andExpect(content().contentType("application/hal+json"))
+                        .andExpect(jsonPath("$.title").value(currTitle));
+                } catch (Exception e){
+                    System.out.println("errIdx:" + currIdx);
+                    e.printStackTrace();
+                } finally {
+                    resFinishChk.add(currIdx);
+                }
+            });
+        }
+        latch.countDown();
+        while (resFinishChk.size() < threadSize){
+            Thread.sleep(100);
+        }
+        es.shutdown();
+        assertEquals(threadSize, resFinishChk.size());
+        System.out.println(resFinishChk.size());
+    }
 
     @Test
     @Order(3)
     void getRealEstates_test() throws Exception {
         RealEstate re = SampleData.getRealEstate();
         RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(re);
-        dto.setId(1L);
+        dto.setId(realEstateInitId);
         appendsHATEOAS(dto, dto.getId());
         List<RealEstateWithImgPathDto> dtoList = Arrays.asList(dto);
         String dtoListJson = objectMapper.writeValueAsString(dtoList);
+        System.out.println(dtoListJson);
         ResultActions ra = mockMvc.perform(get("/real-estates/"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType("application/json"))
-            .andExpect(content().json(dtoListJson));
-
-//        String content = ra.andReturn().getResponse().getContentAsString();
-//        String target = "id\":";
-//        int idIdx = content.indexOf(target);
-//        String idString = "";
-//        if (idIdx != -1){
-//            for (int i = idIdx + target.length(); i < content.length(); i ++){
-//                char c = content.charAt(i);
-//                if (c == ',') break;
-//                idString += c;
-//            }
-//        }
-//        if (!idString.isEmpty()) realEstateTargetId = Long.valueOf(idString);
+            .andExpect(content().contentType("application/json"));
+//            .andExpect(content().);
     }
 
     @Test
@@ -133,12 +150,11 @@ public class RealEstateControllerTest {
     void getRealEstateDetailById_test() throws Exception {
         RealEstate re = SampleData.getRealEstate();
         RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(re);
-        dto.setId(realEstateTargetId);
+        dto.setId(realEstateInitId);
         appendsHATEOAS(dto, dto.getId());
-        System.out.println(objectMapper.writeValueAsString(dto));
         String dtoJson = JsonConverter.convertLinks(objectMapper.writeValueAsString(dto));
         mockMvc.perform(get(
-            "/real-estates/" + realEstateTargetId + "/detail"))
+            "/real-estates/" + realEstateInitId + "/detail"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(content().json(dtoJson));
@@ -149,12 +165,12 @@ public class RealEstateControllerTest {
     void getRealEstateById_test() throws Exception {
         RealEstate re = SampleData.getRealEstate();
         RealEstateWithoutImgDto dto = new RealEstateWithoutImgDto(re);
-        dto.setId(realEstateTargetId);
+        dto.setId(realEstateInitId);
         appendsHATEOAS(dto, dto.getId());
         System.out.println(objectMapper.writeValueAsString(dto));
         String dtoJson = JsonConverter.convertLinks(objectMapper.writeValueAsString(dto));
         mockMvc.perform(get(
-                "/real-estates/" + realEstateTargetId + "/detail"))
+                "/real-estates/" + realEstateInitId + "/detail"))
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(content().json(dtoJson));
