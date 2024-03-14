@@ -2,6 +2,7 @@ package com.jjeong.kiwi.repository;
 
 import static com.jjeong.kiwi.model.QRealEstate.realEstate;
 
+import com.jjeong.kiwi.annotaion.NullCheck;
 import com.jjeong.kiwi.dto.RealEstateImgPathDto;
 import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
 import com.jjeong.kiwi.model.RealEstate;
@@ -9,7 +10,9 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -35,6 +38,7 @@ public class RealEstateQueryRepository {
         realEstate.image10
     };
 
+    @NullCheck
     public RealEstateImgPathDto findReImgPathDtoById(Long realEstateId) {
         RealEstateImgPathDto result =
             queryFactory
@@ -50,6 +54,7 @@ public class RealEstateQueryRepository {
         return result;
     }
 
+    @NullCheck
     public RealEstateImgPathDto findReImgPathDtoByIdAndIdxList(Long realEstateId, Long[] idxList) {
 
         Expression[] expressions =
@@ -64,7 +69,7 @@ public class RealEstateQueryRepository {
             .where(realEstate.id.eq(realEstateId))
             .fetchOne();
 
-        if (true) result.setId(realEstateId); //exists 추가 필요.
+        if (result != null) result.setId(realEstateId);
 
         return result;
     }
@@ -74,6 +79,7 @@ public class RealEstateQueryRepository {
         return IMG_EXPRESSIONS[idx.intValue() - 1];
     }
 
+    @NullCheck
     public RealEstateWithoutImgDto findByIdWithoutImg(Long realEstateId) {
         return queryFactory
             .select(Projections.fields(RealEstateWithoutImgDto.class,
@@ -100,7 +106,9 @@ public class RealEstateQueryRepository {
             .fetchOne();
     }
 
+    @NullCheck
     public List<RealEstate> findByOffset(Long offset, Long limit) {
+        if (limit == 0L) return Collections.emptyList();
         return queryFactory
             .selectFrom(realEstate)
             .from(realEstate)
@@ -109,11 +117,14 @@ public class RealEstateQueryRepository {
             .fetch();
     }
 
-    public List<RealEstate> findByKeySetRange(Long begin, Long end) {
+    @NullCheck
+    public List<RealEstate> findByOffsetWidthKeySet(Long begin, Long offset, Long limit) {
         return queryFactory
             .selectFrom(realEstate)
             .from(realEstate)
-            .where(realEstate.id.between(begin, end))
+            .where(realEstate.id.goe(begin))
+            .offset(offset)
+            .limit(limit)
             .fetch();
     }
 
