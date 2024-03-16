@@ -64,6 +64,28 @@ public class SampleData {
 
     }
 
+    public static MultiValueMap<String,String> getParamsByDto(RealEstate realEstate) {
+        MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
+        params.add("title", realEstate.getTitle());
+        params.add("description", realEstate.getDescription());
+        params.add("price", String.valueOf(realEstate.getPrice()));
+        params.add("soldout", String.valueOf(realEstate.isSoldout()));
+        params.add("relay_object_type", realEstate.getRelay_object_type());
+        params.add("location", realEstate.getLocation());
+        params.add("area", String.valueOf(realEstate.getArea()));
+        params.add("transaction_type", realEstate.getTransaction_type());
+        params.add("residence_availability_date", realEstate.getResidence_availability_date());
+        params.add("administrative_agency_approval_date",
+            realEstate.getAdministrative_agency_approval_date());
+        params.add("number_of_cars_parked", String.valueOf(realEstate.getNumber_of_cars_parked()));
+        params.add("direction", realEstate.getDirection());
+        params.add("administration_cost", String.valueOf(realEstate.getAdministration_cost()));
+        params.add("administration_cost2", String.valueOf(realEstate.getAdministration_cost2()));
+        params.add("latitude", String.valueOf(realEstate.getLatitude()));
+        params.add("longitude", String.valueOf(realEstate.getLongitude()));
+        return params;
+    }
+
     @Getter
     private static User user = new User();
     static {
