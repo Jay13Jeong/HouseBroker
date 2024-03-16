@@ -64,7 +64,7 @@ public class SampleData {
 
     }
 
-    public static MultiValueMap<String,String> getParamsByDto(RealEstate realEstate) {
+    public static MultiValueMap<String,String> getParamsByRealEstate(RealEstate realEstate) {
         MultiValueMap<String,String> params = new LinkedMultiValueMap<>();
         params.add("title", realEstate.getTitle());
         params.add("description", realEstate.getDescription());
