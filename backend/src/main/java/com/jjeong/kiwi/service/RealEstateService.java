@@ -7,6 +7,12 @@ import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.dto.RealEstateDto;
 import com.jjeong.kiwi.repository.RealEstateQueryRepository;
 import com.jjeong.kiwi.repository.RealEstateRepository;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -283,7 +289,6 @@ public class RealEstateService {
         realEstate.setAdministration_cost2(realEstateDto.getAdministration_cost2());
         realEstate.setLatitude(realEstateDto.getLatitude());
         realEstate.setLongitude(realEstateDto.getLongitude());
-
         realEstate = realEstateRepository.save(realEstate);
 //        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
         return realEstate;
@@ -450,17 +455,28 @@ public class RealEstateService {
         if (realEstate == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifySequenceToLatest:id로 찾기");
         }
-        RealEstate newEstate = new RealEstate();
+        RealEstate newEstate = deepCopy(realEstate);
+        newEstate.setId(null);
         newEstate = realEstateRepository.save(newEstate);
-        Long newId = newEstate.getId();
-        realEstateRepository.delete(newEstate);
         realEstateRepository.delete(realEstate);
-        realEstate.setId(newId);
 
-        realEstate = realEstateRepository.save(realEstate);
-//        redisTemp.opsForValue().set("realEstate:id:" + realEstate.getId(), realEstate);
+        return newEstate;
+    }
 
-        return realEstate;
+    private <T extends Serializable> T deepCopy(RealEstate object) {
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(object);
+            oos.flush();
+            oos.close();
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bis);
+            return (T) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
     }
 
 }

@@ -48,5 +48,6 @@ public class RealEstateWithoutImgDto extends RepresentationModel<RealEstateWitho
         this.setNumber_of_cars_parked(model.getNumber_of_cars_parked());
         this.setRelay_object_type(model.getRelay_object_type());
         this.setResidence_availability_date(model.getResidence_availability_date());
+        this.setTransaction_type(model.getTransaction_type());
     }
 }
