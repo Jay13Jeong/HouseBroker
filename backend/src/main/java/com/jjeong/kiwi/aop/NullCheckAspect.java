@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 @Aspect
 @Component
@@ -25,6 +26,8 @@ public class NullCheckAspect {
         }
         try {
             return joinPoint.proceed();
+        } catch (ResponseStatusException rse) {
+            throw rse;
         } catch (Throwable t){
             return t;
         }

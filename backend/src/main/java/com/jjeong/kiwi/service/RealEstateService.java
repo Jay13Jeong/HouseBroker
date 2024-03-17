@@ -164,7 +164,11 @@ public class RealEstateService {
 
     @Transactional
     public void deleteRealEstate(Long id) {
-        RealEstateImgPathDto realEstateImgPathDto = this.getRealEstateImgPathDtoById(id);
+        RealEstateImgPathDto realEstateImgPathDto =
+            realEstateQueryRepository.findReImgPathDtoById(id);
+        if (realEstateImgPathDto == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "deleteRealEstate");
+        }
         for (long i = 1L; i <= 10L; i++){
             this.deleteImageByIndex(realEstateImgPathDto, i);
         }
@@ -370,6 +374,7 @@ public class RealEstateService {
 
     private void deleteImageByIndex(RealEstateImgPathDto realEstate, Long index) {
         String imgName = getImgNameByIndex(realEstate, index);
+        if (imgName.equals("NO_IMG")) return;
         File file = new File(UPLOAD_DIR_PATH + imgName);
         if (file.exists()) {
             file.delete();
@@ -400,6 +405,7 @@ public class RealEstateService {
 
     private String getImgNameByIndex(RealEstateImgPathDto realEstate, Long index){
         String imgName = "";
+
         switch (index.intValue()) {
             case 2:
                 imgName = realEstate.getImage2(); break;

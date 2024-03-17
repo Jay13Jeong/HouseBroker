@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
 @Aspect
 @Component
@@ -72,6 +73,9 @@ public class AuthorizationAspect {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
             }
             return joinPoint.proceed();
+        } catch (ResponseStatusException rse) {
+            logger.error("aroundSecuredEndpoint:rse:", rse);
+            throw rse;
         } catch (Throwable t) {
             logger.error("aroundSecuredEndpoint", t);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
