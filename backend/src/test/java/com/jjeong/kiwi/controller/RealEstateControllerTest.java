@@ -11,7 +11,7 @@ import com.jjeong.kiwi.tool.DeepCopyViaSerialization;
 import com.jjeong.kiwi.tool.JsonConverter;
 import com.jjeong.kiwi.tool.SampleData;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +32,13 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import static org.hamcrest.Matchers.greaterThan;
 
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -77,11 +77,12 @@ public class RealEstateControllerTest {
 
     @Test
     @Order(0)
-    void getRealEstateById_NotFound_test() throws Exception {
-        Long targetId = realEstateTargetId;
-        mockMvc.perform(get(
-                "/real-estates/" + targetId))
-            .andExpect(status().isNotFound());
+    void createRealEstate_401_test() throws Exception {
+        mockMvc.perform(post("/real-estates/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .params(SampleData.getParams())
+            )
+            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -147,19 +148,52 @@ public class RealEstateControllerTest {
     }
 
     @Test
+    @Order(0)
+    void getRealEstates_zeroLength_test() throws Exception {
+        List<RealEstateWithImgPathDto> dtoList = Collections.emptyList();
+        String dtoListJson = objectMapper.writeValueAsString(dtoList);
+        mockMvc.perform(get("/real-estates/"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(content().json(dtoListJson))
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
     @Order(3)
     void getRealEstates_test() throws Exception {
-        RealEstate re = SampleData.getRealEstate();
-        RealEstateWithImgPathDto dto = new RealEstateWithImgPathDto(re);
-        dto.setId(realEstateInitId);
-        appendsHATEOAS(dto, dto.getId());
-        List<RealEstateWithImgPathDto> dtoList = Arrays.asList(dto);
-        String dtoListJson = objectMapper.writeValueAsString(dtoList);
-        System.out.println(dtoListJson);
-        ResultActions ra = mockMvc.perform(get("/real-estates/"))
+        mockMvc.perform(get("/real-estates/"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType("application/json"));
-//            .andExpect(content().);
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.length()").value(defaultPageLimit));
+    }
+
+    @Test
+    @Order(0)
+    void getRealEstatesByKeySet_zeroLength_test() throws Exception {
+        Long nextId = threadSize - defaultPageLimit;
+        mockMvc.perform(get("/real-estates/key-set/" + nextId))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    @Order(3)
+    void getRealEstatesByKeySet_test() throws Exception {
+        Long nextId = threadSize - defaultPageLimit;
+        mockMvc.perform(get("/real-estates/key-set/" + nextId))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType("application/json"))
+            .andExpect(jsonPath("$.length()").value(defaultPageLimit));
+    }
+
+    @Test
+    @Order(0)
+    void getRealEstateDetailById_404_test() throws Exception {
+        mockMvc.perform(get(
+                "/real-estates/" + realEstateInitId + "/detail"))
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -178,6 +212,15 @@ public class RealEstateControllerTest {
     }
 
     @Test
+    @Order(0)
+    void getRealEstateById_notFound_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        mockMvc.perform(get(
+                "/real-estates/" + targetId))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     @Order(5)
     void getRealEstateById_test() throws Exception {
         RealEstate re = SampleData.getRealEstate();
@@ -191,6 +234,33 @@ public class RealEstateControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(content().json(dtoJson));
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void updateRealEstate_401_test() throws Exception {
+        RealEstate re = DeepCopyViaSerialization.deepCopy(SampleData.getRealEstate());
+        re.setTitle(updateTitleName);
+        mockMvc.perform(patch("/real-estates/" + realEstateTargetId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .params(SampleData.getParamsByRealEstate(re))
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void updateRealEstate_404_test() throws Exception {
+        RealEstate re = DeepCopyViaSerialization.deepCopy(SampleData.getRealEstate());
+        re.setTitle(updateTitleName);
+        mockMvc.perform(patch("/real-estates/" + realEstateTargetId)
+                .cookie(generateJWT_forTest())
+                .contentType(MediaType.APPLICATION_JSON)
+                .params(SampleData.getParamsByRealEstate(re))
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -259,6 +329,29 @@ public class RealEstateControllerTest {
     }
 
     @Test
+    @Order(0)
+    @Transactional
+    void updateSequence_401_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        mockMvc.perform(patch("/real-estates/" + targetId + "/sequence")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void updateSequence_404_test() throws Exception {
+        Long targetId = 1L;
+        mockMvc.perform(patch("/real-estates/" + targetId + "/sequence")
+                .cookie(generateJWT_forTest())
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     @Order(8)
     @Transactional
     void updateSequence_test() throws Exception {
@@ -272,6 +365,35 @@ public class RealEstateControllerTest {
             .andExpect(jsonPath("$.id").value(greaterThan(targetId.intValue())))
             .andExpect(jsonPath("$.title")
                 .value(SampleData.getRealEstate().getTitle()));
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void updateRealEstateIsSoldOut_401_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        Map<String, Boolean> requestBody = new HashMap<>();
+        requestBody.put("soldout", true);
+        mockMvc.perform(patch("/real-estates/" + targetId + "/sold-out")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void updateRealEstateIsSoldOut_404_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        Map<String, Boolean> requestBody = new HashMap<>();
+        requestBody.put("soldout", true);
+        mockMvc.perform(patch("/real-estates/" + targetId + "/sold-out")
+                .cookie(generateJWT_forTest())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestBody))
+            )
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -316,6 +438,41 @@ public class RealEstateControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType("application/hal+json"))
             .andExpect(content().json(dtoJson));
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void deleteRealEstate_401_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        mockMvc.perform(delete("/real-estates/" + targetId)
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @Order(0)
+    @Transactional
+    void deleteRealEstate_404_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        mockMvc.perform(delete("/real-estates/" + targetId)
+                .cookie(generateJWT_forTest())
+            )
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Order(11)
+    @Transactional
+    void deleteRealEstate_test() throws Exception {
+        Long targetId = realEstateTargetId;
+        mockMvc.perform(delete("/real-estates/" + targetId)
+                .cookie(generateJWT_forTest())
+            )
+            .andExpect(status().isNoContent());
+        mockMvc.perform(get(
+                "/real-estates/" + targetId))
+            .andExpect(status().isNotFound());
     }
 
     private void appendsHATEOAS(RepresentationModel inst, Long id) {
