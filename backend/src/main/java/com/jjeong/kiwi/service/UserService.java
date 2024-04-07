@@ -9,12 +9,14 @@ import com.jjeong.kiwi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import java.util.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -207,9 +209,8 @@ public class UserService {
             }
         } else {
             logger.error("getParsedToken:user not found");
-            throw new RuntimeException();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "getParsedToken");
         }
-
         return token;
     }
 

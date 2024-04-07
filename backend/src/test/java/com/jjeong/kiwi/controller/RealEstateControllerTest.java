@@ -8,6 +8,7 @@ import com.jjeong.kiwi.dto.RealEstateWithoutImgDto;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.tool.DeepCopyViaSerialization;
+import com.jjeong.kiwi.tool.GenerateJWT;
 import com.jjeong.kiwi.tool.JsonConverter;
 import com.jjeong.kiwi.tool.SampleData;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class RealEstateControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private AuthService authService;
+    private GenerateJWT generateJWT;
     ObjectMapper objectMapper = new ObjectMapper();
     private final Long defaultPageLimit = 40L;
     private Long realEstateInitId = 1L;
@@ -64,15 +65,7 @@ public class RealEstateControllerTest {
     private final String updateTitleName = "test-title-of-updateRealEstate-test";
 
     private Cookie generateJWT_forTest() {
-        // JWT 생성 및 설정
-        String token = authService.generateToken(SampleData.getUser());
-        // JWT cookie
-        Cookie jwtCookie = new Cookie("jwt", token);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(24 * 60 * 60); // 쿠키 만료시간
-        jwtCookie.setSecure(true);
-        jwtCookie.setHttpOnly(true);
-        return jwtCookie;
+        return generateJWT.generateJWT_forTest();
     }
 
     @Test

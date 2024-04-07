@@ -10,8 +10,10 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.text.ParseException;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -34,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -179,27 +182,35 @@ public class AuthService {
         }
     }
 
-    public boolean confirmEmail(SignupRequest signupRequest) {
-        try {
-            List<String> codeAndCreateTime = emailAuthList.get(signupRequest.getEmail());
-            String code = codeAndCreateTime.get(0);
-            Date currentDate = new Date();
-            String createTime = codeAndCreateTime.get(1);
-            Date parsedDate = sdf.parse(createTime);
-            long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
-            long minutesDifference = timeDifferenceMillis / (60 * 1000);
-            if (minutesDifference >= 5) { //5분경과하면 실패.
-                this.delToEmailAuthList(signupRequest.getEmail());
-                return false;
-            }
-            if (!code.equals(signupRequest.getEmailcode()) ){
-                return false;
-            }
-        } catch (Exception e){
-            logger.error("confirmEmail", e);
-            return false;
+    public void confirmEmail(SignupRequest signupRequest) {
+        if (signupRequest == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "confirmEmail:empty email");
         }
-        return true;
+        List<String> codeAndCreateTime = emailAuthList.get(signupRequest.getEmail());
+        if (codeAndCreateTime == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "confirmEmail:대기 중 인증코드");
+        }
+        String code = codeAndCreateTime.get(0);
+        Date currentDate = new Date();
+        String createTime = codeAndCreateTime.get(1);
+        Date parsedDate;
+        try {
+            parsedDate = sdf.parse(createTime);
+        } catch (ParseException pe){
+            logger.error("confirmEmail:ParseException", pe);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "confirmEmail");
+        }
+        long timeDifferenceMillis = Math.abs(currentDate.getTime() - parsedDate.getTime());
+        long minutesDifference = timeDifferenceMillis / (60 * 1000);
+        if (minutesDifference >= 5) { //5분경과하면 실패.
+            this.delToEmailAuthList(signupRequest.getEmail());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "confirmEmail:timeout emailCode");
+        }
+        if (!code.equals(signupRequest.getEmailCode()) ){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "confirmEmail:mismatch emailCode");
+        }
     }
 
     public boolean emailValidate(final String email) {

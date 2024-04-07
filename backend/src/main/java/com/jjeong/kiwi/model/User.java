@@ -1,5 +1,6 @@
 package com.jjeong.kiwi.model;
 
+import java.io.Serializable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -11,7 +12,7 @@ import java.util.Set;
 @Entity
 @Table(name = "user")
 @RequiredArgsConstructor
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

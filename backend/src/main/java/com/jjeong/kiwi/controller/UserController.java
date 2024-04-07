@@ -1,7 +1,9 @@
 package com.jjeong.kiwi.controller;
 
+import com.jjeong.kiwi.annotaion.CommonResponseHeader;
 import com.jjeong.kiwi.dto.SignupRequest;
 import com.jjeong.kiwi.dto.UserDto;
+import com.jjeong.kiwi.model.User;
 import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
+@CommonResponseHeader
 @RequiredArgsConstructor
 public class UserController {
 
@@ -22,16 +25,15 @@ public class UserController {
     private final UserService userService;
     private final AuthService authService;
 
-
-
     @GetMapping("/")
     public ResponseEntity<UserDto> getUserInfo(HttpServletRequest request) {
-        long id = -1;
-        UserDto userDto = null;
-
+        UserDto userDto;
         try {
-            id = userService.getIdByCookies(request.getCookies());
-            userDto = userService.getUserDtoById(id);
+            User user = userService.getUserByCookies(request.getCookies());
+            userDto = new UserDto();
+            userDto.setUsername(user.getUsername());
+            userDto.setEmail(user.getEmail());
+            userDto.setDormant(user.isDormant());
         }catch (Exception e){
             logger.error("getUserInfo", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -50,11 +52,8 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signUp(@RequestBody SignupRequest signupRequest) {
-        if (authService.confirmEmail(signupRequest) == false){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("이메일 인증 실패.");
-        }
+    public ResponseEntity<String> signUp(@RequestBody(required = false) SignupRequest signupRequest) {
+        authService.confirmEmail(signupRequest);
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("이미 사용 중인 이메일입니다.");
@@ -75,7 +74,7 @@ public class UserController {
     }
 
     @PatchMapping("/dormant")
-    public ResponseEntity<String> returningUser(HttpServletRequest request) {
+    public ResponseEntity<String> returningDormantUser(HttpServletRequest request) {
         long id = userService.getIdByCookies(request.getCookies());
         userService.returningUser(id);
         return ResponseEntity.ok("회원복귀 성공");

@@ -5,7 +5,7 @@ import java.io.*;
 
 public class DeepCopyViaSerialization {
 
-    public static <T extends Serializable> T deepCopy(RealEstate object) {
+    public static <T extends Serializable> T deepCopy(Object object) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);

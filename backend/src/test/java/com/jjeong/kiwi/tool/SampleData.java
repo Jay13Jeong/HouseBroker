@@ -1,5 +1,6 @@
 package com.jjeong.kiwi.tool;
 
+import com.jjeong.kiwi.dto.SignupRequest;
 import com.jjeong.kiwi.model.RealEstate;
 import com.jjeong.kiwi.model.User;
 import java.time.LocalDateTime;
@@ -61,7 +62,6 @@ public class SampleData {
         params.add("administration_cost2", String.valueOf(realEstate.getAdministration_cost2()));
         params.add("latitude", String.valueOf(realEstate.getLatitude()));
         params.add("longitude", String.valueOf(realEstate.getLongitude()));
-
     }
 
     public static MultiValueMap<String,String> getParamsByRealEstate(RealEstate realEstate) {
@@ -95,6 +95,33 @@ public class SampleData {
         user.setDormant(false);
         user.setPermitLevel(10);
 //        user.setChatRooms();
+    }
+
+    @Getter
+    private static MultiValueMap<String,String> userParams = new LinkedMultiValueMap<>();
+    static {
+        params.add("username", user.getUsername());
+        params.add("email", user.getEmail());
+        params.add("permitLevel", String.valueOf(user.getPermitLevel()));
+        params.add("dormant", String.valueOf(user.isDormant()));
+    }
+
+    @Getter
+    private static SignupRequest signupRequest = new SignupRequest();
+    static {
+        signupRequest.setUsername("jay");
+        signupRequest.setEmail("jay13@mail.com");
+        signupRequest.setPassword("temp-password");
+        signupRequest.setEmailCode("ab34");
+    }
+
+    @Getter
+    private static MultiValueMap<String,String> signUpParams = new LinkedMultiValueMap<>();
+    static {
+        params.add("username", signupRequest.getUsername());
+        params.add("email", signupRequest.getEmail());
+        params.add("password", signupRequest.getPassword());
+        params.add("emailCode", signupRequest.getEmailCode());
     }
 
 }
