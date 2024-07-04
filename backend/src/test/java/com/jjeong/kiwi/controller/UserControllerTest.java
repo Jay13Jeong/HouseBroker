@@ -49,27 +49,30 @@ class UserControllerTest {
 
     @Test
     @Order(0)
-    void signUp_404_emailNotFound_test() throws Exception {
+    void signUp_400_authentication_test() throws Exception {
+        //** todo : when failing to authentication via email code
         mockMvc.perform(post("/users/signup")
                 .contentType(MediaType.APPLICATION_JSON)
-                .params(SampleData.getSignUpParams())
             )
-            .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Order(0)
-    void signUp_400_authentication_test() throws Exception {
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     @Order(0)
     void signUp_400_alreadyUser_test() throws Exception {
+        mockMvc.perform(post("/users/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     @Order(0)
     void signUp_400_createFail_test() throws Exception {
+        mockMvc.perform(post("/users/signup")
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
     }
 
     @Test

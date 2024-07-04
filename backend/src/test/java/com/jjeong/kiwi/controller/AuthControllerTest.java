@@ -61,10 +61,10 @@ class AuthControllerTest {
     SignupRequest signupRequest = new SignupRequest();
     signupRequest.setEmail("nonexistent@example.com");
     signupRequest.setPassword("password");
-    //서비스에 찾아보니 해당유저 없는 상황.
+    //서비스에 해당유저 없는 상황.
     when(userService.getUserByEmailAndPwd(any(SignupRequest.class))).thenReturn(null);
 
-    //유저 매치 안되면 404반환하기.
+    //유저 매치 안되면 404반환.
     MockMvc mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
     mockMvc.perform(post("/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
