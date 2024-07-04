@@ -46,13 +46,16 @@ public class AuthorizationAspect {
             User user = userService.getUserByCookies(request.getCookies());
             if (user.isDormant()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         } catch (Exception e) {
-            logger.error("authorizationAspect", e);
+            logger.error("authorizationAspectException", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
         try {
             return joinPoint.proceed();
+        } catch (ResponseStatusException rse) {
+            logger.error("aroundSecuredEndpoint:rse:", rse);
+            throw rse;
         } catch (Throwable t) {
-            logger.error("aroundSecuredEndpoint", t);
+            logger.error("aroundSecuredEndpointThrowable", t);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
@@ -65,7 +68,7 @@ public class AuthorizationAspect {
         try {
             authorized = userService.isAdminLevelUser(request.getCookies(), allowLevel);
         } catch (Exception e) {
-            logger.error("authorizationAspect", e);
+            logger.error("aroundSecuredEndpoint2Exception", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
         try {
@@ -74,10 +77,10 @@ public class AuthorizationAspect {
             }
             return joinPoint.proceed();
         } catch (ResponseStatusException rse) {
-            logger.error("aroundSecuredEndpoint:rse:", rse);
+            logger.error("aroundSecuredEndpoint2:rse:", rse);
             throw rse;
         } catch (Throwable t) {
-            logger.error("aroundSecuredEndpoint", t);
+            logger.error("aroundSecuredEndpoint2Throwable", t);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }

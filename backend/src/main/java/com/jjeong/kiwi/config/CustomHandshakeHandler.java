@@ -1,6 +1,7 @@
 package com.jjeong.kiwi.config;
 
 import com.jjeong.kiwi.dto.StompPrincipal;
+import com.jjeong.kiwi.model.User;
 import com.jjeong.kiwi.service.AuthService;
 import com.jjeong.kiwi.service.SocketService;
 import com.jjeong.kiwi.service.UserService;
@@ -38,8 +39,9 @@ public class CustomHandshakeHandler extends DefaultHandshakeHandler {
                         String jwtValue = parts[1];
                         long userPk = -1;
                         try {
-                            userPk = userService.getUserPrimaryKeyByJwt(jwtValue);
-                            if (userService.getUserById(userPk).isDormant()) break; //휴면 검사.
+                            User user = userService.getUserByJwt(jwtValue);
+                            userPk = user.getId();
+                            if (user != null && user.isDormant()) break; //휴면 검사.
                         }catch (Exception e){
                             logger.error("determineUser", e);
                             break;

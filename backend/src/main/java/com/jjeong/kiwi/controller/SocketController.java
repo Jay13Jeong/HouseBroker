@@ -2,6 +2,7 @@ package com.jjeong.kiwi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jjeong.kiwi.annotaion.CommonResponseHeader;
 import com.jjeong.kiwi.annotaion.LoginCheck;
 import com.jjeong.kiwi.dto.ChatDto;
 import com.jjeong.kiwi.dto.ChatRoomDto;
@@ -29,6 +30,7 @@ import java.util.*;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CommonResponseHeader
 @RequiredArgsConstructor
 public class SocketController {
 
@@ -40,9 +42,8 @@ public class SocketController {
     @MessageMapping("/hello")
     @SendTo("/topic/hi")
     public String sendChatMessage() {
-        return "";
+        return "welcome!";
     }
-
 
     @MessageMapping("/send/room/{roomId}")
     public void sendMessageToClient(
@@ -120,7 +121,7 @@ public class SocketController {
 
     @LoginCheck
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<List<Chat>> getChatsByUserId(@PathVariable Long roomId) {
+    public ResponseEntity<List<Chat>> getChatsByRoomId(@PathVariable Long roomId) {
         return new ResponseEntity<>(socketService.getChatsByRoomId(roomId), HttpStatus.OK);
     }
 

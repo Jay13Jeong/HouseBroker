@@ -137,7 +137,7 @@ public class UserService {
         return  value;
     }
 
-    private User getUserByJwt(String token) {
+    public User getUserByJwt(String token) {
         User user = new User();
 
         String payload = authService.extractSubject(token).getSubject();

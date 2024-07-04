@@ -53,6 +53,10 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp(@RequestBody(required = false) SignupRequest signupRequest) {
+        if (signupRequest == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("로그인 양식을 받지 못함.");
+        }
         authService.confirmEmail(signupRequest);
         if (userService.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

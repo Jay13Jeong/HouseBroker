@@ -15,6 +15,7 @@ import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.util.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -104,13 +106,16 @@ public class SocketService {
         Set<String> tmp = null;
         try{
             tmp = userPkAndSocketMap.get(userPk);
+            if (tmp == null){
+                tmp = new HashSet<>();
+                tmp.add(socketId);
+                this.putToUserPkAndSocketMap(userPk, tmp);
+                return;
+            }
             tmp.add(socketId);
             this.putToUserPkAndSocketMap(userPk, tmp);
         }catch (Exception e){
             logger.error("addUserPkAndSocketMap", e);
-            tmp = new HashSet<>();
-            tmp.add(socketId);
-            this.putToUserPkAndSocketMap(userPk, tmp);
         }
     }
 
@@ -180,7 +185,8 @@ public class SocketService {
         ChatRoom commonChatRooms = chatRoomRepository.findChatRoomById(roomId);
 
         if (commonChatRooms == null) {
-            return Collections.emptyList();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "getChatsByRoomId:id로 찾기");
+//            return Collections.emptyList();
         }
 
         ChatRoom chatRoom = commonChatRooms;
