@@ -83,7 +83,7 @@ function PostREPage() {
 const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-        const response = await axios.post('/api/realestate/', {
+        const response = await axios.post('/api/real-estates/', {
             title: title,
             description: description,
             price: price,
